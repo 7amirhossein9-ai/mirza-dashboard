@@ -1,2752 +1,785 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<meta name="description"
-      content="میرزا | اقتصاد، بورس، ارز دیجیتال و بازارهای مالی">
-
-<meta name="theme-color"
-      content="#080a0f">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="میرزا | اقتصاد، بورس، ارز دیجیتال و بازارهای مالی">
+<meta name="theme-color" content="#080a0f">
+<meta property="og:title" content="میرزا | بازارهای مالی">
+<meta property="og:description" content="نمودار زنده، اخبار اقتصادی و تقویم اقتصادی">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%88%3C/text%3E%3C/svg%3E">
 <title>میرزا | بازارهای مالی</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
-
-/* =========================================================
-   RESET
-========================================================= */
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-html{
-    scroll-behavior:smooth;
-}
-
-body{
-    background:#080a0f;
-    color:#f3f3f3;
-    font-family:
-        Tahoma,
-        Arial,
-        sans-serif;
-    min-height:100vh;
-}
-
-button,
-select,
-input{
-    font-family:Tahoma,Arial,sans-serif;
-}
-
-button{
-    cursor:pointer;
-}
-
-a{
-    color:inherit;
-}
-
-
-/* =========================================================
-   SCROLLBAR
-========================================================= */
-
-::-webkit-scrollbar{
-    width:7px;
-    height:7px;
-}
-
-::-webkit-scrollbar-track{
-    background:#080a0f;
-}
-
-::-webkit-scrollbar-thumb{
-    background:#39342b;
-    border-radius:20px;
-}
-
-
-/* =========================================================
-   HEADER
-========================================================= */
-
-.header{
-
-    height:70px;
-
-    position:sticky;
-
-    top:0;
-
-    z-index:1000;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:space-between;
-
-    padding:0 28px;
-
-    background:#0d1016;
-
-    border-bottom:1px solid #252a33;
-}
-
-.logo{
-
-    color:#e7c461;
-
-    font-size:25px;
-
-    font-weight:bold;
-
-    letter-spacing:2px;
-}
-
-.logo span{
-    color:#fff;
-}
-
-.header-right{
-
-    display:flex;
-
-    align-items:center;
-
-    gap:8px;
-
-    color:#777f8b;
-
-    font-size:10px;
-}
-
-.live-dot{
-
-    width:7px;
-
-    height:7px;
-
-    border-radius:50%;
-
-    background:#35c779;
-
-    display:inline-block;
-}
-
-
-/* =========================================================
-   LAYOUT
-========================================================= */
-
-.layout{
-    min-height:calc(100vh - 70px);
-}
-
-
-/* =========================================================
-   SIDEBAR
-========================================================= */
-
-.sidebar{
-
-    width:225px;
-
-    position:fixed;
-
-    right:0;
-
-    top:70px;
-
-    bottom:0;
-
-    background:#0c0f14;
-
-    border-left:1px solid #252a33;
-
-    padding:22px 13px;
-
-    overflow-y:auto;
-}
-
-.sidebar-title{
-
-    color:#555e6a;
-
-    font-size:9px;
-
-    margin:17px 10px 8px;
-}
-
-.nav{
-
-    display:block;
-
-    text-decoration:none;
-
-    color:#aeb4bd;
-
-    font-size:11px;
-
-    padding:12px 13px;
-
-    border-radius:9px;
-
-    margin-bottom:4px;
-
-    transition:.2s;
-}
-
-.nav:hover{
-
-    background:#171b22;
-
-    color:#e7c461;
-}
-
-.nav.active{
-
-    color:#e7c461;
-
-    background:#191c23;
-
-    border-right:2px solid #e7c461;
-}
-
-
-/* =========================================================
-   MAIN CONTENT
-========================================================= */
-
-.main{
-
-    margin-right:225px;
-
-    padding:28px;
-
-    width:calc(100% - 225px);
-}
-
-
-/* =========================================================
-   TITLE
-========================================================= */
-
-.page-title{
-    margin-bottom:25px;
-}
-
-.page-title h1{
-
-    font-size:25px;
-
-    margin-bottom:8px;
-}
-
-.page-title p{
-
-    color:#727b87;
-
-    font-size:11px;
-}
-
-
-/* =========================================================
-   MARKET CARDS
-========================================================= */
-
-.market-grid{
-
-    display:grid;
-
-    grid-template-columns:
-        repeat(4,1fr);
-
-    gap:14px;
-
-    margin-bottom:20px;
-}
-
-.market-card{
-
-    background:#10141b;
-
-    border:1px solid #252b35;
-
-    border-radius:15px;
-
-    padding:18px;
-
-    min-height:140px;
-
-    transition:.2s;
-}
-
-.market-card:hover{
-
-    transform:translateY(-2px);
-
-    border-color:#80622f;
-}
-
-.market-name{
-
-    color:#858e9a;
-
-    font-size:10px;
-
-    margin-bottom:16px;
-}
-
-.market-price{
-
-    color:#e7c461;
-
-    font-size:20px;
-
-    font-weight:bold;
-
-    margin-bottom:9px;
-}
-
-.market-change{
-
-    color:#39c879;
-
-    font-size:10px;
-}
-
-.market-change.gray{
-
-    color:#777f8a;
-}
-
-.market-time{
-
-    color:#525b67;
-
-    font-size:8px;
-
-    margin-top:10px;
-}
-
-
-/* =========================================================
-   GENERAL PANEL
-========================================================= */
-
-.panel{
-
-    background:#10141b;
-
-    border:1px solid #252b35;
-
-    border-radius:16px;
-
-    padding:19px;
-}
-
-.panel-title{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    margin-bottom:17px;
-}
-
-.panel-title h2{
-
-    font-size:15px;
-}
-
-.panel-title span{
-
-    color:#e7c461;
-
-    font-size:9px;
-}
-
-
-/* =========================================================
-   TWO COLUMN
-========================================================= */
-
-.two-column{
-
-    display:grid;
-
-    grid-template-columns:
-        minmax(0,2fr)
-        minmax(300px,1fr);
-
-    gap:17px;
-
-    margin-bottom:20px;
-}
-
-
-/* =========================================================
-   CHART TOOLBAR
-========================================================= */
-
-.chart-toolbar{
-
-    display:flex;
-
-    flex-wrap:wrap;
-
-    gap:8px;
-
-    margin-bottom:9px;
-}
-
-.chart-select,
-.chart-period,
-.custom-symbol{
-
-    height:39px;
-
-    background:#171b23;
-
-    color:#e8e8e8;
-
-    border:1px solid #343a45;
-
-    border-radius:8px;
-
-    outline:none;
-
-    padding:0 11px;
-
-    font-size:10px;
-}
-
-.chart-select{
-    min-width:185px;
-}
-
-.chart-period{
-    min-width:105px;
-}
-
-.custom-symbol{
-
-    width:185px;
-}
-
-.chart-select:focus,
-.chart-period:focus,
-.custom-symbol:focus{
-
-    border-color:#9b7737;
-}
-
-.chart-button{
-
-    height:39px;
-
-    border:0;
-
-    border-radius:8px;
-
-    padding:0 13px;
-
-    background:#e7c461;
-
-    color:#111;
-
-    font-size:10px;
-
-    font-weight:bold;
-}
-
-.chart-button:hover{
-    opacity:.88;
-}
-
-.chart-button.secondary{
-
-    background:#1b2028;
-
-    color:#e7c461;
-
-    border:1px solid #39332a;
-}
-
-.chart-info{
-
-    color:#656e7a;
-
-    font-size:9px;
-
-    line-height:2;
-
-    margin-bottom:10px;
-}
-
-
-/* =========================================================
-   CHART
-========================================================= */
-
-.chart-box{
-
-    width:100%;
-
-    height:430px;
-
-    overflow:hidden;
-
-    border:1px solid #202630;
-
-    border-radius:10px;
-
-    background:#090c11;
-}
-
-.chart-box iframe{
-
-    display:block;
-
-    width:100%;
-
-    height:100%;
-
-    border:0;
-}
-
-
-/* =========================================================
-   NEWS
-========================================================= */
-
-.news-list{
-
-    display:flex;
-
-    flex-direction:column;
-
-    gap:8px;
-
-    max-height:430px;
-
-    overflow-y:auto;
-}
-
-.news-item{
-
-    display:block;
-
-    text-decoration:none;
-
-    background:#151922;
-
-    border:1px solid #252b35;
-
-    border-radius:10px;
-
-    padding:11px;
-
-    transition:.2s;
-}
-
-.news-item:hover{
-
-    background:#1a1f28;
-
-    border-color:#80622f;
-}
-
-.news-category{
-
-    color:#e7c461;
-
-    font-size:8px;
-
-    margin-bottom:5px;
-}
-
-.news-title{
-
-    color:#e0e0e0;
-
-    font-size:10px;
-
-    line-height:1.9;
-}
-
-.news-meta{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    gap:10px;
-
-    margin-top:7px;
-
-    color:#5f6874;
-
-    font-size:8px;
-}
-
-.news-loading{
-
-    color:#777f89;
-
-    text-align:center;
-
-    padding:35px 10px;
-
-    font-size:10px;
-
-    line-height:2;
-}
-
-.retry-button{
-
-    background:#e7c461;
-
-    color:#111;
-
-    border:0;
-
-    border-radius:7px;
-
-    padding:8px 13px;
-
-    font-size:9px;
-
-    margin-top:8px;
-}
-
-
-/* =========================================================
-   NEWS CATEGORIES
-========================================================= */
-
-.category-panel{
-    margin-bottom:20px;
-}
-
-.category-grid{
-
-    display:grid;
-
-    grid-template-columns:
-        repeat(4,1fr);
-
-    gap:9px;
-}
-
-.category-button{
-
-    min-height:42px;
-
-    background:#11151c;
-
-    color:#aeb4bd;
-
-    border:1px solid #282e38;
-
-    border-radius:9px;
-
-    font-size:9px;
-
-    transition:.2s;
-}
-
-.category-button:hover,
-.category-button.active{
-
-    color:#e7c461;
-
-    background:#191c23;
-
-    border-color:#80622f;
-}
-
-
-/* =========================================================
-   TABLE
-========================================================= */
-
-.table-panel{
-
-    margin-bottom:20px;
-
-    overflow:hidden;
-}
-
-.table-wrapper{
-    overflow-x:auto;
-}
-
-table{
-
-    width:100%;
-
-    min-width:600px;
-
-    border-collapse:collapse;
-}
-
-th{
-
-    text-align:right;
-
-    color:#68717d;
-
-    font-size:9px;
-
-    padding:12px;
-
-    border-bottom:1px solid #292f39;
-}
-
-td{
-
-    color:#d8d8d8;
-
-    font-size:10px;
-
-    padding:12px;
-
-    border-bottom:1px solid #1d232c;
-}
-
-.gold{
-    color:#e7c461;
-}
-
-.green{
-    color:#3ac879;
-}
-
-.gray{
-    color:#747d88;
-}
-
-
-/* =========================================================
-   INFO CARDS
-========================================================= */
-
-.bottom-grid{
-
-    display:grid;
-
-    grid-template-columns:
-        repeat(3,1fr);
-
-    gap:14px;
-
-    margin-bottom:25px;
-}
-
-.info-card{
-
-    background:#10141b;
-
-    border:1px solid #252b35;
-
-    border-radius:15px;
-
-    padding:19px;
-}
-
-.info-card h3{
-
-    color:#e7c461;
-
-    font-size:13px;
-
-    margin-bottom:10px;
-}
-
-.info-card p{
-
-    color:#858d99;
-
-    font-size:9px;
-
-    line-height:2.1;
-}
-
-
-/* =========================================================
-   FOOTER
-========================================================= */
-
-.footer{
-
-    border-top:1px solid #20252e;
-
-    text-align:center;
-
-    color:#555e69;
-
-    font-size:8px;
-
-    line-height:2.2;
-
-    padding:25px 10px;
-}
-
-.footer strong{
-    color:#e7c461;
-}
-
-
-/* =========================================================
-   RESPONSIVE
-========================================================= */
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080a0f; --panel:#10141b; --panel2:#151922; --line:#252b35;
+  --gold:#e7c461; --gold-dim:#80622f; --text:#f3f3f3; --muted:#8a93a0; --green:#3ac879; --red:#ef5350;
+  --header-h:64px; --side-w:230px; --ticker-h:46px;
+}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--header-h) + var(--ticker-h) + 12px)}
+body{background:var(--bg);color:var(--text);font-family:Vazirmatn,Tahoma,Arial,sans-serif;font-size:14px;line-height:1.8;min-height:100vh;-webkit-text-size-adjust:100%}
+button,select,input{font-family:inherit}
+button{cursor:pointer}
+a{color:inherit}
+
+/* متن انگلیسی و عدد داخل جمله فارسی: جلوگیری از به‌هم‌ریختگی */
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+
+::-webkit-scrollbar{width:7px;height:7px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#39342b;border-radius:20px}
+
+/* HEADER */
+.header{height:var(--header-h);position:sticky;top:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0d1016;border-bottom:1px solid var(--line)}
+.logo{color:var(--gold);font-size:24px;font-weight:700;letter-spacing:2px;direction:ltr;unicode-bidi:isolate}
+.logo span{color:#fff}
+.header-right{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(53,199,121,.6)}70%{box-shadow:0 0 0 8px rgba(53,199,121,0)}100%{box-shadow:0 0 0 0 rgba(53,199,121,0)}}
+
+/* TICKER */
+.ticker{height:var(--ticker-h);border-bottom:1px solid var(--line);background:#0b0e13;overflow:hidden;margin-right:var(--side-w)}
+.ticker .tradingview-widget-container{height:100%}
+
+/* SIDEBAR */
+.sidebar{width:var(--side-w);position:fixed;right:0;top:var(--header-h);bottom:0;background:#0c0f14;border-left:1px solid var(--line);padding:20px 12px;overflow-y:auto}
+.sidebar-title{color:#6a7380;font-size:11px;margin:16px 10px 8px}
+.nav{display:block;text-decoration:none;color:#aeb4bd;font-size:13px;padding:11px 13px;border-radius:9px;margin-bottom:4px;transition:.2s;border-right:2px solid transparent}
+.nav:hover{background:#171b22;color:var(--gold)}
+.nav.active{color:var(--gold);background:#191c23;border-right-color:var(--gold)}
+
+/* MAIN */
+.main{margin-right:var(--side-w);padding:26px}
+.page-title{margin-bottom:22px}
+.page-title h1{font-size:26px;margin-bottom:6px}
+.page-title p{color:var(--muted);font-size:13px}
+
+/* MARKET CARDS */
+.market-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.market-card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:14px 14px 10px;min-height:170px;transition:.2s;cursor:pointer;text-align:right;color:inherit;display:block;width:100%}
+.market-card:hover,.market-card:focus-visible{transform:translateY(-2px);border-color:var(--gold-dim);outline:none}
+.market-name{color:var(--muted);font-size:12px;margin-bottom:6px}
+.market-card .widget{height:105px;pointer-events:none}
+.market-hint{color:#5f6874;font-size:11px;margin-top:4px}
+
+/* PANEL */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.panel-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.panel-title h2{font-size:16px}
+.panel-title span{color:var(--gold);font-size:11px}
+
+.two-column{display:grid;grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:16px;margin-bottom:20px}
+
+/* TOOLBAR */
+.chart-toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.chart-select,.chart-period,.custom-symbol{height:40px;background:#171b23;color:#e8e8e8;border:1px solid #343a45;border-radius:8px;outline:none;padding:0 11px;font-size:13px}
+.chart-select{min-width:200px}
+.chart-period{min-width:110px}
+.custom-symbol{width:200px;direction:ltr;text-align:left}
+.chart-select:focus,.chart-period:focus,.custom-symbol:focus{border-color:#9b7737}
+.chart-button{height:40px;border:0;border-radius:8px;padding:0 14px;background:var(--gold);color:#111;font-size:13px;font-weight:700}
+.chart-button:hover{opacity:.88}
+.chart-button.secondary{background:#1b2028;color:var(--gold);border:1px solid #39332a}
+.chart-info{color:#6d7681;font-size:12px;line-height:2;margin-bottom:10px}
+.chart-info code{direction:ltr;unicode-bidi:isolate;display:inline-block;background:#171b23;padding:0 6px;border-radius:5px;color:var(--gold)}
+.form-error{color:var(--red);font-size:12px;min-height:18px;margin-bottom:6px}
+
+.chart-box{width:100%;height:480px;overflow:hidden;border:1px solid #202630;border-radius:10px;background:#090c11;position:relative}
+.chart-box .tradingview-widget-container,.chart-box .tradingview-widget-container__widget{height:100%;width:100%}
+
+/* NEWS */
+.news-list{display:flex;flex-direction:column;gap:8px;max-height:540px;overflow-y:auto}
+.news-item{display:block;text-decoration:none;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;transition:.2s}
+.news-item:hover{background:#1a1f28;border-color:var(--gold-dim)}
+.news-category{color:var(--gold);font-size:11px;margin-bottom:4px}
+.news-title{color:#e6e6e6;font-size:13px;line-height:1.9}
+.news-meta{display:flex;justify-content:space-between;gap:10px;margin-top:6px;color:#6a7380;font-size:11px}
+.news-loading{color:#8a929d;text-align:center;padding:34px 10px;font-size:13px;line-height:2}
+.news-note{color:#b59a4f;font-size:11px;padding:2px 4px 6px}
+.retry-button{background:var(--gold);color:#111;border:0;border-radius:7px;padding:8px 14px;font-size:12px;margin-top:8px}
+.spinner{width:22px;height:22px;border:3px solid #2a2f39;border-top-color:var(--gold);border-radius:50%;margin:0 auto 10px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* CATEGORIES */
+.category-panel{margin-bottom:20px}
+.category-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.category-button{min-height:44px;background:#11151c;color:#aeb4bd;border:1px solid #282e38;border-radius:9px;font-size:13px;transition:.2s}
+.category-button:hover,.category-button.active{color:var(--gold);background:#191c23;border-color:var(--gold-dim)}
+
+/* TABLE */
+.table-panel{margin-bottom:20px}
+.table-wrapper{overflow-x:auto}
+table{width:100%;min-width:560px;border-collapse:collapse}
+th{text-align:right;color:#7a838f;font-size:12px;padding:12px;border-bottom:1px solid #292f39;font-weight:500}
+td{color:#d8d8d8;font-size:13px;padding:12px;border-bottom:1px solid #1d232c}
+tr.row-click{cursor:pointer;transition:.15s}
+tr.row-click:hover{background:#151a22}
+.gold{color:var(--gold)}
+.table-btn{background:#1b2028;color:var(--gold);border:1px solid #39332a;border-radius:7px;padding:4px 12px;font-size:12px}
+
+/* CALENDAR */
+.calendar-panel{margin-bottom:20px}
+.calendar-box{height:500px;border-radius:10px;overflow:hidden}
+.calendar-box .tradingview-widget-container,.calendar-box .tradingview-widget-container__widget{height:100%;width:100%}
+
+/* INFO */
+.bottom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.info-card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:19px}
+.info-card h3{color:var(--gold);font-size:15px;margin-bottom:8px}
+.info-card p{color:#9aa2ae;font-size:13px;line-height:2.1}
+
+/* FOOTER */
+.footer{border-top:1px solid #20252e;text-align:center;color:#6a7380;font-size:12px;line-height:2.2;padding:24px 10px}
+.footer strong{color:var(--gold);direction:ltr;unicode-bidi:isolate;display:inline-block}
+
+/* MOBILE NAV */
+.mobile-nav{display:none}
 
 @media(max-width:1100px){
-
-    .market-grid{
-        grid-template-columns:
-            repeat(2,1fr);
-    }
-
-    .two-column{
-        grid-template-columns:1fr;
-    }
-
-    .bottom-grid{
-        grid-template-columns:
-            repeat(2,1fr);
-    }
-
+  .market-grid{grid-template-columns:repeat(2,1fr)}
+  .two-column{grid-template-columns:1fr}
+  .bottom-grid{grid-template-columns:repeat(2,1fr)}
 }
-
-
-@media(max-width:700px){
-
-    .header{
-
-        height:60px;
-
-        padding:0 14px;
-    }
-
-    .logo{
-        font-size:20px;
-    }
-
-    .header-right{
-        font-size:8px;
-    }
-
-    .sidebar{
-        display:none;
-    }
-
-    .main{
-
-        margin-right:0;
-
-        width:100%;
-
-        padding:14px;
-    }
-
-    .page-title h1{
-        font-size:21px;
-    }
-
-    .market-grid{
-
-        grid-template-columns:
-            repeat(2,1fr);
-
-        gap:9px;
-    }
-
-    .market-card{
-
-        min-height:120px;
-
-        padding:14px;
-    }
-
-    .market-price{
-        font-size:16px;
-    }
-
-    .panel{
-        padding:13px;
-    }
-
-    .chart-box{
-        height:350px;
-    }
-
-    .chart-select,
-    .chart-period,
-    .custom-symbol{
-        flex:1;
-        min-width:0;
-        width:100%;
-    }
-
-    .chart-button{
-        flex:1;
-    }
-
-    .category-grid{
-
-        grid-template-columns:
-            repeat(2,1fr);
-    }
-
-    .bottom-grid{
-        grid-template-columns:1fr;
-    }
-
+@media(max-width:800px){
+  :root{--header-h:56px;--ticker-h:44px}
+  .header{padding:0 14px}
+  .logo{font-size:20px}
+  .sidebar{display:none}
+  .ticker{margin-right:0}
+  .main{margin-right:0;padding:14px;padding-bottom:84px}
+  .page-title h1{font-size:21px}
+  .market-grid{gap:9px}
+  .panel{padding:13px}
+  .chart-box{height:380px}
+  .chart-select,.chart-period,.custom-symbol{flex:1 1 100%;min-width:0;width:100%}
+  .chart-button{flex:1}
+  .category-grid{grid-template-columns:repeat(2,1fr)}
+  .bottom-grid{grid-template-columns:1fr}
+  .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:1000;background:#0d1016;border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+  .mobile-nav a{flex:1;text-align:center;text-decoration:none;color:#9aa2ae;font-size:11px;padding:4px 2px;border-radius:8px}
+  .mobile-nav a span{display:block;font-size:18px;line-height:1.3}
+  .mobile-nav a.active{color:var(--gold)}
 }
-
-
-@media(max-width:390px){
-
-    .market-grid{
-        grid-template-columns:1fr;
-    }
-
+@media(max-width:420px){
+  .market-grid{grid-template-columns:1fr}
 }
-
-
-/* =========================================================
-   HIDE TRADINGVIEW OVERFLOW
-========================================================= */
-
-.tradingview-widget{
-    width:100%;
-    height:100%;
-}
-
 </style>
-
 </head>
-
-
 
 <body>
 
-
-<!-- =======================================================
-     HEADER
-======================================================= -->
-
 <header class="header">
-
-    <div class="logo">
-        MIRZA <span>◆</span>
-    </div>
-
-    <div class="header-right">
-
-        <span class="live-dot"></span>
-
-        بازارهای مالی
-
-    </div>
-
+  <div class="logo">MIRZA <span>◆</span></div>
+  <div class="header-right"><span class="live-dot"></span> بازارهای مالی</div>
 </header>
 
-
+<!-- نوار قیمت زنده -->
+<div class="ticker" id="tickerTape"></div>
 
 <div class="layout">
 
-
-<!-- =======================================================
-     SIDEBAR
-======================================================= -->
-
 <aside class="sidebar">
+  <div class="sidebar-title">داشبورد</div>
+  <a href="#home" class="nav active" data-target="home">🏠 نمای کلی</a>
 
-    <div class="sidebar-title">
-        داشبورد
-    </div>
+  <div class="sidebar-title">بازارها</div>
+  <a href="#chart" class="nav" data-target="chart">📊 نمودارها</a>
+  <a href="#markets" class="nav" data-target="markets">💰 بازارها</a>
+  <a href="#news" class="nav" data-target="news">📰 اخبار</a>
+  <a href="#calendar" class="nav" data-target="calendar">📅 تقویم اقتصادی</a>
 
-    <a
-        href="#home"
-        class="nav active">
-
-        🏠 نمای کلی
-
-    </a>
-
-
-    <div class="sidebar-title">
-        بازارها
-    </div>
-
-    <a
-        href="#chart"
-        class="nav">
-
-        📊 نمودارها
-
-    </a>
-
-    <a
-        href="#markets"
-        class="nav">
-
-        💰 بازارها
-
-    </a>
-
-    <a
-        href="#news"
-        class="nav">
-
-        📰 اخبار
-
-    </a>
-
-
-    <div class="sidebar-title">
-        تحلیل
-    </div>
-
-    <a
-        href="#analysis"
-        class="nav">
-
-        🧠 تحلیل روز
-
-    </a>
-
-    <a
-        href="#global"
-        class="nav">
-
-        🌍 بازار جهانی
-
-    </a>
-
+  <div class="sidebar-title">تحلیل</div>
+  <a href="#analysis" class="nav" data-target="analysis">🧠 تحلیل روز</a>
+  <a href="#global" class="nav" data-target="global">🌍 بازار جهانی</a>
 </aside>
 
-
-
-<!-- =======================================================
-     MAIN
-======================================================= -->
-
-<main
-    class="main"
-    id="home">
-
-
-<!-- =======================================================
-     TITLE
-======================================================= -->
+<main class="main" id="home">
 
 <section class="page-title">
-
-    <h1>
-        نمای کلی بازار
-    </h1>
-
-    <p>
-        اقتصاد، بورس، ارز، طلا، رمزارز و بازارهای جهانی
-    </p>
-
+  <h1>نمای کلی بازار</h1>
+  <p>اقتصاد، بورس، ارز، طلا، رمزارز و بازارهای جهانی</p>
 </section>
 
-
-
-<!-- =======================================================
-     MARKET CARDS
-======================================================= -->
-
+<!-- کارت‌های قیمت زنده -->
 <section class="market-grid">
-
-
-<div class="market-card">
-
-    <div class="market-name">
-        🟡 طلای جهانی
-    </div>
-
-    <div
-        class="market-price"
-        id="goldCard">
-
-        XAU/USD
-
-    </div>
-
-    <div class="market-change">
-        مشاهده نمودار زنده
-    </div>
-
-    <div class="market-time">
-        TradingView
-    </div>
-
-</div>
-
-
-
-<div class="market-card">
-
-    <div class="market-name">
-        ₿ بیت‌کوین
-    </div>
-
-    <div
-        class="market-price"
-        id="btcCard">
-
-        BTC/USD
-
-    </div>
-
-    <div class="market-change">
-        مشاهده نمودار زنده
-    </div>
-
-    <div class="market-time">
-        TradingView
-    </div>
-
-</div>
-
-
-
-<div class="market-card">
-
-    <div class="market-name">
-        Ξ اتریوم
-    </div>
-
-    <div
-        class="market-price"
-        id="ethCard">
-
-        ETH/USD
-
-    </div>
-
-    <div class="market-change">
-        مشاهده نمودار زنده
-    </div>
-
-    <div class="market-time">
-        TradingView
-    </div>
-
-</div>
-
-
-
-<div class="market-card">
-
-    <div class="market-name">
-        🛢 نفت
-    </div>
-
-    <div
-        class="market-price"
-        id="oilCard">
-
-        WTI
-
-    </div>
-
-    <div class="market-change">
-        بازار جهانی
-    </div>
-
-    <div class="market-time">
-        TradingView
-    </div>
-
-</div>
-
-
+  <button type="button" class="market-card" data-symbol="FOREXCOM:XAUUSD">
+    <div class="market-name">🟡 طلای جهانی</div>
+    <div class="widget" data-quote="FOREXCOM:XAUUSD"></div>
+    <div class="market-hint">برای دیدن نمودار کلیک کنید</div>
+  </button>
+  <button type="button" class="market-card" data-symbol="BITSTAMP:BTCUSD">
+    <div class="market-name">₿ بیت‌کوین</div>
+    <div class="widget" data-quote="BITSTAMP:BTCUSD"></div>
+    <div class="market-hint">برای دیدن نمودار کلیک کنید</div>
+  </button>
+  <button type="button" class="market-card" data-symbol="BITSTAMP:ETHUSD">
+    <div class="market-name">Ξ اتریوم</div>
+    <div class="widget" data-quote="BITSTAMP:ETHUSD"></div>
+    <div class="market-hint">برای دیدن نمودار کلیک کنید</div>
+  </button>
+  <button type="button" class="market-card" data-symbol="TVC:USOIL">
+    <div class="market-name">🛢 نفت خام</div>
+    <div class="widget" data-quote="TVC:USOIL"></div>
+    <div class="market-hint">برای دیدن نمودار کلیک کنید</div>
+  </button>
 </section>
 
+<!-- نمودار + اخبار -->
+<section class="two-column" id="chart">
 
-
-<!-- =======================================================
-     CHART + NEWS
-======================================================= -->
-
-<section
-    class="two-column"
-    id="chart">
-
-
-<!-- =======================================================
-     CHART PANEL
-======================================================= -->
-
-<div class="panel">
-
-
+  <div class="panel">
     <div class="panel-title">
-
-        <h2>
-            📈 نمودار قیمت
-        </h2>
-
-        <span>
-            زنده
-        </span>
-
+      <h2>📈 نمودار قیمت</h2>
+      <span>زنده</span>
     </div>
-
-
-    <!-- بازار -->
 
     <div class="chart-toolbar">
+      <select id="chartSelector" class="chart-select" aria-label="انتخاب بازار">
+        <option value="FOREXCOM:XAUUSD">🟡 طلای جهانی</option>
+        <option value="BITSTAMP:BTCUSD">₿ بیت‌کوین</option>
+        <option value="BITSTAMP:ETHUSD">Ξ اتریوم</option>
+        <option value="TVC:USOIL">🛢 نفت خام</option>
+        <option value="TVC:DXY">💵 شاخص دلار</option>
+        <option value="FX:EURUSD">💶 یورو به دلار</option>
+        <option value="FX:GBPUSD">💷 پوند به دلار</option>
+        <option value="FX:USDJPY">💴 دلار به ین</option>
+        <option value="FX:USDCAD">🇨🇦 دلار به دلار کانادا</option>
+        <option value="FX:AUDUSD">🇦🇺 دلار استرالیا به دلار</option>
+        <option value="custom" hidden id="customOption">نماد دلخواه</option>
+      </select>
 
-
-        <select
-            id="chartSelector"
-            class="chart-select">
-
-
-            <option value="FOREXCOM:XAUUSD">
-                🟡 طلا جهانی XAU/USD
-            </option>
-
-
-            <option value="BITSTAMP:BTCUSD">
-                ₿ بیت‌کوین BTC/USD
-            </option>
-
-
-            <option value="BITSTAMP:ETHUSD">
-                Ξ اتریوم ETH/USD
-            </option>
-
-
-            <option value="TVC:USOIL">
-                🛢 نفت WTI
-            </option>
-
-
-            <option value="TVC:DXY">
-                💵 شاخص دلار DXY
-            </option>
-
-
-            <option value="FX:EURUSD">
-                💶 یورو / دلار
-            </option>
-
-
-            <option value="FX:GBPUSD">
-                💷 پوند / دلار
-            </option>
-
-
-            <option value="FX:USDJPY">
-                💴 دلار / ین
-            </option>
-
-
-            <option value="FX:USDCAD">
-                🇨🇦 دلار کانادا / دلار
-            </option>
-
-
-            <option value="FX:AUDUSD">
-                🇦🇺 دلار استرالیا / دلار
-            </option>
-
-
-        </select>
-
-
-
-        <!-- بازه -->
-
-        <select
-            id="chartPeriod"
-            class="chart-period">
-
-
-            <option value="1D">
-                ۱ روز
-            </option>
-
-
-            <option value="5D">
-                ۵ روز
-            </option>
-
-
-            <option value="1M">
-                ۱ ماه
-            </option>
-
-
-            <option value="3M">
-                ۳ ماه
-            </option>
-
-
-            <option value="6M">
-                ۶ ماه
-            </option>
-
-
-            <option
-                value="1Y"
-                selected>
-
-                ۱ سال
-
-            </option>
-
-
-        </select>
-
-
+      <select id="chartPeriod" class="chart-period" aria-label="بازه زمانی">
+        <option value="1D">۱ روز</option>
+        <option value="5D">۵ روز</option>
+        <option value="1M">۱ ماه</option>
+        <option value="3M">۳ ماه</option>
+        <option value="6M">۶ ماه</option>
+        <option value="1Y" selected>۱ سال</option>
+      </select>
     </div>
-
-
-
-    <!-- نماد دلخواه -->
 
     <div class="chart-toolbar">
-
-
-        <input
-            id="customSymbol"
-            class="custom-symbol"
-            type="text"
-            placeholder="مثلاً NASDAQ:AAPL">
-
-
-        <button
-            id="customSymbolButton"
-            class="chart-button">
-
-            نمایش نماد
-
-        </button>
-
-
-        <button
-            id="openChartButton"
-            class="chart-button secondary">
-
-            باز کردن نمودار
-
-        </button>
-
-
+      <input id="customSymbol" class="custom-symbol" type="text" dir="ltr" placeholder="NASDAQ:AAPL" autocomplete="off" spellcheck="false">
+      <button id="customSymbolButton" class="chart-button" type="button">نمایش نماد</button>
+      <button id="openChartButton" class="chart-button secondary" type="button">باز کردن در سایت اصلی</button>
     </div>
-
-
+    <div class="form-error" id="symbolError" role="alert"></div>
 
     <div class="chart-info">
-
-        محور افقی:
-        تاریخ و زمان
-
-        │
-
-        محور عمودی:
-        قیمت
-
-        <br>
-
-        برای نماد دلخواه، فرمت نماد TradingView را وارد کنید؛
-        مانند
-        NASDAQ:AAPL
-        یا
-        NASDAQ:NVDA
-
+      نماد دلخواه را با قالب سایت اصلی وارد کنید، مثلاً
+      <code>NASDAQ:AAPL</code>
+      یا
+      <code>NASDAQ:NVDA</code>
     </div>
 
+    <div class="chart-box" id="chartBox"></div>
+  </div>
 
-
-    <div class="chart-box">
-
-        <iframe
-            id="tradingChart"
-            title="نمودار بازار"
-            loading="lazy"
-            allowtransparency="true"
-            scrolling="no">
-        </iframe>
-
-    </div>
-
-
-</div>
-
-
-
-<!-- =======================================================
-     NEWS PANEL
-======================================================= -->
-
-<div
-    class="panel"
-    id="news">
-
-
+  <div class="panel" id="news">
     <div class="panel-title">
-
-        <h2>
-            📰 آخرین اخبار
-        </h2>
-
-        <span>
-            خلاصه
-        </span>
-
+      <h2>📰 آخرین اخبار</h2>
+      <span id="newsCategoryLabel">اقتصاد ایران</span>
     </div>
-
-
-    <div
-        id="newsList"
-        class="news-list">
-
-        <div class="news-loading">
-
-            در حال دریافت اخبار...
-
-        </div>
-
+    <div id="newsList" class="news-list">
+      <div class="news-loading"><div class="spinner"></div>در حال دریافت اخبار...</div>
     </div>
-
-
-</div>
-
+  </div>
 
 </section>
 
-
-
-<!-- =======================================================
-     NEWS CATEGORIES
-======================================================= -->
-
-<section
-    class="panel category-panel">
-
-
-    <div class="panel-title">
-
-        <h2>
-            📰 دسته‌بندی اخبار
-        </h2>
-
-        <span>
-            انتخاب موضوع
-        </span>
-
-    </div>
-
-
-
-    <div class="category-grid">
-
-
-        <button
-            class="category-button active"
-            data-query="اقتصاد ایران">
-
-            🇮🇷 اقتصاد ایران
-
-        </button>
-
-
-        <button
-            class="category-button"
-            data-query="بورس ایران">
-
-            📈 بورس ایران
-
-        </button>
-
-
-        <button
-            class="category-button"
-            data-query="طلا دلار ارز">
-
-            🪙 طلا و ارز
-
-        </button>
-
-
-        <button
-            class="category-button"
-            data-query="بیت کوین ارز دیجیتال">
-
-            ₿ ارز دیجیتال
-
-        </button>
-
-
-        <button
-            class="category-button"
-            data-query="اقتصاد جهان">
-
-            🌍 اقتصاد جهان
-
-        </button>
-
-
-        <button
-            class="category-button"
-            data-query="سیاست اقتصاد ایران">
-
-            🏛 سیاست و اقتصاد
-
-        </button>
-
-
-        <button
-            class="category-button"
-            data-query="نفت انرژی">
-
-            🛢 نفت و انرژی
-
-        </button>
-
-
-        <button
-            class="category-button"
-            data-query="بازارهای مالی جهان">
-
-            💹 بازارهای جهانی
-
-        </button>
-
-
-    </div>
-
+<!-- دسته‌بندی اخبار -->
+<section class="panel category-panel">
+  <div class="panel-title">
+    <h2>📰 دسته‌بندی اخبار</h2>
+    <span>انتخاب موضوع</span>
+  </div>
+  <div class="category-grid">
+    <button class="category-button active" data-query="اقتصاد ایران" data-title="اقتصاد ایران">🇮🇷 اقتصاد ایران</button>
+    <button class="category-button" data-query="بورس ایران" data-title="بورس ایران">📈 بورس ایران</button>
+    <button class="category-button" data-query="قیمت طلا دلار سکه" data-title="طلا و ارز">🪙 طلا و ارز</button>
+    <button class="category-button" data-query="بیت کوین ارز دیجیتال" data-title="ارز دیجیتال">₿ ارز دیجیتال</button>
+    <button class="category-button" data-query="اقتصاد جهان" data-title="اقتصاد جهان">🌍 اقتصاد جهان</button>
+    <button class="category-button" data-query="سیاست اقتصاد ایران" data-title="سیاست و اقتصاد">🏛 سیاست و اقتصاد</button>
+    <button class="category-button" data-query="نفت انرژی اوپک" data-title="نفت و انرژی">🛢 نفت و انرژی</button>
+    <button class="category-button" data-query="بازارهای مالی جهان وال استریت" data-title="بازارهای جهانی">💹 بازارهای جهانی</button>
+  </div>
 </section>
 
-
-
-<!-- =======================================================
-     MARKET TABLE
-======================================================= -->
-
-<section
-    class="panel table-panel"
-    id="markets">
-
-
-    <div class="panel-title">
-
-        <h2>
-            📊 بازارهای مهم
-        </h2>
-
-        <span>
-            TradingView
-        </span>
-
-    </div>
-
-
-    <div class="table-wrapper">
-
-
-        <table>
-
-
-            <thead>
-
-            <tr>
-
-                <th>
-                    بازار
-                </th>
-
-                <th>
-                    نماد
-                </th>
-
-                <th>
-                    نوع
-                </th>
-
-                <th>
-                    وضعیت
-                </th>
-
-            </tr>
-
-            </thead>
-
-
-            <tbody>
-
-
-            <tr>
-
-                <td>
-                    طلا
-                </td>
-
-                <td class="gold">
-                    XAUUSD
-                </td>
-
-                <td>
-                    فلز گران‌بها
-                </td>
-
-                <td class="green">
-                    فعال
-                </td>
-
-            </tr>
-
-
-            <tr>
-
-                <td>
-                    بیت‌کوین
-                </td>
-
-                <td class="gold">
-                    BTCUSD
-                </td>
-
-                <td>
-                    رمزارز
-                </td>
-
-                <td class="green">
-                    فعال
-                </td>
-
-            </tr>
-
-
-            <tr>
-
-                <td>
-                    اتریوم
-                </td>
-
-                <td class="gold">
-                    ETHUSD
-                </td>
-
-                <td>
-                    رمزارز
-                </td>
-
-                <td class="green">
-                    فعال
-                </td>
-
-            </tr>
-
-
-            <tr>
-
-                <td>
-                    نفت
-                </td>
-
-                <td class="gold">
-                    USOIL
-                </td>
-
-                <td>
-                    انرژی
-                </td>
-
-                <td class="green">
-                    فعال
-                </td>
-
-            </tr>
-
-
-            <tr>
-
-                <td>
-                    شاخص دلار
-                </td>
-
-                <td class="gold">
-                    DXY
-                </td>
-
-                <td>
-                    شاخص
-                </td>
-
-                <td class="green">
-                    فعال
-                </td>
-
-            </tr>
-
-
-            </tbody>
-
-        </table>
-
-
-    </div>
-
-
+<!-- جدول بازارها -->
+<section class="panel table-panel" id="markets">
+  <div class="panel-title">
+    <h2>📊 بازارهای مهم</h2>
+    <span>برای نمایش نمودار روی هر ردیف کلیک کنید</span>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>بازار</th><th>نماد</th><th>نوع</th><th>عملیات</th></tr>
+      </thead>
+      <tbody>
+        <tr class="row-click" data-symbol="FOREXCOM:XAUUSD"><td>طلا</td><td class="gold"><span class="ltr">XAUUSD</span></td><td>فلز گران‌بها</td><td><button class="table-btn" type="button">نمودار</button></td></tr>
+        <tr class="row-click" data-symbol="BITSTAMP:BTCUSD"><td>بیت‌کوین</td><td class="gold"><span class="ltr">BTCUSD</span></td><td>رمزارز</td><td><button class="table-btn" type="button">نمودار</button></td></tr>
+        <tr class="row-click" data-symbol="BITSTAMP:ETHUSD"><td>اتریوم</td><td class="gold"><span class="ltr">ETHUSD</span></td><td>رمزارز</td><td><button class="table-btn" type="button">نمودار</button></td></tr>
+        <tr class="row-click" data-symbol="TVC:USOIL"><td>نفت خام</td><td class="gold"><span class="ltr">USOIL</span></td><td>انرژی</td><td><button class="table-btn" type="button">نمودار</button></td></tr>
+        <tr class="row-click" data-symbol="TVC:DXY"><td>شاخص دلار</td><td class="gold"><span class="ltr">DXY</span></td><td>شاخص</td><td><button class="table-btn" type="button">نمودار</button></td></tr>
+        <tr class="row-click" data-symbol="FX:EURUSD"><td>یورو به دلار</td><td class="gold"><span class="ltr">EURUSD</span></td><td>جفت‌ارز</td><td><button class="table-btn" type="button">نمودار</button></td></tr>
+      </tbody>
+    </table>
+  </div>
 </section>
 
-
-
-<!-- =======================================================
-     INFO / ANALYSIS
-======================================================= -->
-
-<section
-    class="bottom-grid"
-    id="analysis">
-
-
-<div class="info-card">
-
-    <h3>
-        🧠 تحلیل روز
-    </h3>
-
-    <p>
-
-        در این بخش می‌توان تحلیل روزانه
-        طلا، بیت‌کوین، اتریوم، دلار و بورس
-        را منتشر کرد.
-
-        در نسخه بعدی می‌توانیم
-        RSI، MACD، حمایت، مقاومت،
-        روند و حجم معاملات را نیز
-        به‌صورت خودکار اضافه کنیم.
-
-    </p>
-
-</div>
-
-
-
-<div
-    class="info-card"
-    id="global">
-
-    <h3>
-        🌍 بازار جهانی
-    </h3>
-
-    <p>
-
-        نمودارهای جهانی از TradingView
-        نمایش داده می‌شوند و می‌توان
-        بازارهای مختلف مانند طلا،
-        رمزارزها، نفت و جفت‌ارزها
-        را بررسی کرد.
-
-    </p>
-
-</div>
-
-
-
-<div class="info-card">
-
-    <h3>
-        ⚡ میرزا
-    </h3>
-
-    <p>
-
-        هر اتفاق، یک اثر؛
-        هر اثر، یک تحلیل.
-
-        هدف میرزا ارائه اطلاعات بازار
-        به زبان ساده و قابل فهم است.
-
-    </p>
-
-</div>
-
-
+<!-- تقویم اقتصادی -->
+<section class="panel calendar-panel" id="calendar">
+  <div class="panel-title">
+    <h2>📅 تقویم اقتصادی</h2>
+    <span>رویدادهای مهم اقتصادی</span>
+  </div>
+  <div class="calendar-box" id="calendarBox"></div>
 </section>
 
-
-
-<!-- =======================================================
-     FOOTER
-======================================================= -->
+<!-- کارت‌های اطلاعات -->
+<section class="bottom-grid" id="analysis">
+  <div class="info-card">
+    <h3>🧠 تحلیل روز</h3>
+    <p>در این بخش تحلیل روزانه طلا، بیت‌کوین، اتریوم، دلار و بورس منتشر می‌شود. افزودن ابزارهای تکنیکال و حجم معاملات در نسخه‌های بعدی برنامه‌ریزی شده است.</p>
+  </div>
+  <div class="info-card" id="global">
+    <h3>🌍 بازار جهانی</h3>
+    <p>نمودارها از سرویس <span class="ltr">TradingView</span> نمایش داده می‌شوند و می‌توانید طلا، رمزارزها، نفت و جفت‌ارزها را بررسی کنید.</p>
+  </div>
+  <div class="info-card">
+    <h3>⚡ میرزا</h3>
+    <p>هر اتفاق، یک اثر؛ هر اثر، یک تحلیل. هدف میرزا ارائه اطلاعات بازار به زبان ساده و قابل فهم است.</p>
+  </div>
+</section>
 
 <footer class="footer">
-
-    <strong>
-        MIRZA
-    </strong>
-
-    <br>
-
-    هر اتفاق، یک اثر؛ هر اثر، یک تحلیل.
-
-    <br>
-
-    اطلاعات این سایت برای اطلاع‌رسانی و تحلیل بازار است.
-
+  <strong>MIRZA</strong><br>
+  هر اتفاق، یک اثر؛ هر اثر، یک تحلیل.<br>
+  اطلاعات این سایت برای اطلاع‌رسانی است و توصیه سرمایه‌گذاری محسوب نمی‌شود.
 </footer>
 
-
 </main>
-
 </div>
 
-
+<nav class="mobile-nav" aria-label="ناوبری">
+  <a href="#home" data-target="home"><span>🏠</span>خانه</a>
+  <a href="#chart" data-target="chart"><span>📊</span>نمودار</a>
+  <a href="#news" data-target="news"><span>📰</span>اخبار</a>
+  <a href="#calendar" data-target="calendar"><span>📅</span>تقویم</a>
+  <a href="#analysis" data-target="analysis"><span>🧠</span>تحلیل</a>
+</nav>
 
 <script>
+"use strict";
 
 /* =========================================================
-   MIRZA CHART
+   ابزار کمکی: بارگذاری ویجت‌های TradingView
 ========================================================= */
+const TV_BASE = "https://s3.tradingview.com/external-embedding/";
+const TV_LOCALE = "fa_IR";
 
+function mountWidget(container, scriptName, config){
+  if(!container) return;
+  container.innerHTML = "";
 
-/* عناصر */
+  const wrap = document.createElement("div");
+  wrap.className = "tradingview-widget-container";
 
-const chartSelector =
-    document.getElementById(
-        "chartSelector"
-    );
+  const inner = document.createElement("div");
+  inner.className = "tradingview-widget-container__widget";
 
-const chartPeriod =
-    document.getElementById(
-        "chartPeriod"
-    );
+  const script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = TV_BASE + scriptName;
+  script.async = true;
+  script.text = JSON.stringify(config);
 
-const tradingChart =
-    document.getElementById(
-        "tradingChart"
-    );
-
-const customSymbol =
-    document.getElementById(
-        "customSymbol"
-    );
-
-const customSymbolButton =
-    document.getElementById(
-        "customSymbolButton"
-    );
-
-const openChartButton =
-    document.getElementById(
-        "openChartButton"
-    );
-
-
-/* نماد فعلی */
-
-let currentSymbol =
-    "FOREXCOM:XAUUSD";
-
+  wrap.appendChild(inner);
+  wrap.appendChild(script);
+  container.appendChild(wrap);
+}
 
 /* =========================================================
-   CHART SETTINGS
+   نوار قیمت بالای صفحه
 ========================================================= */
+mountWidget(
+  document.getElementById("tickerTape"),
+  "embed-widget-ticker-tape.js",
+  {
+    symbols:[
+      {proName:"FOREXCOM:XAUUSD", title:"Gold"},
+      {proName:"BITSTAMP:BTCUSD", title:"Bitcoin"},
+      {proName:"BITSTAMP:ETHUSD", title:"Ethereum"},
+      {proName:"TVC:USOIL", title:"Oil"},
+      {proName:"TVC:DXY", title:"DXY"},
+      {proName:"FX:EURUSD", title:"EUR/USD"}
+    ],
+    showSymbolLogo:false,
+    colorTheme:"dark",
+    isTransparent:true,
+    displayMode:"adaptive",
+    locale:TV_LOCALE
+  }
+);
+
+/* =========================================================
+   کارت‌های قیمت زنده
+========================================================= */
+document.querySelectorAll(".market-card .widget").forEach(function(box){
+  mountWidget(box, "embed-widget-single-quote.js", {
+    symbol: box.dataset.quote,
+    width:"100%",
+    colorTheme:"dark",
+    isTransparent:true,
+    locale:TV_LOCALE
+  });
+});
+
+/* =========================================================
+   تقویم اقتصادی
+========================================================= */
+mountWidget(
+  document.getElementById("calendarBox"),
+  "embed-widget-events.js",
+  {
+    colorTheme:"dark",
+    isTransparent:true,
+    width:"100%",
+    height:"100%",
+    locale:TV_LOCALE,
+    importanceFilter:"0,1",
+    currencyFilter:"USD,EUR,GBP,JPY,CNY"
+  }
+);
+
+/* =========================================================
+   نمودار اصلی
+========================================================= */
+const chartSelector = document.getElementById("chartSelector");
+const chartPeriod   = document.getElementById("chartPeriod");
+const chartBox      = document.getElementById("chartBox");
+const customSymbol  = document.getElementById("customSymbol");
+const symbolError   = document.getElementById("symbolError");
+const customOption  = document.getElementById("customOption");
+
+let currentSymbol = "FOREXCOM:XAUUSD";
 
 const chartSettings = {
-
-    "1D":{
-        interval:"30",
-        range:"1D"
-    },
-
-    "5D":{
-        interval:"60",
-        range:"5D"
-    },
-
-    "1M":{
-        interval:"240",
-        range:"1M"
-    },
-
-    "3M":{
-        interval:"D",
-        range:"3M"
-    },
-
-    "6M":{
-        interval:"D",
-        range:"6M"
-    },
-
-    "1Y":{
-        interval:"D",
-        range:"12M"
-    }
-
+  "1D":{interval:"30",  range:"1D"},
+  "5D":{interval:"60",  range:"5D"},
+  "1M":{interval:"240", range:"1M"},
+  "3M":{interval:"D",   range:"3M"},
+  "6M":{interval:"D",   range:"6M"},
+  "1Y":{interval:"D",   range:"12M"}
 };
 
-
-/* =========================================================
-   CREATE TRADINGVIEW URL
-========================================================= */
-
-function createChartURL(symbol){
-
-    const selectedPeriod =
-        chartPeriod.value || "1Y";
-
-
-    const settings =
-        chartSettings[
-            selectedPeriod
-        ] ||
-        chartSettings["1Y"];
-
-
-    const params =
-        new URLSearchParams();
-
-
-    params.set(
-        "frameElementId",
-        "mirza_chart"
-    );
-
-
-    params.set(
-        "symbol",
-        symbol
-    );
-
-
-    params.set(
-        "interval",
-        settings.interval
-    );
-
-
-    params.set(
-        "range",
-        settings.range
-    );
-
-
-    params.set(
-        "theme",
-        "dark"
-    );
-
-
-    params.set(
-        "style",
-        "1"
-    );
-
-
-    params.set(
-        "timezone",
-        "Asia/Tehran"
-    );
-
-
-    params.set(
-        "locale",
-        "fa"
-    );
-
-
-    params.set(
-        "hidesidetoolbar",
-        "1"
-    );
-
-
-    params.set(
-        "symboledit",
-        "1"
-    );
-
-
-    params.set(
-        "saveimage",
-        "0"
-    );
-
-
-    params.set(
-        "withdateranges",
-        "1"
-    );
-
-
-    params.set(
-        "hideideas",
-        "1"
-    );
-
-
-    params.set(
-        "enable_publishing",
-        "false"
-    );
-
-
-    return (
-        "https://www.tradingview.com/widgetembed/?" +
-        params.toString()
-    );
-
-}
-
-
-/* =========================================================
-   UPDATE CHART
-========================================================= */
-
 function updateChart(symbol){
+  if(symbol) currentSymbol = symbol;
 
-    if(symbol){
+  const s = chartSettings[chartPeriod.value] || chartSettings["1Y"];
 
-        currentSymbol =
-            symbol;
-
-    }
-
-
-    if(!currentSymbol){
-
-        currentSymbol =
-            "FOREXCOM:XAUUSD";
-
-    }
-
-
-    tradingChart.src =
-        createChartURL(
-            currentSymbol
-        );
-
+  mountWidget(chartBox, "embed-widget-advanced-chart.js", {
+    autosize:true,
+    symbol:currentSymbol,
+    interval:s.interval,
+    range:s.range,
+    timezone:"Asia/Tehran",
+    theme:"dark",
+    style:"1",
+    locale:TV_LOCALE,
+    backgroundColor:"#090c11",
+    hide_side_toolbar:true,
+    allow_symbol_change:true,
+    withdateranges:true,
+    save_image:false,
+    hide_volume:false,
+    support_host:"https://www.tradingview.com"
+  });
 }
 
+/* همگام‌سازی لیست انتخاب با نماد فعلی */
+function syncSelector(symbol){
+  const exists = Array.from(chartSelector.options).some(function(o){
+    return o.value === symbol && o.value !== "custom";
+  });
+  if(exists){
+    chartSelector.value = symbol;
+  }else{
+    customOption.hidden = false;
+    customOption.textContent = "نماد دلخواه: " + symbol;
+    chartSelector.value = "custom";
+  }
+}
 
-/* =========================================================
-   SELECT MARKET
-========================================================= */
+function showChart(symbol, scroll){
+  syncSelector(symbol);
+  updateChart(symbol);
+  if(scroll){
+    document.getElementById("chart").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+}
 
-chartSelector.addEventListener(
-    "change",
-    function(){
+chartSelector.addEventListener("change", function(){
+  if(this.value === "custom") return;
+  symbolError.textContent = "";
+  updateChart(this.value);
+});
 
-        updateChart(
-            this.value
-        );
+chartPeriod.addEventListener("change", function(){
+  updateChart(currentSymbol);
+});
 
-    }
-);
-
-
-/* =========================================================
-   CHANGE PERIOD
-========================================================= */
-
-chartPeriod.addEventListener(
-    "change",
-    function(){
-
-        updateChart(
-            currentSymbol
-        );
-
-    }
-);
-
-
-/* =========================================================
-   CUSTOM SYMBOL
-========================================================= */
+/* نماد دلخواه */
+const SYMBOL_PATTERN = /^[A-Z0-9_.!&\-]{1,30}(:[A-Z0-9_.!&\-]{1,30})?$/;
 
 function loadCustomSymbol(){
+  const value = customSymbol.value.trim().toUpperCase().replace(/\s+/g,"");
 
-    const value =
-        customSymbol.value
-        .trim()
-        .toUpperCase();
-
-
-    if(!value){
-
-        alert(
-            "لطفاً نماد را وارد کنید."
-        );
-
-        customSymbol.focus();
-
-        return;
-    }
-
-
-    updateChart(
-        value
-    );
-
+  if(!value){
+    symbolError.textContent = "لطفاً نماد را وارد کنید.";
+    customSymbol.focus();
+    return;
+  }
+  if(!SYMBOL_PATTERN.test(value)){
+    symbolError.textContent = "قالب نماد درست نیست. نمونه درست: NASDAQ:AAPL";
+    customSymbol.focus();
+    return;
+  }
+  symbolError.textContent = "";
+  showChart(value, false);
 }
 
+document.getElementById("customSymbolButton").addEventListener("click", loadCustomSymbol);
+customSymbol.addEventListener("keydown", function(e){
+  if(e.key === "Enter") loadCustomSymbol();
+});
 
-/* دکمه نماد */
+document.getElementById("openChartButton").addEventListener("click", function(){
+  window.open(
+    "https://www.tradingview.com/chart/?symbol=" + encodeURIComponent(currentSymbol),
+    "_blank",
+    "noopener"
+  );
+});
 
-customSymbolButton.addEventListener(
-    "click",
-    loadCustomSymbol
-);
+/* کلیک روی کارت‌ها و ردیف‌های جدول */
+document.querySelectorAll(".market-card, tr.row-click").forEach(function(el){
+  el.addEventListener("click", function(){
+    showChart(el.dataset.symbol, true);
+  });
+});
 
-
-/* با Enter */
-
-customSymbol.addEventListener(
-    "keydown",
-    function(event){
-
-        if(event.key === "Enter"){
-
-            loadCustomSymbol();
-
-        }
-
-    }
-);
-
+updateChart(currentSymbol);
 
 /* =========================================================
-   OPEN TRADINGVIEW
+   اخبار
 ========================================================= */
+const newsList = document.getElementById("newsList");
+const newsCategoryLabel = document.getElementById("newsCategoryLabel");
 
-openChartButton.addEventListener(
-    "click",
-    function(){
+let currentNewsQuery = "اقتصاد ایران";
+let currentNewsTitle = "اقتصاد ایران";
+let newsRequestId = 0;
 
-        const url =
-            "https://www.tradingview.com/chart/?symbol=" +
-            encodeURIComponent(
-                currentSymbol
-            );
+/* چند سرویس واسط؛ اگر یکی کار نکرد بعدی امتحان می‌شود */
+const PROXIES = [
+  function(u){ return {url:"https://api.allorigins.win/raw?url=" + encodeURIComponent(u), type:"xml"}; },
+  function(u){ return {url:"https://corsproxy.io/?url=" + encodeURIComponent(u), type:"xml"}; },
+  function(u){ return {url:"https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u), type:"xml"}; },
+  function(u){ return {url:"https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(u), type:"json"}; }
+];
 
-
-        window.open(
-            url,
-            "_blank",
-            "noopener"
-        );
-
-    }
-);
-
-
-/* =========================================================
-   INITIAL CHART
-========================================================= */
-
-updateChart(
-    "FOREXCOM:XAUUSD"
-);
-
-
-/* =========================================================
-   NEWS SYSTEM
-========================================================= */
-
-const newsList =
-    document.getElementById(
-        "newsList"
-    );
-
-
-let currentNewsQuery =
-    "اقتصاد ایران بازار مالی";
-
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
-
-function escapeHTML(value){
-
-    return String(value)
-
-        .replace(
-            /&/g,
-            "&amp;"
-        )
-
-        .replace(
-            /</g,
-            "&lt;"
-        )
-
-        .replace(
-            />/g,
-            "&gt;"
-        )
-
-        .replace(
-            /"/g,
-            "&quot;"
-        )
-
-        .replace(
-            /'/g,
-            "&#039;"
-        );
-
+function fetchWithTimeout(url, ms){
+  const controller = new AbortController();
+  const timer = setTimeout(function(){ controller.abort(); }, ms);
+  return fetch(url, {cache:"no-store", signal:controller.signal})
+    .finally(function(){ clearTimeout(timer); });
 }
 
+function parseXML(text){
+  const xml = new DOMParser().parseFromString(text, "text/xml");
+  if(xml.querySelector("parsererror")) throw new Error("bad xml");
+  const items = Array.from(xml.querySelectorAll("item")).map(function(item){
+    const get = function(tag){
+      const n = item.querySelector(tag);
+      return n ? n.textContent.trim() : "";
+    };
+    return {title:get("title"), link:get("link"), source:get("source"), date:get("pubDate")};
+  });
+  if(!items.length) throw new Error("no items");
+  return items;
+}
 
-/* =========================================================
-   FORMAT DATE
-========================================================= */
+function parseJSON(text){
+  const data = JSON.parse(text);
+  if(data.status !== "ok" || !data.items || !data.items.length) throw new Error("no items");
+  return data.items.map(function(i){
+    return {title:i.title, link:i.link, source:(i.author || ""), date:i.pubDate};
+  });
+}
+
+async function fetchNews(query){
+  const rss = "https://news.google.com/rss/search?q=" + encodeURIComponent(query) + "&hl=fa&gl=IR&ceid=IR:fa";
+  let lastError;
+
+  for(const make of PROXIES){
+    const p = make(rss);
+    try{
+      const res = await fetchWithTimeout(p.url, 9000);
+      if(!res.ok) throw new Error("http " + res.status);
+      const text = await res.text();
+      return p.type === "json" ? parseJSON(text) : parseXML(text);
+    }catch(err){
+      lastError = err;
+    }
+  }
+  throw lastError || new Error("all proxies failed");
+}
 
 function formatNewsDate(value){
-
-    if(!value){
-
-        return "";
-
-    }
-
-
-    const date =
-        new Date(value);
-
-
-    if(
-        Number.isNaN(
-            date.getTime()
-        )
-    ){
-
-        return "";
-
-    }
-
-
-    return date.toLocaleDateString(
-        "fa-IR",
-        {
-            year:"numeric",
-            month:"short",
-            day:"numeric"
-        }
-    );
-
+  if(!value) return "";
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("fa-IR", {month:"short", day:"numeric"}) + " - " +
+         d.toLocaleTimeString("fa-IR", {hour:"2-digit", minute:"2-digit"});
 }
 
-
-/* =========================================================
-   LOAD NEWS
-========================================================= */
-
-async function loadNews(
-    query="اقتصاد ایران بازار مالی"
-){
-
-    currentNewsQuery =
-        query;
-
-
-    newsList.innerHTML = `
-
-        <div class="news-loading">
-
-            در حال دریافت اخبار...
-
-        </div>
-
-    `;
-
-
-    const rssURL =
-
-        "https://news.google.com/rss/search?q=" +
-
-        encodeURIComponent(
-            query
-        ) +
-
-        "&hl=fa&gl=IR&ceid=IR:fa";
-
-
-    const proxyURL =
-
-        "https://api.allorigins.win/raw?url=" +
-
-        encodeURIComponent(
-            rssURL
-        );
-
-
-    try{
-
-
-        const response =
-            await fetch(
-                proxyURL,
-                {
-                    method:"GET",
-                    cache:"no-store"
-                }
-            );
-
-
-        if(!response.ok){
-
-            throw new Error(
-                "RSS Error"
-            );
-
-        }
-
-
-        const text =
-            await response.text();
-
-
-        const parser =
-            new DOMParser();
-
-
-        const xml =
-            parser.parseFromString(
-                text,
-                "text/xml"
-            );
-
-
-        const items =
-            Array.from(
-                xml.querySelectorAll(
-                    "item"
-                )
-            );
-
-
-        if(!items.length){
-
-            throw new Error(
-                "No news"
-            );
-
-        }
-
-
-        newsList.innerHTML =
-            "";
-
-
-        items
-            .slice(0,10)
-            .forEach(
-                function(item){
-
-                    const title =
-                        item.querySelector(
-                            "title"
-                        )
-                        ?.textContent
-                        ?.trim()
-                        ||
-                        "بدون عنوان";
-
-
-                    const link =
-                        item.querySelector(
-                            "link"
-                        )
-                        ?.textContent
-                        ?.trim()
-                        ||
-                        "#";
-
-
-                    const source =
-                        item.querySelector(
-                            "source"
-                        )
-                        ?.textContent
-                        ?.trim()
-                        ||
-                        "منبع نامشخص";
-
-
-                    const date =
-                        item.querySelector(
-                            "pubDate"
-                        )
-                        ?.textContent
-                        ?.trim()
-                        ||
-                        "";
-
-
-                    const article =
-                        document.createElement(
-                            "a"
-                        );
-
-
-                    article.className =
-                        "news-item";
-
-
-                    article.href =
-                        link;
-
-
-                    article.target =
-                        "_blank";
-
-
-                    article.rel =
-                        "noopener noreferrer";
-
-
-                    article.innerHTML = `
-
-                        <div class="news-category">
-
-                            ${escapeHTML(query)}
-
-                        </div>
-
-
-                        <div class="news-title">
-
-                            ${escapeHTML(title)}
-
-                        </div>
-
-
-                        <div class="news-meta">
-
-                            <span>
-
-                                ${escapeHTML(source)}
-
-                            </span>
-
-
-                            <span>
-
-                                ${formatNewsDate(date)}
-
-                            </span>
-
-                        </div>
-
-                    `;
-
-
-                    newsList.appendChild(
-                        article
-                    );
-
-                }
-            );
-
-
-    }
-
-    catch(error){
-
-        console.error(
-            "News error:",
-            error
-        );
-
-
-        newsList.innerHTML = `
-
-            <div class="news-loading">
-
-                دریافت اخبار در حال حاضر
-                امکان‌پذیر نیست.
-
-                <br>
-
-                ممکن است سرویس اخبار
-                موقتاً پاسخ ندهد.
-
-                <br>
-
-                <button
-                    class="retry-button"
-                    id="retryNewsButton">
-
-                    تلاش مجدد
-
-                </button>
-
-            </div>
-
-        `;
-
-
-        const retryButton =
-            document.getElementById(
-                "retryNewsButton"
-            );
-
-
-        if(retryButton){
-
-            retryButton.addEventListener(
-                "click",
-                function(){
-
-                    loadNews(
-                        currentNewsQuery
-                    );
-
-                }
-            );
-
-        }
-
-    }
-
+function safeLink(url){
+  return /^https?:\/\//i.test(url) ? url : "#";
 }
 
-
-/* =========================================================
-   NEWS CATEGORY BUTTONS
-========================================================= */
-
-const categoryButtons =
-    document.querySelectorAll(
-        ".category-button"
-    );
-
-
-categoryButtons.forEach(
-    function(button){
-
-        button.addEventListener(
-            "click",
-            function(){
-
-                categoryButtons.forEach(
-                    function(btn){
-
-                        btn.classList.remove(
-                            "active"
-                        );
-
-                    }
-                );
-
-
-                this.classList.add(
-                    "active"
-                );
-
-
-                const query =
-                    this.dataset.query;
-
-
-                loadNews(
-                    query
-                );
-
-
-                document
-                    .getElementById(
-                        "news"
-                    )
-                    .scrollIntoView({
-                        behavior:"smooth",
-                        block:"start"
-                    });
-
-            }
-        );
-
-    }
-);
-
-
-/* =========================================================
-   INITIAL NEWS
-========================================================= */
-
-loadNews(
-    "اقتصاد ایران بازار مالی طلا دلار بورس"
-);
-
-
-/* =========================================================
-   REFRESH NEWS EVERY 15 MINUTES
-========================================================= */
-
-setInterval(
-    function(){
-
-        loadNews(
-            currentNewsQuery
-        );
-
-    },
-    15 * 60 * 1000
-);
-
-
-/* =========================================================
-   MARKET CARD CLICK HELPERS
-========================================================= */
-
-const goldCard =
-    document.getElementById(
-        "goldCard"
-    );
-
-const btcCard =
-    document.getElementById(
-        "btcCard"
-    );
-
-const ethCard =
-    document.getElementById(
-        "ethCard"
-    );
-
-const oilCard =
-    document.getElementById(
-        "oilCard"
-    );
-
-
-/* =========================================================
-   CARD NAVIGATION
-========================================================= */
-
-function setChartFromCard(
-    symbol
-){
-
-    updateChart(
-        symbol
-    );
-
-
-    document
-        .getElementById(
-            "chart"
-        )
-        .scrollIntoView({
-            behavior:"smooth",
-            block:"start"
-        });
-
+/* ذخیره آخرین اخبار موفق برای زمان قطعی سرویس */
+function cacheGet(key){
+  try{ return JSON.parse(localStorage.getItem("mirza_news_" + key)); }catch(e){ return null; }
+}
+function cacheSet(key, items){
+  try{ localStorage.setItem("mirza_news_" + key, JSON.stringify(items)); }catch(e){}
 }
 
+function renderNews(items, title, note){
+  newsList.innerHTML = "";
+
+  if(note){
+    const n = document.createElement("div");
+    n.className = "news-note";
+    n.textContent = note;
+    newsList.appendChild(n);
+  }
+
+  items.slice(0, 12).forEach(function(it){
+    const a = document.createElement("a");
+    a.className = "news-item";
+    a.href = safeLink(it.link);
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+
+    const cat = document.createElement("div");
+    cat.className = "news-category";
+    cat.textContent = title;
+
+    const h = document.createElement("div");
+    h.className = "news-title";
+    h.textContent = it.title || "بدون عنوان";
+
+    const meta = document.createElement("div");
+    meta.className = "news-meta";
+    const s1 = document.createElement("span");
+    s1.textContent = it.source || "منبع نامشخص";
+    const s2 = document.createElement("span");
+    s2.textContent = formatNewsDate(it.date);
+    meta.append(s1, s2);
+
+    a.append(cat, h, meta);
+    newsList.appendChild(a);
+  });
+}
+
+function renderNewsError(){
+  newsList.innerHTML =
+    '<div class="news-loading">دریافت اخبار در حال حاضر امکان‌پذیر نیست.<br>' +
+    'ممکن است سرویس اخبار موقتاً پاسخ ندهد.<br>' +
+    '<button class="retry-button" id="retryNewsButton" type="button">تلاش مجدد</button></div>';
+  document.getElementById("retryNewsButton").addEventListener("click", function(){
+    loadNews(currentNewsQuery, currentNewsTitle);
+  });
+}
+
+async function loadNews(query, title){
+  currentNewsQuery = query;
+  currentNewsTitle = title || query;
+  newsCategoryLabel.textContent = currentNewsTitle;
+
+  const myId = ++newsRequestId;   // جلوگیری از نمایش پاسخ قدیمی
+
+  newsList.innerHTML = '<div class="news-loading"><div class="spinner"></div>در حال دریافت اخبار...</div>';
+
+  try{
+    const items = await fetchNews(query);
+    if(myId !== newsRequestId) return;
+    cacheSet(query, items.slice(0, 12));
+    renderNews(items, currentNewsTitle);
+  }catch(err){
+    if(myId !== newsRequestId) return;
+    console.error("News error:", err);
+    const cached = cacheGet(query);
+    if(cached && cached.length){
+      renderNews(cached, currentNewsTitle, "اتصال برقرار نشد؛ آخرین اخبار ذخیره‌شده نمایش داده می‌شود.");
+    }else{
+      renderNewsError();
+    }
+  }
+}
+
+/* دکمه‌های دسته‌بندی */
+const categoryButtons = document.querySelectorAll(".category-button");
+categoryButtons.forEach(function(button){
+  button.addEventListener("click", function(){
+    categoryButtons.forEach(function(b){ b.classList.remove("active"); });
+    this.classList.add("active");
+    loadNews(this.dataset.query, this.dataset.title);
+    document.getElementById("news").scrollIntoView({behavior:"smooth", block:"start"});
+  });
+});
+
+loadNews("اقتصاد ایران", "اقتصاد ایران");
+
+/* به‌روزرسانی خودکار هر ۱۵ دقیقه */
+setInterval(function(){
+  loadNews(currentNewsQuery, currentNewsTitle);
+}, 15 * 60 * 1000);
 
 /* =========================================================
-   CARD EVENTS
+   مشخص‌کردن بخش فعال در منو هنگام اسکرول
 ========================================================= */
+const navLinks = document.querySelectorAll("[data-target]");
+const sectionIds = ["home","chart","news","markets","calendar","analysis"];
 
-goldCard.addEventListener(
-    "click",
-    function(){
+function setActive(id){
+  navLinks.forEach(function(a){
+    a.classList.toggle("active", a.dataset.target === id);
+  });
+}
 
-        setChartFromCard(
-            "FOREXCOM:XAUUSD"
-        );
+if("IntersectionObserver" in window){
+  const observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting) setActive(entry.target.id);
+    });
+  }, {rootMargin:"-30% 0px -60% 0px"});
 
-    }
-);
-
-
-btcCard.addEventListener(
-    "click",
-    function(){
-
-        setChartFromCard(
-            "BITSTAMP:BTCUSD"
-        );
-
-    }
-);
-
-
-ethCard.addEventListener(
-    "click",
-    function(){
-
-        setChartFromCard(
-            "BITSTAMP:ETHUSD"
-        );
-
-    }
-);
-
-
-oilCard.addEventListener(
-    "click",
-    function(){
-
-        setChartFromCard(
-            "TVC:USOIL"
-        );
-
-    }
-);
-
-
-/* =========================================================
-   MAKE CARDS LOOK CLICKABLE
-========================================================= */
-
-[
-    goldCard,
-    btcCard,
-    ethCard,
-    oilCard
-].forEach(
-    function(card){
-
-        card.style.cursor =
-            "pointer";
-
-    }
-);
-
-
-/* =========================================================
-   END
-========================================================= */
-
+  sectionIds.forEach(function(id){
+    const el = document.getElementById(id);
+    if(el) observer.observe(el);
+  });
+}
 </script>
 
-
 </body>
-
 </html>
