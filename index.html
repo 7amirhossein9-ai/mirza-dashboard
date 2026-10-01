@@ -4,32 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Mirza | داشبورد بازارهای مالی</title>
+<title>Mirza</title>
 
 <style>
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-}
-
 body{
-    font-family:Tahoma,Arial,sans-serif;
+    margin:0;
     background:#080a0f;
-    color:#fff;
+    color:white;
+    font-family:Tahoma,Arial,sans-serif;
 }
 
 .container{
-    max-width:1200px;
+    max-width:1100px;
     margin:auto;
-    padding:25px;
+    padding:30px 20px;
 }
 
 header{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:35px;
+    margin-bottom:30px;
 }
 
 .logo{
@@ -46,88 +41,42 @@ header{
 .cards{
     display:grid;
     grid-template-columns:repeat(4,1fr);
-    gap:18px;
+    gap:20px;
 }
 
 .card{
-    background:#10141c;
-    border:1px solid #252b36;
-    border-radius:18px;
-    padding:22px;
-    transition:.2s;
-}
-
-.card:hover{
-    border-color:#b98a35;
-    transform:translateY(-3px);
-}
-
-.card-title{
-    color:#8d95a3;
-    font-size:13px;
-    margin-bottom:18px;
-}
-
-.price{
-    font-size:24px;
-    font-weight:bold;
-    margin-bottom:10px;
-    color:#f2ce75;
-}
-
-.change{
-    font-size:13px;
-}
-
-.up{
-    color:#38c172;
-}
-
-.down{
-    color:#e05252;
-}
-
-.time{
-    color:#666;
-    font-size:10px;
-    margin-top:12px;
-}
-
-.section{
-    margin-top:30px;
-    background:#10141c;
-    border:1px solid #252b36;
+    background:#11151d;
+    border:1px solid #252b35;
     border-radius:18px;
     padding:25px;
 }
 
-.section h2{
-    color:#f2ce75;
-    margin-bottom:12px;
-}
-
-.section p{
+.title{
     color:#888;
     font-size:13px;
+    margin-bottom:20px;
 }
 
-@media(max-width:900px){
+.price{
+    color:#f2ce75;
+    font-size:25px;
+    font-weight:bold;
+}
+
+.change{
+    margin-top:12px;
+    color:#38c172;
+}
+
+@media(max-width:800px){
     .cards{
         grid-template-columns:repeat(2,1fr);
     }
 }
 
-@media(max-width:600px){
-    .container{
-        padding:15px;
-    }
-
+@media(max-width:500px){
     .cards{
         grid-template-columns:1fr;
-    }
-
-    .price{
-        font-size:22px;
     }
 }
 </style>
@@ -138,4 +87,39 @@ header{
 <div class="container">
 
 <header>
-    <div
+    <div class="logo">MIRZA</div>
+    <div class="status">داشبورد بازارهای مالی</div>
+</header>
+
+<div class="cards">
+
+<div class="card">
+    <div class="title">🟡 طلای ۱۸ عیار</div>
+    <div class="price" id="gold">در حال دریافت...</div>
+    <div class="change" id="goldChange">---</div>
+</div>
+
+<div class="card">
+    <div class="title">💵 دلار</div>
+    <div class="price" id="dollar">در حال دریافت...</div>
+    <div class="change" id="dollarChange">---</div>
+</div>
+
+<div class="card">
+    <div class="title">₿ بیت‌کوین</div>
+    <div class="price" id="bitcoin">در حال دریافت...</div>
+    <div class="change" id="bitcoinChange">---</div>
+</div>
+
+<div class="card">
+    <div class="title">Ξ اتریوم</div>
+    <div class="price" id="ethereum">در حال دریافت...</div>
+    <div class="change" id="ethereumChange">---</div>
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>
