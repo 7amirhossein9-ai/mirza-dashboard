@@ -1,145 +1,278 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
 <title>Mirza | داشبورد بازارهای مالی</title>
 
 <style>
 
+/* =====================================================
+   RESET
+===================================================== */
+
 *{
-    box-sizing:border-box;
     margin:0;
     padding:0;
+    box-sizing:border-box;
+}
+
+html{
+    scroll-behavior:smooth;
 }
 
 body{
+
     background:#080a0f;
+
     color:#f4f4f4;
-    font-family:Tahoma,Arial,sans-serif;
+
+    font-family:
+    Tahoma,
+    Arial,
+    sans-serif;
+
+    min-height:100vh;
 }
 
-/* ================= HEADER ================= */
+
+/* =====================================================
+   SCROLLBAR
+===================================================== */
+
+::-webkit-scrollbar{
+    width:7px;
+}
+
+::-webkit-scrollbar-track{
+    background:#080a0f;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#34302a;
+    border-radius:10px;
+}
+
+
+/* =====================================================
+   HEADER
+===================================================== */
 
 header{
-    height:75px;
+
+    height:72px;
+
     background:#0d1017;
-    border-bottom:1px solid #242a35;
+
+    border-bottom:
+    1px solid #252b35;
 
     display:flex;
+
     align-items:center;
+
     justify-content:space-between;
 
-    padding:0 30px;
+    padding:
+    0 30px;
 
     position:sticky;
+
     top:0;
-    z-index:100;
+
+    z-index:1000;
 }
 
 .logo{
+
     color:#e8c56a;
-    font-size:28px;
+
+    font-size:27px;
+
     font-weight:bold;
+
     letter-spacing:2px;
 }
 
 .logo span{
-    color:white;
+    color:#fff;
 }
 
-.header-info{
-    color:#858b97;
-    font-size:12px;
+.header-right{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
 }
 
-/* ================= LAYOUT ================= */
+.market-status{
+
+    color:#777f8c;
+
+    font-size:11px;
+}
+
+.live-dot{
+
+    display:inline-block;
+
+    width:7px;
+
+    height:7px;
+
+    background:#3fc27a;
+
+    border-radius:50%;
+
+    margin-left:6px;
+}
+
+
+/* =====================================================
+   LAYOUT
+===================================================== */
 
 .layout{
+
     display:flex;
-    min-height:calc(100vh - 75px);
+
+    min-height:
+    calc(100vh - 72px);
 }
 
-/* ================= SIDEBAR ================= */
+
+/* =====================================================
+   SIDEBAR
+===================================================== */
 
 .sidebar{
-    width:220px;
-    background:#0c0f15;
-    border-left:1px solid #242a35;
 
-    padding:25px 15px;
+    width:225px;
+
+    background:#0c0f15;
+
+    border-left:
+    1px solid #252b35;
+
+    padding:25px 14px;
 
     position:fixed;
+
     right:0;
-    top:75px;
+
+    top:72px;
+
     bottom:0;
+
+    overflow-y:auto;
 }
 
 .sidebar-title{
-    color:#777f8c;
-    font-size:11px;
-    margin:15px 10px 10px;
+
+    color:#606875;
+
+    font-size:10px;
+
+    margin:
+    16px 10px 9px;
 }
 
 .nav{
+
     display:block;
 
-    padding:13px 15px;
+    padding:
+    12px 14px;
 
     margin-bottom:5px;
 
     border-radius:10px;
 
-    color:#b7bcc5;
+    color:#aeb4bd;
 
     text-decoration:none;
 
-    font-size:13px;
+    font-size:12px;
 
     transition:.2s;
 }
 
-.nav:hover,
-.nav.active{
+.nav:hover{
+
     background:#171b24;
+
     color:#e8c56a;
 }
 
-/* ================= CONTENT ================= */
+.nav.active{
+
+    background:#191c24;
+
+    color:#e8c56a;
+
+    border-right:
+    2px solid #e8c56a;
+}
+
+
+/* =====================================================
+   MAIN
+===================================================== */
 
 .content{
-    margin-right:220px;
 
-    width:calc(100% - 220px);
+    margin-right:225px;
+
+    width:
+    calc(100% - 225px);
 
     padding:30px;
 }
 
+
+/* =====================================================
+   TITLE
+===================================================== */
+
 .page-title{
+
     margin-bottom:25px;
 }
 
 .page-title h1{
+
     font-size:25px;
+
     margin-bottom:8px;
 }
 
 .page-title p{
+
     color:#747b87;
+
     font-size:12px;
 }
 
-/* ================= MARKET CARDS ================= */
+
+/* =====================================================
+   LIVE MARKET CARDS
+===================================================== */
 
 .market-grid{
+
     display:grid;
 
     grid-template-columns:
     repeat(4,1fr);
 
-    gap:18px;
+    gap:17px;
 
     margin-bottom:25px;
 }
@@ -148,42 +281,44 @@ header{
 
     background:#10141c;
 
-    border:1px solid #252b36;
+    border:
+    1px solid #252b36;
 
     border-radius:17px;
 
-    padding:22px;
+    padding:20px;
 
     min-height:145px;
 
-    transition:.25s;
+    transition:.2s;
 }
 
 .market-card:hover{
 
-    border-color:#b28a3e;
+    transform:
+    translateY(-3px);
 
-    transform:translateY(-3px);
+    border-color:#8e6d32;
 }
 
 .market-name{
 
-    color:#8c939e;
+    color:#858c98;
 
     font-size:12px;
 
-    margin-bottom:15px;
+    margin-bottom:16px;
 }
 
 .market-price{
 
-    font-size:23px;
+    color:#e8c56a;
+
+    font-size:22px;
 
     font-weight:bold;
 
-    color:#e8c56a;
-
-    margin-bottom:10px;
+    margin-bottom:9px;
 }
 
 .market-change{
@@ -193,18 +328,26 @@ header{
     color:#3fc27a;
 }
 
+.market-change.red{
+
+    color:#e05a5a;
+}
+
 .market-time{
 
-    color:#555c68;
+    color:#555d69;
 
-    font-size:10px;
+    font-size:9px;
 
     margin-top:10px;
 }
 
-/* ================= DASHBOARD GRID ================= */
 
-.dashboard-grid{
+/* =====================================================
+   GRID
+===================================================== */
+
+.two-column{
 
     display:grid;
 
@@ -220,14 +363,15 @@ header{
 
     background:#10141c;
 
-    border:1px solid #252b36;
+    border:
+    1px solid #252b36;
 
     border-radius:17px;
 
     padding:22px;
 }
 
-.panel-title{
+.panel-header{
 
     display:flex;
 
@@ -236,125 +380,218 @@ header{
     align-items:center;
 
     margin-bottom:20px;
-
 }
 
-.panel-title h2{
+.panel-header h2{
 
     font-size:16px;
-
-    color:#eee;
-
 }
 
-.panel-title span{
+.panel-header span{
 
     color:#e8c56a;
 
-    font-size:11px;
+    font-size:10px;
 }
 
-/* ================= CHART ================= */
 
-.chart{
+/* =====================================================
+   CHART SELECTOR
+===================================================== */
 
-    height:260px;
+.chart-toolbar{
 
-    position:relative;
+    display:flex;
 
-    overflow:hidden;
+    gap:10px;
+
+    align-items:center;
+
+    flex-wrap:wrap;
+
+    margin-bottom:15px;
+}
+
+.chart-select{
+
+    background:#171b23;
+
+    color:#eee;
+
+    border:
+    1px solid #343a45;
+
+    border-radius:9px;
+
+    padding:
+    10px 12px;
+
+    font-family:Tahoma;
+
+    font-size:11px;
+
+    outline:none;
+
+    min-width:180px;
+}
+
+.chart-select:focus{
+
+    border-color:#b18a40;
+}
+
+.chart-period{
+
+    background:#171b23;
+
+    color:#999;
+
+    border:
+    1px solid #292f39;
+
+    border-radius:8px;
+
+    padding:
+    9px 12px;
+
+    font-size:10px;
+}
+
+.chart-info{
+
+    color:#6e7682;
+
+    font-size:10px;
+
+    margin-bottom:12px;
+}
+
+
+/* =====================================================
+   TRADINGVIEW CHART
+===================================================== */
+
+.chart-container{
+
+    width:100%;
+
+    height:430px;
+
+    background:#0b0e13;
 
     border-radius:12px;
 
-    background:
+    overflow:hidden;
 
-    linear-gradient(
-        rgba(255,255,255,.025) 1px,
-        transparent 1px
-    ),
-
-    linear-gradient(
-        90deg,
-        rgba(255,255,255,.025) 1px,
-        transparent 1px
-    );
-
-    background-size:50px 50px;
+    border:
+    1px solid #202631;
 }
 
-.chart svg{
+.chart-container iframe{
 
     width:100%;
 
     height:100%;
+
+    border:0;
 }
 
-/* ================= NEWS ================= */
 
-.news{
+/* =====================================================
+   NEWS
+===================================================== */
+
+.news-list{
 
     display:flex;
 
     flex-direction:column;
 
-    gap:10px;
+    gap:9px;
+
+    max-height:430px;
+
+    overflow-y:auto;
 }
 
 .news-item{
 
-    padding:14px;
+    display:block;
+
+    text-decoration:none;
 
     background:#151922;
 
+    border:
+    1px solid #222832;
+
     border-radius:11px;
 
-    border:1px solid #222833;
-
-    cursor:pointer;
+    padding:13px;
 
     transition:.2s;
 }
 
 .news-item:hover{
 
-    border-color:#9b7938;
+    background:#1a1e27;
 
+    border-color:#80632e;
 }
 
 .news-category{
 
     color:#e8c56a;
 
-    font-size:10px;
+    font-size:9px;
 
     margin-bottom:7px;
 }
 
 .news-title{
 
-    font-size:12px;
+    color:#ddd;
+
+    font-size:11px;
 
     line-height:1.8;
-
-    color:#ddd;
 }
 
-.news-time{
+.news-meta{
 
-    color:#666;
+    display:flex;
 
-    font-size:9px;
+    justify-content:space-between;
 
     margin-top:7px;
+
+    color:#5f6671;
+
+    font-size:8px;
 }
 
-/* ================= TABLE ================= */
+.news-loading{
+
+    color:#777;
+
+    text-align:center;
+
+    padding:30px;
+
+    font-size:11px;
+}
+
+
+/* =====================================================
+   MARKET TABLE
+===================================================== */
 
 .table-panel{
 
     background:#10141c;
 
-    border:1px solid #252b36;
+    border:
+    1px solid #252b36;
 
     border-radius:17px;
 
@@ -371,29 +608,38 @@ table{
 
     border-collapse:collapse;
 
-    min-width:600px;
+    min-width:650px;
 }
 
 th{
 
+    color:#707884;
+
+    font-size:10px;
+
     text-align:right;
 
-    color:#777f8c;
+    padding:13px;
 
-    font-size:11px;
-
-    padding:14px;
-
-    border-bottom:1px solid #252b36;
+    border-bottom:
+    1px solid #272d37;
 }
 
 td{
 
-    padding:15px 14px;
+    color:#ddd;
 
-    font-size:12px;
+    font-size:11px;
 
-    border-bottom:1px solid #1d222b;
+    padding:14px 13px;
+
+    border-bottom:
+    1px solid #1c222b;
+}
+
+.gold{
+
+    color:#e8c56a;
 }
 
 .green{
@@ -406,12 +652,10 @@ td{
     color:#e05a5a;
 }
 
-.gold{
 
-    color:#e8c56a;
-}
-
-/* ================= BOTTOM ================= */
+/* =====================================================
+   BOTTOM CARDS
+===================================================== */
 
 .bottom-grid{
 
@@ -421,13 +665,16 @@ td{
     repeat(3,1fr);
 
     gap:18px;
+
+    margin-bottom:25px;
 }
 
 .info-card{
 
     background:#10141c;
 
-    border:1px solid #252b36;
+    border:
+    1px solid #252b36;
 
     border-radius:17px;
 
@@ -440,38 +687,93 @@ td{
 
     font-size:14px;
 
-    margin-bottom:15px;
+    margin-bottom:13px;
 }
 
 .info-card p{
 
     color:#858c98;
 
-    font-size:11px;
+    font-size:10px;
 
     line-height:2;
 }
 
-/* ================= FOOTER ================= */
 
-footer{
+/* =====================================================
+   NEWS CATEGORIES
+===================================================== */
 
-    margin-top:30px;
+.category-grid{
 
-    padding:25px;
+    display:grid;
+
+    grid-template-columns:
+    repeat(4,1fr);
+
+    gap:12px;
+
+    margin-bottom:25px;
+}
+
+.category-button{
+
+    background:#11151d;
+
+    border:
+    1px solid #252b36;
+
+    color:#aaa;
+
+    border-radius:12px;
+
+    padding:15px;
 
     text-align:center;
 
-    color:#555c68;
+    cursor:pointer;
 
-    font-size:10px;
+    font-family:Tahoma;
 
-    border-top:1px solid #20252e;
+    font-size:11px;
+
+    transition:.2s;
 }
 
-/* ================= MOBILE ================= */
+.category-button:hover{
 
-@media(max-width:1000px){
+    color:#e8c56a;
+
+    border-color:#86672f;
+}
+
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+footer{
+
+    border-top:
+    1px solid #20252e;
+
+    padding:30px;
+
+    text-align:center;
+
+    color:#555d68;
+
+    font-size:9px;
+
+    line-height:2;
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:1050px){
 
     .market-grid{
 
@@ -479,9 +781,15 @@ footer{
         repeat(2,1fr);
     }
 
-    .dashboard-grid{
+    .two-column{
 
         grid-template-columns:1fr;
+    }
+
+    .bottom-grid{
+
+        grid-template-columns:
+        repeat(2,1fr);
     }
 
 }
@@ -490,7 +798,13 @@ footer{
 
     header{
 
-        padding:0 15px;
+        padding:
+        0 15px;
+    }
+
+    .market-status{
+
+        display:none;
     }
 
     .sidebar{
@@ -509,24 +823,55 @@ footer{
 
     .market-grid{
 
-        grid-template-columns:1fr 1fr;
+        grid-template-columns:
+        repeat(2,1fr);
 
         gap:10px;
     }
 
     .market-card{
 
-        padding:16px;
+        padding:15px;
 
         min-height:125px;
     }
 
     .market-price{
 
-        font-size:18px;
+        font-size:17px;
+    }
+
+    .two-column{
+
+        grid-template-columns:1fr;
     }
 
     .bottom-grid{
+
+        grid-template-columns:1fr;
+    }
+
+    .category-grid{
+
+        grid-template-columns:
+        repeat(2,1fr);
+    }
+
+    .chart-container{
+
+        height:350px;
+    }
+
+}
+
+
+/* =====================================================
+   VERY SMALL MOBILE
+===================================================== */
+
+@media(max-width:400px){
+
+    .market-grid{
 
         grid-template-columns:1fr;
     }
@@ -541,16 +886,28 @@ footer{
 <body>
 
 
-<!-- ================= HEADER ================= -->
+<!-- =====================================================
+     HEADER
+===================================================== -->
 
 <header>
 
     <div class="logo">
+
         MIRZA <span>◆</span>
+
     </div>
 
-    <div class="header-info">
-        📊 داشبورد بازارهای مالی
+    <div class="header-right">
+
+        <div class="market-status">
+
+            <span class="live-dot"></span>
+
+            بازار آنلاین
+
+        </div>
+
     </div>
 
 </header>
@@ -560,49 +917,54 @@ footer{
 <div class="layout">
 
 
-<!-- ================= SIDEBAR ================= -->
+<!-- =====================================================
+     SIDEBAR
+===================================================== -->
 
 <aside class="sidebar">
+
+    <div class="sidebar-title">
+        داشبورد
+    </div>
+
+    <a href="#home"
+       class="nav active">
+
+        🏠 نمای کلی
+
+    </a>
+
 
     <div class="sidebar-title">
         بازارها
     </div>
 
-    <a class="nav active" href="#">
-        🏠 نمای کلی
-    </a>
+    <a href="#gold"
+       class="nav">
 
-    <a class="nav" href="#gold">
         🪙 طلا و سکه
+
     </a>
 
-    <a class="nav" href="#currency">
+    <a href="#currency"
+       class="nav">
+
         💵 ارز
+
     </a>
 
-    <a class="nav" href="#crypto">
+    <a href="#crypto"
+       class="nav">
+
         ₿ ارز دیجیتال
+
     </a>
 
-    <a class="nav" href="#stock">
+    <a href="#stock"
+       class="nav">
+
         📈 بورس
-    </a>
 
-
-    <div class="sidebar-title">
-        تحلیل و اخبار
-    </div>
-
-    <a class="nav" href="#news">
-        📰 اخبار بازار
-    </a>
-
-    <a class="nav" href="#analysis">
-        📊 تحلیل روز
-    </a>
-
-    <a class="nav" href="#world">
-        🌍 بازارهای جهانی
     </a>
 
 
@@ -610,20 +972,49 @@ footer{
         اطلاعات
     </div>
 
-    <a class="nav" href="#about">
-        ℹ️ درباره میرزا
+    <a href="#chart"
+       class="nav">
+
+        📊 نمودارها
+
+    </a>
+
+    <a href="#news"
+       class="nav">
+
+        📰 اخبار بازار
+
+    </a>
+
+    <a href="#analysis"
+       class="nav">
+
+        🧠 تحلیل روز
+
+    </a>
+
+    <a href="#global"
+       class="nav">
+
+        🌍 بازار جهانی
+
     </a>
 
 </aside>
 
 
 
-<!-- ================= MAIN ================= -->
+<!-- =====================================================
+     CONTENT
+===================================================== -->
 
-<main class="content">
+<main class="content"
+      id="home">
 
 
-<!-- ================= TITLE ================= -->
+<!-- =====================================================
+     PAGE TITLE
+===================================================== -->
 
 <section class="page-title">
 
@@ -632,168 +1023,307 @@ footer{
     </h1>
 
     <p>
-        قیمت‌ها، تغییرات بازار و مهم‌ترین اخبار اقتصادی
+        قیمت‌ها، نمودارها، اخبار و وضعیت بازارهای مالی
     </p>
 
 </section>
 
 
 
-<!-- ================= MARKET CARDS ================= -->
+<!-- =====================================================
+     MARKET CARDS
+===================================================== -->
 
 <section class="market-grid">
 
 
-<!-- GOLD -->
+    <div class="market-card"
+         id="gold">
 
-<div class="market-card" id="gold">
+        <div class="market-name">
 
-    <div class="market-name">
-        🟡 طلای ۱۸ عیار
+            🟡 طلای ۱۸ عیار
+
+        </div>
+
+        <div class="market-price">
+
+            در حال دریافت...
+
+        </div>
+
+        <div class="market-change">
+
+            اطلاعات بازار
+
+        </div>
+
+        <div class="market-time">
+
+            داده زنده TGJU
+
+        </div>
+
     </div>
 
-    <div class="market-price">
-        253,326,000
+
+
+    <div class="market-card"
+         id="currency">
+
+        <div class="market-name">
+
+            💵 دلار
+
+        </div>
+
+        <div class="market-price">
+
+            در حال دریافت...
+
+        </div>
+
+        <div class="market-change">
+
+            اطلاعات بازار
+
+        </div>
+
+        <div class="market-time">
+
+            داده زنده TGJU
+
+        </div>
+
     </div>
 
-    <div class="market-change">
-        ▲ 0.27%
+
+
+    <div class="market-card"
+         id="crypto">
+
+        <div class="market-name">
+
+            ₿ بیت‌کوین
+
+        </div>
+
+        <div class="market-price">
+
+            در حال دریافت...
+
+        </div>
+
+        <div class="market-change">
+
+            اطلاعات بازار
+
+        </div>
+
+        <div class="market-time">
+
+            داده زنده
+
+        </div>
+
     </div>
 
-    <div class="market-time">
-        بروزرسانی آنلاین
+
+
+    <div class="market-card">
+
+        <div class="market-name">
+
+            Ξ اتریوم
+
+        </div>
+
+        <div class="market-price">
+
+            در حال دریافت...
+
+        </div>
+
+        <div class="market-change">
+
+            اطلاعات بازار
+
+        </div>
+
+        <div class="market-time">
+
+            داده زنده
+
+        </div>
+
     </div>
-
-</div>
-
-
-<!-- DOLLAR -->
-
-<div class="market-card" id="currency">
-
-    <div class="market-name">
-        💵 دلار آمریکا
-    </div>
-
-    <div class="market-price">
-        2,550,000
-    </div>
-
-    <div class="market-change">
-        ▲ 0.51%
-    </div>
-
-    <div class="market-time">
-        بروزرسانی آنلاین
-    </div>
-
-</div>
-
-
-<!-- BITCOIN -->
-
-<div class="market-card" id="crypto">
-
-    <div class="market-name">
-        ₿ بیت‌کوین
-    </div>
-
-    <div class="market-price">
-        $83,940
-    </div>
-
-    <div class="market-change">
-        ▲ 0.35%
-    </div>
-
-    <div class="market-time">
-        بروزرسانی آنلاین
-    </div>
-
-</div>
-
-
-<!-- ETHEREUM -->
-
-<div class="market-card">
-
-    <div class="market-name">
-        Ξ اتریوم
-    </div>
-
-    <div class="market-price">
-        $2,500
-    </div>
-
-    <div class="market-change">
-        آنلاین
-    </div>
-
-    <div class="market-time">
-        بازار جهانی
-    </div>
-
-</div>
 
 
 </section>
 
 
 
-<!-- ================= CHART + NEWS ================= -->
+<!-- =====================================================
+     CHART + NEWS
+===================================================== -->
 
-<section class="dashboard-grid">
+<section class="two-column"
+         id="chart">
 
 
-<!-- CHART -->
+<!-- =====================================================
+     CHART
+===================================================== -->
 
 <div class="panel">
 
-    <div class="panel-title">
+    <div class="panel-header">
 
         <h2>
-            📈 نمودار بازار
+
+            📈 نمودار قیمت
+
         </h2>
 
         <span>
-            طلا
+
+            انتخاب بازار
+
         </span>
 
     </div>
 
 
-    <div class="chart">
+    <div class="chart-toolbar">
 
-        <svg viewBox="0 0 800 260"
-             preserveAspectRatio="none">
 
-            <polyline
+        <select id="chartSelector"
+                class="chart-select">
 
-                points="
-                0,210
-                70,195
-                130,210
-                190,170
-                250,185
-                310,130
-                370,145
-                430,95
-                490,120
-                550,75
-                610,90
-                670,50
-                730,70
-                800,35"
 
-                fill="none"
+            <option value="FOREXCOM:XAUUSD">
 
-                stroke="#e8c56a"
+                🟡 طلا / XAUUSD
 
-                stroke-width="3"
+            </option>
 
-            />
 
-        </svg>
+            <option value="BITSTAMP:BTCUSD">
+
+                ₿ بیت‌کوین / BTCUSD
+
+            </option>
+
+
+            <option value="BITSTAMP:ETHUSD">
+
+                Ξ اتریوم / ETHUSD
+
+            </option>
+
+
+            <option value="FX:EURUSD">
+
+                💶 یورو / دلار
+
+            </option>
+
+
+            <option value="FX:GBPUSD">
+
+                💷 پوند / دلار
+
+            </option>
+
+
+            <option value="FX:USDJPY">
+
+                💴 دلار / ین
+
+            </option>
+
+
+            <option value="FX:USDCAD">
+
+                🇨🇦 دلار آمریکا / دلار کانادا
+
+            </option>
+
+
+            <option value="FX:AUDUSD">
+
+                🇦🇺 دلار استرالیا / دلار آمریکا
+
+            </option>
+
+
+        </select>
+
+
+        <select id="chartPeriod"
+                class="chart-period">
+
+            <option value="1D">
+
+                ۱ روز
+
+            </option>
+
+            <option value="5D">
+
+                ۵ روز
+
+            </option>
+
+            <option value="1M">
+
+                ۱ ماه
+
+            </option>
+
+            <option value="3M">
+
+                ۳ ماه
+
+            </option>
+
+            <option value="6M">
+
+                ۶ ماه
+
+            </option>
+
+            <option value="1Y"
+                    selected>
+
+                ۱ سال
+
+            </option>
+
+        </select>
+
+
+    </div>
+
+
+    <div class="chart-info">
+
+        محور افقی: تاریخ و زمان
+        &nbsp; | &nbsp;
+        محور عمودی: قیمت
+
+    </div>
+
+
+    <div class="chart-container"
+         id="chartBox">
+
+        <iframe
+            id="tradingChart"
+            src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=FOREXCOM%3AXAUUSD&interval=D&hidesidetoolbar=1&symboledit=1&saveimage=0&toolbarbg=0b0e13&theme=dark&style=1&timezone=Asia%2FTehran&withdateranges=1&hideideas=1&studies=[]"
+            allowtransparency="true"
+            scrolling="no">
+        </iframe>
 
     </div>
 
@@ -801,73 +1331,37 @@ footer{
 
 
 
-<!-- NEWS -->
+<!-- =====================================================
+     NEWS
+===================================================== -->
 
-<div class="panel" id="news">
+<div class="panel"
+     id="news">
 
-    <div class="panel-title">
+    <div class="panel-header">
 
         <h2>
-            📰 اخبار مهم
+
+            📰 اخبار بازار
+
         </h2>
 
         <span>
-            امروز
+
+            زنده
+
         </span>
 
     </div>
 
 
-    <div class="news">
+    <div class="news-list"
+         id="newsList">
 
 
-        <div class="news-item">
+        <div class="news-loading">
 
-            <div class="news-category">
-                طلا و ارز
-            </div>
-
-            <div class="news-title">
-                قیمت طلا، سکه و ارز در بازار امروز با نوسانات جدید همراه شد.
-            </div>
-
-            <div class="news-time">
-                بروزرسانی امروز
-            </div>
-
-        </div>
-
-
-        <div class="news-item">
-
-            <div class="news-category">
-                اقتصاد
-            </div>
-
-            <div class="news-title">
-                تحولات نرخ ارز همچنان یکی از متغیرهای مهم بازارهای دارایی است.
-            </div>
-
-            <div class="news-time">
-                امروز
-            </div>
-
-        </div>
-
-
-        <div class="news-item">
-
-            <div class="news-category">
-                بورس
-            </div>
-
-            <div class="news-title">
-                شاخص‌های بازار سرمایه و روند معاملات در مرکز توجه فعالان بازار قرار دارند.
-            </div>
-
-            <div class="news-time">
-                امروز
-            </div>
+            در حال دریافت اخبار...
 
         </div>
 
@@ -881,24 +1375,124 @@ footer{
 
 
 
-<!-- ================= MARKET TABLE ================= -->
+<!-- =====================================================
+     NEWS CATEGORY BUTTONS
+===================================================== -->
 
-<section class="table-panel" id="stock">
+<section class="panel"
+         style="margin-bottom:25px;">
 
-    <div class="panel-title">
+    <div class="panel-header">
 
         <h2>
+
+            📰 دسته‌بندی اخبار
+
+        </h2>
+
+    </div>
+
+
+    <div class="category-grid">
+
+
+        <button class="category-button"
+                onclick="loadNews('اقتصاد ایران')">
+
+            🇮🇷 اقتصاد ایران
+
+        </button>
+
+
+        <button class="category-button"
+                onclick="loadNews('بورس ایران')">
+
+            📈 بورس
+
+        </button>
+
+
+        <button class="category-button"
+                onclick="loadNews('طلا دلار ایران')">
+
+            🪙 طلا و ارز
+
+        </button>
+
+
+        <button class="category-button"
+                onclick="loadNews('ارز دیجیتال بیت کوین')">
+
+            ₿ کریپتو
+
+        </button>
+
+
+        <button class="category-button"
+                onclick="loadNews('اقتصاد جهان')">
+
+            🌍 اقتصاد جهان
+
+        </button>
+
+
+        <button class="category-button"
+                onclick="loadNews('سیاست ایران اقتصاد')">
+
+            🏛 سیاست و اقتصاد
+
+        </button>
+
+
+        <button class="category-button"
+                onclick="loadNews('نفت انرژی جهان')">
+
+            🛢 نفت و انرژی
+
+        </button>
+
+
+        <button class="category-button"
+                onclick="loadNews('بازارهای مالی جهان')">
+
+            💹 بازارهای جهانی
+
+        </button>
+
+
+    </div>
+
+</section>
+
+
+
+<!-- =====================================================
+     MARKET TABLE
+===================================================== -->
+
+<section class="table-panel"
+         id="stock">
+
+
+    <div class="panel-header">
+
+        <h2>
+
             📊 نمای بازار
+
         </h2>
 
         <span>
+
             بازارهای مالی
+
         </span>
 
     </div>
 
 
     <table>
+
 
         <thead>
 
@@ -909,7 +1503,7 @@ footer{
                 </th>
 
                 <th>
-                    مقدار
+                    قیمت
                 </th>
 
                 <th>
@@ -927,22 +1521,23 @@ footer{
 
         <tbody>
 
+
             <tr>
 
                 <td>
-                    طلای ۱۸
+                    طلای ۱۸ عیار
                 </td>
 
                 <td class="gold">
-                    253,326,000
+                    آنلاین
                 </td>
 
                 <td class="green">
-                    +0.27%
+                    آنلاین
                 </td>
 
                 <td>
-                    مثبت
+                    فعال
                 </td>
 
             </tr>
@@ -955,15 +1550,15 @@ footer{
                 </td>
 
                 <td class="gold">
-                    2,550,000
+                    آنلاین
                 </td>
 
                 <td class="green">
-                    +0.51%
+                    آنلاین
                 </td>
 
                 <td>
-                    مثبت
+                    فعال
                 </td>
 
             </tr>
@@ -976,15 +1571,36 @@ footer{
                 </td>
 
                 <td class="gold">
-                    $83,940
+                    آنلاین
                 </td>
 
                 <td class="green">
-                    +0.35%
+                    آنلاین
                 </td>
 
                 <td>
-                    مثبت
+                    فعال
+                </td>
+
+            </tr>
+
+
+            <tr>
+
+                <td>
+                    اتریوم
+                </td>
+
+                <td class="gold">
+                    آنلاین
+                </td>
+
+                <td class="green">
+                    آنلاین
+                </td>
+
+                <td>
+                    فعال
                 </td>
 
             </tr>
@@ -996,16 +1612,16 @@ footer{
                     شاخص کل بورس
                 </td>
 
-                <td>
-                    7.76M
-                </td>
-
-                <td class="green">
-                    +2.21%
+                <td class="gold">
+                    آنلاین
                 </td>
 
                 <td>
-                    مثبت
+                    ---
+                </td>
+
+                <td>
+                    بازار ایران
                 </td>
 
             </tr>
@@ -1019,77 +1635,95 @@ footer{
 
 
 
-<!-- ================= ANALYSIS ================= -->
+<!-- =====================================================
+     INFORMATION
+===================================================== -->
 
-<section class="bottom-grid" id="analysis">
-
-
-<div class="info-card">
-
-    <h3>
-        🧠 تحلیل روز
-    </h3>
-
-    <p>
-
-        در این بخش تحلیل روزانه بازارهای طلا،
-        ارز، بورس و رمزارز قرار خواهد گرفت.
-
-        هدف میرزا ارائه اطلاعات و تحلیل
-        به زبان ساده و قابل فهم است.
-
-    </p>
-
-</div>
+<section class="bottom-grid"
+         id="analysis">
 
 
-<div class="info-card" id="world">
+    <div class="info-card">
 
-    <h3>
-        🌍 بازارهای جهانی
-    </h3>
+        <h3>
 
-    <p>
+            🧠 تحلیل روز
 
-        انس جهانی طلا، نفت، شاخص‌های مهم
-        بازارهای جهانی و بیت‌کوین در این بخش
-        نمایش داده خواهند شد.
+        </h3>
 
-    </p>
+        <p>
 
-</div>
+            در این قسمت بعداً تحلیل روزانه
+            طلا، ارز، بورس و رمزارز قرار می‌گیرد.
+
+            تحلیل‌ها می‌توانند شامل روند قیمت،
+            حمایت و مقاومت، RSI و MACD باشند.
+
+        </p>
+
+    </div>
 
 
-<div class="info-card">
+    <div class="info-card"
+         id="global">
 
-    <h3>
-        ⚡ وضعیت بازار
-    </h3>
+        <h3>
 
-    <p>
+            🌍 بازارهای جهانی
 
-        طلا و ارز، بورس و رمزارزها
-        در یک نمای کلی برای بررسی سریع
-        بازار نمایش داده می‌شوند.
+        </h3>
 
-    </p>
+        <p>
 
-</div>
+            طلا، نفت، شاخص دلار،
+            بازار ارز جهانی و رمزارزها
+            در این قسمت بررسی می‌شوند.
+
+        </p>
+
+    </div>
+
+
+    <div class="info-card">
+
+        <h3>
+
+            ⚡ وضعیت بازار
+
+        </h3>
+
+        <p>
+
+            یک نمای سریع از وضعیت بازارهای
+            مالی ایران و جهان برای بررسی
+            روزانه در اختیار کاربر قرار می‌گیرد.
+
+        </p>
+
+    </div>
 
 
 </section>
 
 
 
-<!-- ================= FOOTER ================= -->
+<!-- =====================================================
+     FOOTER
+===================================================== -->
 
-<footer id="about">
+<footer>
 
-    MIRZA
+    <strong>
+        MIRZA
+    </strong>
 
-    <br><br>
+    <br>
 
     هر اتفاق، یک اثر؛ هر اثر، یک تحلیل.
+
+    <br>
+
+    اطلاعات بازار برای اهداف اطلاع‌رسانی و تحلیلی ارائه می‌شود.
 
 </footer>
 
@@ -1097,6 +1731,383 @@ footer{
 </main>
 
 </div>
+
+
+
+<!-- =====================================================
+     TRADINGVIEW CHART SCRIPT
+===================================================== -->
+
+<script>
+
+
+/* =====================================================
+   CHART SELECTOR
+===================================================== */
+
+const chartSelector =
+document.getElementById("chartSelector");
+
+const chartPeriod =
+document.getElementById("chartPeriod");
+
+const tradingChart =
+document.getElementById("tradingChart");
+
+
+function updateChart(){
+
+    const symbol =
+    chartSelector.value;
+
+    const period =
+    chartPeriod.value;
+
+
+    let interval="D";
+
+
+    if(period==="1D"){
+        interval="30";
+    }
+
+    if(period==="5D"){
+        interval="60";
+    }
+
+    if(period==="1M"){
+        interval="D";
+    }
+
+    if(period==="3M"){
+        interval="D";
+    }
+
+    if(period==="6M"){
+        interval="D";
+    }
+
+    if(period==="1Y"){
+        interval="D";
+    }
+
+
+    const url =
+    "https://www.tradingview.com/widgetembed/" +
+
+    "?frameElementId=tradingview_chart" +
+
+    "&symbol=" +
+    encodeURIComponent(symbol) +
+
+    "&interval=" +
+    interval +
+
+    "&hidesidetoolbar=1" +
+
+    "&symboledit=1" +
+
+    "&saveimage=0" +
+
+    "&toolbarbg=0b0e13" +
+
+    "&theme=dark" +
+
+    "&style=1" +
+
+    "&timezone=Asia%2FTehran" +
+
+    "&withdateranges=1" +
+
+    "&hideideas=1";
+
+
+    tradingChart.src=url;
+
+}
+
+
+chartSelector.addEventListener(
+    "change",
+    updateChart
+);
+
+chartPeriod.addEventListener(
+    "change",
+    updateChart
+);
+
+
+
+/* =====================================================
+   NEWS
+===================================================== */
+
+
+/*
+   خبرها از Google News RSS گرفته می‌شوند.
+   برای عبور از محدودیت CORS از AllOrigins استفاده شده.
+*/
+
+
+const newsList =
+document.getElementById("newsList");
+
+
+async function loadNews(query="اقتصاد ایران بازار مالی"){
+
+    newsList.innerHTML=
+    '<div class="news-loading">در حال دریافت اخبار...</div>';
+
+
+    const rssUrl =
+    "https://news.google.com/rss/search?q=" +
+
+    encodeURIComponent(query) +
+
+    "&hl=fa&gl=IR&ceid=IR:fa";
+
+
+    const proxyUrl =
+    "https://api.allorigins.win/raw?url=" +
+
+    encodeURIComponent(rssUrl);
+
+
+    try{
+
+        const response =
+        await fetch(proxyUrl);
+
+
+        if(!response.ok){
+
+            throw new Error(
+                "News request failed"
+            );
+
+        }
+
+
+        const xmlText =
+        await response.text();
+
+
+        const parser =
+        new DOMParser();
+
+
+        const xml =
+        parser.parseFromString(
+            xmlText,
+            "text/xml"
+        );
+
+
+        const items =
+        Array.from(
+            xml.querySelectorAll("item")
+        );
+
+
+        if(items.length===0){
+
+            newsList.innerHTML=
+            '<div class="news-loading">خبری پیدا نشد.</div>';
+
+            return;
+
+        }
+
+
+        newsList.innerHTML="";
+
+
+        items
+        .slice(0,8)
+        .forEach(item=>{
+
+
+            const title =
+            item.querySelector("title")?.textContent
+            || "بدون عنوان";
+
+
+            const link =
+            item.querySelector("link")?.textContent
+            || "#";
+
+
+            const pubDate =
+            item.querySelector("pubDate")?.textContent
+            || "";
+
+
+            const source =
+            item.querySelector("source")?.textContent
+            || "منبع خبر";
+
+
+            const article =
+            document.createElement("a");
+
+
+            article.className=
+            "news-item";
+
+
+            article.href=link;
+
+
+            article.target="_blank";
+
+
+            article.rel=
+            "noopener noreferrer";
+
+
+            article.innerHTML=`
+
+                <div class="news-category">
+                    ${query}
+                </div>
+
+                <div class="news-title">
+                    ${escapeHTML(title)}
+                </div>
+
+                <div class="news-meta">
+
+                    <span>
+                        ${escapeHTML(source)}
+                    </span>
+
+                    <span>
+                        ${formatNewsDate(pubDate)}
+                    </span>
+
+                </div>
+
+            `;
+
+
+            newsList.appendChild(article);
+
+        });
+
+
+    }
+
+    catch(error){
+
+        console.error(error);
+
+
+        newsList.innerHTML=`
+
+            <div class="news-loading">
+
+                دریافت اخبار با مشکل مواجه شد.
+
+                <br><br>
+
+                دوباره تلاش کنید.
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+
+/* =====================================================
+   NEWS HELPERS
+===================================================== */
+
+
+function escapeHTML(text){
+
+    return text
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+function formatNewsDate(date){
+
+    if(!date)
+        return "";
+
+    try{
+
+        const d=
+        new Date(date);
+
+        return d.toLocaleDateString(
+            "fa-IR",
+            {
+                month:"short",
+                day:"numeric"
+            }
+        );
+
+    }
+
+    catch{
+
+        return "";
+
+    }
+
+}
+
+
+
+/* =====================================================
+   LOAD INITIAL NEWS
+===================================================== */
+
+loadNews(
+    "اقتصاد ایران بازار مالی طلا دلار بورس"
+);
+
+
+
+/* =====================================================
+   REFRESH NEWS
+===================================================== */
+
+setInterval(
+    function(){
+
+        loadNews(
+            "اقتصاد ایران بازار مالی طلا دلار بورس"
+        );
+
+    },
+    15 * 60 * 1000
+);
+
+
+</script>
+
+
+
+<!-- =====================================================
+     TGJU LIVE WIDGET
+===================================================== -->
+
+<script
+src="https://api.tgju.org/v1/widget/v2"
+defer>
+</script>
 
 
 </body>
