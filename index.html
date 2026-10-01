@@ -28,7 +28,6 @@ button,select,input{font-family:inherit}
 button{cursor:pointer}
 a{color:inherit}
 
-/* متن انگلیسی و عدد داخل جمله فارسی: جلوگیری از به‌هم‌ریختگی */
 .ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
 
 ::-webkit-scrollbar{width:7px;height:7px}
@@ -208,26 +207,26 @@ tr.row-click:hover{background:#151a22}
 
 <!-- کارت‌های قیمت زنده -->
 <section class="market-grid">
-  <button type="button" class="market-card" data-symbol="FOREXCOM:XAUUSD">
+  <div class="market-card" role="button" tabindex="0" data-symbol="FOREXCOM:XAUUSD">
     <div class="market-name">🟡 طلای جهانی</div>
     <div class="widget" data-quote="FOREXCOM:XAUUSD"></div>
     <div class="market-hint">برای دیدن نمودار کلیک کنید</div>
-  </button>
-  <button type="button" class="market-card" data-symbol="BITSTAMP:BTCUSD">
+  </div>
+  <div class="market-card" role="button" tabindex="0" data-symbol="BITSTAMP:BTCUSD">
     <div class="market-name">₿ بیت‌کوین</div>
     <div class="widget" data-quote="BITSTAMP:BTCUSD"></div>
     <div class="market-hint">برای دیدن نمودار کلیک کنید</div>
-  </button>
-  <button type="button" class="market-card" data-symbol="BITSTAMP:ETHUSD">
+  </div>
+  <div class="market-card" role="button" tabindex="0" data-symbol="BITSTAMP:ETHUSD">
     <div class="market-name">Ξ اتریوم</div>
     <div class="widget" data-quote="BITSTAMP:ETHUSD"></div>
     <div class="market-hint">برای دیدن نمودار کلیک کنید</div>
-  </button>
-  <button type="button" class="market-card" data-symbol="TVC:USOIL">
+  </div>
+  <div class="market-card" role="button" tabindex="0" data-symbol="TVC:USOIL">
     <div class="market-name">🛢 نفت خام</div>
     <div class="widget" data-quote="TVC:USOIL"></div>
     <div class="market-hint">برای دیدن نمودار کلیک کنید</div>
-  </button>
+  </div>
 </section>
 
 <!-- نمودار + اخبار -->
@@ -380,7 +379,7 @@ tr.row-click:hover{background:#151a22}
 "use strict";
 
 /* =========================================================
-   ابزار کمکی: بارگذاری ویجت‌های TradingView
+   بارگذاری ویجت‌های TradingView
 ========================================================= */
 const TV_BASE = "https://s3.tradingview.com/external-embedding/";
 const TV_LOCALE = "fa_IR";
@@ -406,20 +405,18 @@ function mountWidget(container, scriptName, config){
   container.appendChild(wrap);
 }
 
-/* =========================================================
-   نوار قیمت بالای صفحه
-========================================================= */
+/* نوار قیمت بالای صفحه */
 mountWidget(
   document.getElementById("tickerTape"),
   "embed-widget-ticker-tape.js",
   {
     symbols:[
-      {proName:"FOREXCOM:XAUUSD", title:"Gold"},
-      {proName:"BITSTAMP:BTCUSD", title:"Bitcoin"},
-      {proName:"BITSTAMP:ETHUSD", title:"Ethereum"},
-      {proName:"TVC:USOIL", title:"Oil"},
-      {proName:"TVC:DXY", title:"DXY"},
-      {proName:"FX:EURUSD", title:"EUR/USD"}
+      {proName:"FOREXCOM:XAUUSD", title:"طلای جهانی"},
+      {proName:"BITSTAMP:BTCUSD", title:"بیت‌کوین"},
+      {proName:"BITSTAMP:ETHUSD", title:"اتریوم"},
+      {proName:"TVC:USOIL", title:"نفت خام"},
+      {proName:"TVC:DXY", title:"شاخص دلار"},
+      {proName:"FX:EURUSD", title:"یورو به دلار"}
     ],
     showSymbolLogo:false,
     colorTheme:"dark",
@@ -429,9 +426,7 @@ mountWidget(
   }
 );
 
-/* =========================================================
-   کارت‌های قیمت زنده
-========================================================= */
+/* کارت‌های قیمت زنده */
 document.querySelectorAll(".market-card .widget").forEach(function(box){
   mountWidget(box, "embed-widget-single-quote.js", {
     symbol: box.dataset.quote,
@@ -442,9 +437,7 @@ document.querySelectorAll(".market-card .widget").forEach(function(box){
   });
 });
 
-/* =========================================================
-   تقویم اقتصادی
-========================================================= */
+/* تقویم اقتصادی */
 mountWidget(
   document.getElementById("calendarBox"),
   "embed-widget-events.js",
@@ -504,7 +497,6 @@ function updateChart(symbol){
   });
 }
 
-/* همگام‌سازی لیست انتخاب با نماد فعلی */
 function syncSelector(symbol){
   const exists = Array.from(chartSelector.options).some(function(o){
     return o.value === symbol && o.value !== "custom";
@@ -536,7 +528,6 @@ chartPeriod.addEventListener("change", function(){
   updateChart(currentSymbol);
 });
 
-/* نماد دلخواه */
 const SYMBOL_PATTERN = /^[A-Z0-9_.!&\-]{1,30}(:[A-Z0-9_.!&\-]{1,30})?$/;
 
 function loadCustomSymbol(){
@@ -574,12 +565,20 @@ document.querySelectorAll(".market-card, tr.row-click").forEach(function(el){
   el.addEventListener("click", function(){
     showChart(el.dataset.symbol, true);
   });
+  if(el.classList.contains("market-card")){
+    el.addEventListener("keydown", function(e){
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        showChart(el.dataset.symbol, true);
+      }
+    });
+  }
 });
 
 updateChart(currentSymbol);
 
 /* =========================================================
-   اخبار
+   اخبار (فقط فارسی)
 ========================================================= */
 const newsList = document.getElementById("newsList");
 const newsCategoryLabel = document.getElementById("newsCategoryLabel");
@@ -588,9 +587,10 @@ let currentNewsQuery = "اقتصاد ایران";
 let currentNewsTitle = "اقتصاد ایران";
 let newsRequestId = 0;
 
-/* چند سرویس واسط؛ اگر یکی کار نکرد بعدی امتحان می‌شود */
+/* سرویس‌های واسط؛ اگر یکی کار نکرد بعدی امتحان می‌شود */
 const PROXIES = [
   function(u){ return {url:"https://api.allorigins.win/raw?url=" + encodeURIComponent(u), type:"xml"}; },
+  function(u){ return {url:"https://api.allorigins.win/get?url=" + encodeURIComponent(u), type:"wrapped"}; },
   function(u){ return {url:"https://corsproxy.io/?url=" + encodeURIComponent(u), type:"xml"}; },
   function(u){ return {url:"https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u), type:"xml"}; },
   function(u){ return {url:"https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(u), type:"json"}; }
@@ -601,6 +601,44 @@ function fetchWithTimeout(url, ms){
   const timer = setTimeout(function(){ controller.abort(); }, ms);
   return fetch(url, {cache:"no-store", signal:controller.signal})
     .finally(function(){ clearTimeout(timer); });
+}
+
+/* تشخیص فارسی بودن عنوان: حداقل ۶۰ درصد حروف باید فارسی/عربی باشد */
+function isPersianText(text){
+  const letters = (text || "").match(/[A-Za-z\u0600-\u06FF]/g) || [];
+  if(!letters.length) return false;
+  const fa = (text || "").match(/[\u0600-\u06FF]/g) || [];
+  return fa.length / letters.length >= 0.6;
+}
+
+/* حذف نام منبع از انتهای عنوان (مثل: عنوان خبر - نام سایت) */
+function cleanTitle(title, source){
+  let t = (title || "").trim();
+  if(source && t.endsWith(" - " + source)){
+    t = t.slice(0, t.length - source.length - 3).trim();
+  }else{
+    t = t.replace(/\s+-\s+[^-]{1,40}$/, "").trim();
+  }
+  return t;
+}
+
+function normalizeItems(items){
+  const seen = new Set();
+  return items
+    .map(function(i){
+      return {
+        title: cleanTitle(i.title, i.source),
+        link: i.link,
+        source: i.source,
+        date: i.date
+      };
+    })
+    .filter(function(i){
+      if(!i.title || !isPersianText(i.title)) return false;
+      if(seen.has(i.title)) return false;
+      seen.add(i.title);
+      return true;
+    });
 }
 
 function parseXML(text){
@@ -625,8 +663,17 @@ function parseJSON(text){
   });
 }
 
+function parseWrapped(text){
+  const data = JSON.parse(text);
+  if(!data.contents) throw new Error("no contents");
+  return parseXML(data.contents);
+}
+
 async function fetchNews(query){
-  const rss = "https://news.google.com/rss/search?q=" + encodeURIComponent(query) + "&hl=fa&gl=IR&ceid=IR:fa";
+  const rss = "https://news.google.com/rss/search?q=" +
+    encodeURIComponent(query + " when:7d") +
+    "&hl=fa&gl=IR&ceid=IR:fa";
+
   let lastError;
 
   for(const make of PROXIES){
@@ -635,7 +682,15 @@ async function fetchNews(query){
       const res = await fetchWithTimeout(p.url, 9000);
       if(!res.ok) throw new Error("http " + res.status);
       const text = await res.text();
-      return p.type === "json" ? parseJSON(text) : parseXML(text);
+
+      let raw;
+      if(p.type === "json") raw = parseJSON(text);
+      else if(p.type === "wrapped") raw = parseWrapped(text);
+      else raw = parseXML(text);
+
+      const persian = normalizeItems(raw);
+      if(!persian.length) throw new Error("no persian items");
+      return persian;
     }catch(err){
       lastError = err;
     }
@@ -655,12 +710,12 @@ function safeLink(url){
   return /^https?:\/\//i.test(url) ? url : "#";
 }
 
-/* ذخیره آخرین اخبار موفق برای زمان قطعی سرویس */
+/* ذخیره آخرین اخبار موفق (کلید جدید تا اخبار انگلیسی قدیمی برنگردد) */
 function cacheGet(key){
-  try{ return JSON.parse(localStorage.getItem("mirza_news_" + key)); }catch(e){ return null; }
+  try{ return JSON.parse(localStorage.getItem("mirza_news_fa_" + key)); }catch(e){ return null; }
 }
 function cacheSet(key, items){
-  try{ localStorage.setItem("mirza_news_" + key, JSON.stringify(items)); }catch(e){}
+  try{ localStorage.setItem("mirza_news_fa_" + key, JSON.stringify(items)); }catch(e){}
 }
 
 function renderNews(items, title, note){
@@ -686,7 +741,7 @@ function renderNews(items, title, note){
 
     const h = document.createElement("div");
     h.className = "news-title";
-    h.textContent = it.title || "بدون عنوان";
+    h.textContent = it.title;
 
     const meta = document.createElement("div");
     meta.className = "news-meta";
@@ -703,8 +758,8 @@ function renderNews(items, title, note){
 
 function renderNewsError(){
   newsList.innerHTML =
-    '<div class="news-loading">دریافت اخبار در حال حاضر امکان‌پذیر نیست.<br>' +
-    'ممکن است سرویس اخبار موقتاً پاسخ ندهد.<br>' +
+    '<div class="news-loading">خبر فارسی تازه‌ای پیدا نشد یا سرویس اخبار پاسخ نمی‌دهد.<br>' +
+    'چند لحظه بعد دوباره امتحان کنید.<br>' +
     '<button class="retry-button" id="retryNewsButton" type="button">تلاش مجدد</button></div>';
   document.getElementById("retryNewsButton").addEventListener("click", function(){
     loadNews(currentNewsQuery, currentNewsTitle);
@@ -716,7 +771,7 @@ async function loadNews(query, title){
   currentNewsTitle = title || query;
   newsCategoryLabel.textContent = currentNewsTitle;
 
-  const myId = ++newsRequestId;   // جلوگیری از نمایش پاسخ قدیمی
+  const myId = ++newsRequestId;
 
   newsList.innerHTML = '<div class="news-loading"><div class="spinner"></div>در حال دریافت اخبار...</div>';
 
