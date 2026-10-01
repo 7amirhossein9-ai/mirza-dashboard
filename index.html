@@ -2,129 +2,83 @@
 <html lang="fa" dir="rtl">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Mirza | بازارهای مالی</title>
+<title>Mirza | داشبورد بازارهای مالی</title>
 
-    <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #111;
-            color: white;
-        }
+<style>
 
-        header {
-            padding: 25px;
-            text-align: center;
-            background: #181818;
-        }
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
 
-        header h1 {
-            margin: 0;
-            font-size: 32px;
-        }
+body{
+    font-family:Tahoma,Arial,sans-serif;
+    background:#080a0f;
+    color:#f5f5f5;
+}
 
-        header p {
-            color: #aaa;
-        }
+/* ===== SIDEBAR ===== */
 
-        .container {
-            padding: 20px;
-            max-width: 1200px;
-            margin: auto;
-        }
+.sidebar{
+    position:fixed;
+    right:0;
+    top:0;
+    bottom:0;
+    width:250px;
+    background:#0d1016;
+    border-left:1px solid #242832;
+    padding:25px 15px;
+}
 
-        .cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
+.logo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:10px;
+    margin-bottom:35px;
+}
 
-        .card {
-            background: #1c1c1c;
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px solid #333;
-        }
+.logo-icon{
+    width:45px;
+    height:45px;
+    border-radius:14px;
+    background:linear-gradient(135deg,#f2ce75,#a77525);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#111;
+    font-size:23px;
+    font-weight:bold;
+}
 
-        .card h3 {
-            margin-top: 0;
-        }
+.logo-text{
+    font-size:22px;
+    font-weight:bold;
+    letter-spacing:2px;
+}
 
-        .price {
-            font-size: 25px;
-            margin: 15px 0;
-        }
+.logo small{
+    display:block;
+    color:#777;
+    font-size:9px;
+    margin-top:4px;
+}
 
-        .section {
-            margin-top: 30px;
-            background: #1a1a1a;
-            padding: 25px;
-            border-radius: 15px;
-        }
-    </style>
-</head>
+.menu-title{
+    color:#666e7d;
+    font-size:11px;
+    padding:10px;
+}
 
-<body>
-
-<header>
-    <h1>Mirza</h1>
-    <p>اقتصاد | بورس | ارز دیجیتال | طلا</p>
-</header>
-
-<div class="container">
-
-    <div class="cards">
-
-        <div class="card">
-            <h3>🪙 طلا</h3>
-            <div class="price">---</div>
-            <p>قیمت لحظه‌ای</p>
-        </div>
-
-        <div class="card">
-            <h3>💵 دلار</h3>
-            <div class="price">---</div>
-            <p>قیمت لحظه‌ای</p>
-        </div>
-
-        <div class="card">
-            <h3>₿ Bitcoin</h3>
-            <div class="price">---</div>
-            <p>قیمت لحظه‌ای</p>
-        </div>
-
-        <div class="card">
-            <h3>Ξ Ethereum</h3>
-            <div class="price">---</div>
-            <p>قیمت لحظه‌ای</p>
-        </div>
-
-    </div>
-
-    <div class="section">
-        <h2>🪙 طلا و سکه</h2>
-        <p>تحلیل روزانه بازار طلا و سکه</p>
-    </div>
-
-    <div class="section">
-        <h2>₿ ارز دیجیتال</h2>
-        <p>تحلیل Bitcoin، Ethereum و سایر رمزارزها</p>
-    </div>
-
-    <div class="section">
-        <h2>📈 بورس</h2>
-        <p>بررسی شاخص‌ها و اتفاقات بازار سرمایه</p>
-    </div>
-
-    <div class="section">
-        <h2>🌍 اقتصاد و سیاست</h2>
-        <p>بررسی اخبار اقتصادی و سیاسی و اثر احتمالی آنها بر بازارها</p>
-    </div>
-
-</div>
-
-</body>
-</html>
+.menu a{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:14px;
+    margin:5px 0;
+    border-radius:12px;
+    color:#aeb
