@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="میرزا | اقتصاد، بورس، ارز دیجیتال و بازارهای مالی">
+<meta name="theme-color" content="#080a0f">
+<meta property="og:title" content="میرزا | بازارهای مالی">
+<meta property="og:description" content="نمودار زنده، اخبار اقتصادی و تقویم اقتصادی">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%88%3C/text%3E%3C/svg%3E">
+<title>میرزا | بازارهای مالی</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080a0f; --panel:#10141b; --panel2:#151922; --line:#252b35;
+  --gold:#e7c461; --gold-dim:#80622f; --text:#f3f3f3; --muted:#8a93a0; --green:#3ac879; --red:#ef5350;
+  --header-h:64px; --side-w:230px; --ticker-h:46px;
+}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--header-h) + var(--ticker-h) + 12px)}
+body{background:var(--bg);color:var(--text);font-family:Vazirmatn,Tahoma,Arial,sans-serif;font-size:14px;line-height:1.8;min-height:100vh;-webkit-text-size-adjust:100%}
+button,select,input{font-family:inherit}
+button{cursor:pointer}
+a{color:inherit}
+
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+
+::-webkit-scrollbar{width:7px;height:7px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:#39342b;border-radius:20px}
+
+/* HEADER */
+.header{height:var(--header-h);position:sticky;top:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#0d1016;border-bottom:1px solid var(--line)}
+.logo{color:var(--gold);font-size:24px;font-weight:700;letter-spacing:2px;direction:ltr;unicode-bidi:isolate}
+.logo span{color:#fff}
+.header-right{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;animation:pulse 1.8s infinite}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(53,199,121,.6)}70%{box-shadow:0 0 0 8px rgba(53,199,121,0)}100%{box-shadow:0 0 0 0 rgba(53,199,121,0)}}
+
+/* TICKER */
+.ticker{height:var(--ticker-h);border-bottom:1px solid var(--line);background:#0b0e13;overflow:hidden;margin-right:var(--side-w)}
+.ticker .tradingview-widget-container{height:100%}
+
+/* SIDEBAR */
+.sidebar{width:var(--side-w);position:fixed;right:0;top:var(--header-h);bottom:0;background:#0c0f14;border-left:1px solid var(--line);padding:20px 12px;overflow-y:auto}
+.sidebar-title{color:#6a7380;font-size:11px;margin:16px 10px 8px}
+.nav{display:block;text-decoration:none;color:#aeb4bd;font-size:13px;padding:11px 13px;border-radius:9px;margin-bottom:4px;transition:.2s;border-right:2px solid transparent}
+.nav:hover{background:#171b22;color:var(--gold)}
+.nav.active{color:var(--gold);background:#191c23;border-right-color:var(--gold)}
+
+/* MAIN */
+.main{margin-right:var(--side-w);padding:26px}
+.page-title{margin-bottom:22px}
+.page-title h1{font-size:26px;margin-bottom:6px}
+.page-title p{color:var(--muted);font-size:13px}
+
+/* MARKET CARDS */
+.market-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.market-card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:14px 14px 10px;min-height:170px;transition:.2s;cursor:pointer;text-align:right;color:inherit;display:block;width:100%}
+.market-card:hover,.market-card:focus-visible{transform:translateY(-2px);border-color:var(--gold-dim);outline:none}
+.market-name{color:var(--muted);font-size:12px;margin-bottom:6px}
+.market-card .widget{height:105px;pointer-events:none}
+.market-hint{color:#5f6874;font-size:11px;margin-top:4px}
+
+/* PANEL */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px}
+.panel-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.panel-title h2{font-size:16px}
+.panel-title span{color:var(--gold);font-size:11px}
+
+.two-column{display:grid;grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:16px;margin-bottom:20px}
+
+/* TOOLBAR */
+.chart-toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.chart-select,.chart-period,.custom-symbol{height:40px;background:#171b23;color:#e8e8e8;border:1px solid #343a45;border-radius:8px;outline:none;padding:0 11px;font-size:13px}
+.chart-select{min-width:200px}
+.chart-period{min-width:110px}
+.custom-symbol{width:200px;direction:ltr;text-align:left}
+.chart-select:focus,.chart-period:focus,.custom-symbol:focus{border-color:#9b7737}
+.chart-button{height:40px;border:0;border-radius:8px;padding:0 14px;background:var(--gold);color:#111;font-size:13px;font-weight:700}
+.chart-button:hover{opacity:.88}
+.chart-button.secondary{background:#1b2028;color:var(--gold);border:1px solid #39332a}
+.chart-info{color:#6d7681;font-size:12px;line-height:2;margin-bottom:10px}
+.chart-info code{direction:ltr;unicode-bidi:isolate;display:inline-block;background:#171b23;padding:0 6px;border-radius:5px;color:var(--gold)}
+.form-error{color:var(--red);font-size:12px;min-height:18px;margin-bottom:6px}
+
+.chart-box{width:100%;height:480px;overflow:hidden;border:1px solid #202630;border-radius:10px;background:#090c11;position:relative}
+.chart-box .tradingview-widget-container,.chart-box .tradingview-widget-container__widget{height:100%;width:100%}
+
+/* NEWS */
+.news-list{display:flex;flex-direction:column;gap:8px;max-height:540px;overflow-y:auto}
+.news-item{display:block;text-decoration:none;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:11px 12px;transition:.2s}
+.news-item:hover{background:#1a1f28;border-color:var(--gold-dim)}
+.news-category{color:var(--gold);font-size:11px;margin-bottom:4px}
+.news-title{color:#e6e6e6;font-size:13px;line-height:1.9}
+.news-meta{display:flex;justify-content:space-between;gap:10px;margin-top:6px;color:#6a7380;font-size:11px}
+.news-loading{color:#8a929d;text-align:center;padding:34px 10px;font-size:13px;line-height:2}
+.news-note{color:#b59a4f;font-size:11px;padding:2px 4px 6px}
+.retry-button{background:var(--gold);color:#111;border:0;border-radius:7px;padding:8px 14px;font-size:12px;margin-top:8px}
+.spinner{width:22px;height:22px;border:3px solid #2a2f39;border-top-color:var(--gold);border-radius:50%;margin:0 auto 10px;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* CATEGORIES */
+.category-panel{margin-bottom:20px}
+.category-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.category-button{min-height:44px;background:#11151c;color:#aeb4bd;border:1px solid #282e38;border-radius:9px;font-size:13px;transition:.2s}
+.category-button:hover,.category-button.active{color:var(--gold);background:#191c23;border-color:var(--gold-dim)}
+
+/* TABLE */
+.table-panel{margin-bottom:20px}
+.table-wrapper{overflow-x:auto}
+table{width:100%;min-width:560px;border-collapse:collapse}
+th{text-align:right;color:#7a838f;font-size:12px;padding:12px;border-bottom:1px solid #292f39;font-weight:500}
+td{color:#d8d8d8;font-size:13px;padding:12px;border-bottom:1px solid #1d232c}
+tr.row-click{cursor:pointer;transition:.15s}
+tr.row-click:hover{background:#151a22}
+.gold{color:var(--gold)}
+.table-btn{background:#1b2028;color:var(--gold);border:1px solid #39332a;border-radius:7px;padding:4px 12px;font-size:12px}
+
+/* CALENDAR */
+.calendar-panel{margin-bottom:20px}
+.calendar-box{height:500px;border-radius:10px;overflow:hidden}
+.calendar-box .tradingview-widget-container,.calendar-box .tradingview-widget-container__widget{height:100%;width:100%}
+
+/* COUNTRIES */
+.cn-panel{margin-bottom:20px}
+.cn-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:4px 0 14px}
+.cn-stat{background:#0b0e15;border:1px solid var(--line);border-radius:10px;padding:10px}
+.cn-stat small{color:var(--muted);display:block;font-size:11px}
+.cn-stat b{font-size:16px;color:var(--text)}
+.cn-chart{position:relative;height:340px;border:1px solid #202630;border-radius:10px;background:#090c11}
+.cn-chart canvas{width:100%;height:100%;display:block}
+.cn-tip{position:absolute;pointer-events:none;background:rgba(0,0,0,.85);border:1px solid var(--line);border-radius:8px;padding:5px 10px;font-size:12px;display:none;white-space:nowrap;z-index:2}
+.cn-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:13px;text-align:center;padding:10px}
+.cn-leg{display:flex;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:12px;margin:10px 0 14px}
+.cn-leg i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-left:6px}
+.cn-sub{font-size:14px;margin:16px 0 8px;color:var(--gold)}
+.cn-panel table{min-width:0}
+.cn-note{color:#6d7681;font-size:12px;line-height:2}
+.cn-error{color:var(--red);font-size:12px;min-height:18px;margin-top:6px}
+
+/* INFO */
+.bottom-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px}
+.info-card{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:19px}
+.info-card h3{color:var(--gold);font-size:15px;margin-bottom:8px}
+.info-card p{color:#9aa2ae;font-size:13px;line-height:2.1}
+
+/* FOOTER */
+.footer{border-top:1px solid #20252e;text-align:center;color:#6a7380;font-size:12px;line-height:2.2;padding:24px 10px}
+.footer strong{color:var(--gold);direction:ltr;unicode-bidi:isolate;display:inline-block}
+
+/* MOBILE NAV */
+.mobile-nav{display:none}
+
+@media(max-width:1100px){
+  .market-grid{grid-template-columns:repeat(2,1fr)}
+  .two-column{grid-template-columns:1fr}
+  .bottom-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:800px){
+  :root{--header-h:56px;--ticker-h:44px}
+  .header{padding:0 14px}
+  .logo{font-size:20px}
+  .sidebar{display:none}
+  .ticker{margin-right:0}
+  .main{margin-right:0;padding:14px;padding-bottom:84px}
+  .page-title h1{font-size:21px}
+  .market-grid{gap:9px}
+  .panel{padding:13px}
+  .chart-box{height:380px}
+  .chart-select,.chart-period,.custom-symbol{flex:1 1 100%;min-width:0;width:100%}
+  .chart-button{flex:1}
+  .category-grid{grid-template-columns:repeat(2,1fr)}
+  .bottom-grid{grid-template-columns:1fr}
+  .mobile-nav{display:flex;position:fixed;bottom:0;left:0;right:0;z-index:1000;background:#0d1016;border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+  .mobile-nav a{flex:1;text-align:center;text-decoration:none;color:#9aa2ae;font-size:11px;padding:4px 2px;border-radius:8px}
+  .mobile-nav a span{display:block;font-size:18px;line-height:1.3}
+  .mobile-nav a.active{color:var(--gold)}
+}
+@media(max-width:420px){
+  .market-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="logo">MIRZA <span>◆</span></div>
+  <div class="header-right"><span class="live-dot"></span> بازارهای مالی</div>
+</header>
+
+<!-- نوار قیمت زنده -->
+<div class="ticker" id="tickerTape"></div>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-title">داشبورد</div>
+  <a href="#home" class="nav active" data-target="home">🏠 نمای کلی</a>
+
+  <div class="sidebar-title">بازارها</div>
+  <a href="#chart" class="nav" data-target="chart">📊 نمودارها</a>
+  <a href="#markets" class="nav" data-target="markets">💰 بازارها</a>
+  <a href="#news" class="nav" data-target="news">📰 اخبار</a>
+  <a href="#calendar" class="nav" data-target="calendar">📅 تقویم اقتصادی</a>
+
+  <div class="sidebar-title">تحلیل</div>
+  <a href="#countries" class="nav" data-target="countries">🏛 تحلیل کشورها</a>
+  <a href="#analysis" class="nav" data-target="analysis">🧠 تحلیل روز</a>
+  <a href="#global" class="nav" data-target="global">🌍 بازار جهانی</a>
+</aside>
+
+<main class="main" id="home">
+
+<section class="page-title">
+  <h1>نمای کلی بازار</h1>
+  <p>اقتصاد، بورس، ارز، طلا، رمزارز و بازارهای جهانی</p>
+</section>
+
+<!-- کارت‌های قیمت زنده -->
+<section class="market-grid">
+  <div class="market-card" role="button" tabindex="0" data-symbol="FOREXCOM:XAUUSD">
+    <div class="market-name">🟡 طلای جهانی</div>
+    <div class="widget" data-quote="FOREXCOM:XAUUSD"></div>
+    <div class="market-hint">برای دیدن نمودار کلیک کنید</div>
+  </div>
+  <div class="market-card" role="button" tabindex="0" data-symbol="BITSTAMP:BTCUSD">
+    <div class="market-name">₿ بیت‌کوین</div>
+    <div class="widget" data-quote="BITSTAMP:BTCUSD"></div>
+    <div class="market-hint">برای دیدن نمودار کلیک کنید</div>
+  </div>
+  <div class="market-card" role="button" tabindex="0" data-symbol="BITSTAMP:ETHUSD">
+    <div class="market-name">Ξ اتریوم</div>
+    <div class="widget" data-quote="BITSTAMP:ETHUSD"></div>
+    <div class="market-hint">برای دیدن نمودار کلیک کنید</div>
+  </div>
+  <div class="market-card" role="button" tabindex="0" data-symbol="TVC:USOIL">
+    <div class="market-name">🛢 نفت خام</div>
+    <div class="widget" data-quote="TVC:USOIL"></div>
+    <div class="market-hint">برای دیدن نمودار کلیک کنید</div>
+  </div>
+</section>
+
+<!-- نمودار + اخبار -->
+<section class="two-column" id="chart">
+
+  <div class="panel">
+    <div class="panel-title">
+      <h2>📈 نمودار قیمت</h2>
+      <span>زنده</span>
+    </div>
+
+    <div class="chart-toolbar">
+      <select id="chartSelector" class="chart-select" aria-label="انتخاب بازار">
+        <option value="FOREXCOM:XAUUSD">🟡 طلای جهانی</option>
+        <option value="BITSTAMP:BTCUSD">₿ بیت‌کوین</option>
+        <option value="BITSTAMP:ETHUSD">Ξ اتریوم</option>
+        <option value="TVC:USOIL">🛢 نفت خام</option>
+        <option value="TVC:DXY">💵 شاخص دلار</option>
+        <option value="FX:EURUSD">💶 یورو به دلار</option>
+        <option value="FX:GBPUSD">💷 پوند به دلار</option>
+        <option value="FX:USDJPY">💴 دلار به ین</option>
+        <option value="FX:USDCAD">🇨🇦 دلار به دلار کانادا</option>
+        <option value="FX:AUDUSD">🇦🇺 دلار استرالیا به دلار</option>
+        <option value="custom" hidden id="customOption">نماد دلخواه</option>
+      </select>
+
+      <select id="chartPeriod" class="chart-period" aria-label="بازه زمانی">
+        <option value="1D">۱ روز</option>
+        <option value="5D">۵ روز</option>
+        <option value="1M">۱ ماه</option>
+        <option value="3M">۳ ماه</option>
+        <option value="6M">۶ ماه</option>
+        <option value="1Y" selected>۱ سال</option>
+      </select>
+    </div>
+
+    <div class="chart-toolbar">
+      <input id="customSymbol" class="custom-symbol" type="text" dir="ltr" placeholder="NASDAQ:AAPL" autocomplete="off" spellcheck="false">
+      <button id="customSymbolButton" class="chart-button" type="button">نمایش نماد</button>
+      <button id="openChartButton" class="chart-button secondary" type="button">باز کردن در سایت اصلی</button>
+    </div>
+    <div class="form-error" id="symbolError" role="alert"></div>
+
+    <div class="chart-info">
+      نماد دلخواه را با قالب سایت اصلی وارد کنید، مثلاً
+      <code>NASDAQ:AAPL</code>
+      یا
+      <code>NASDAQ:NVDA</code>
+    </div>
+
+    <div class="chart-box" id="chartBox"></div>
+  </div>
+
+  <div class="panel" id="news">
+    <div class="panel-title">
+      <h2>📰 آخرین اخبار</h2>
+      <span id="newsCategoryLabel">اقتصاد ایران</span>
+    </div>
+    <div id="newsList" class="news-list">
+      <div class="news-loading"><div class="spinner"></div>در حال دریافت اخبار...</div>
+    </div>
+  </div>
+
+</section>
+
+<!-- دسته‌بندی اخبار -->
+<section class="panel category-panel">
+  <div class="panel-title">
+    <h2>📰 دسته‌بندی اخبار</h2>
+    <span>انتخاب موضوع</span>
+  </div>
+  <div class="category-grid">
+    <button class="category-button active" data-query="اقتصاد ایران" data-title="اقتصاد ایران">🇮🇷 اقتصاد ایران</button>
+    <button class="category-button" data-query="بورس ایران" data-title="بورس ایران">📈 بورس ایران</button>
+    <button class="category-button" data-query="قیمت طلا دلار سکه" data-title="طلا و ارز">🪙 طلا و ارز</button>
+    <button class="category-button" data-query="بیت کوین ارز دیجیتال" data-title="ارز دیجیتال">₿ ارز دیجیتال</button>
+    <button class="category-button" data-query="اقتصاد جهان" data-title="اقتصاد جهان">🌍 اقتصاد جهان</button>
+    <button class="category-button" data-query="سیاست اقتصاد ایران" data-title="سیاست و اقتصاد">🏛 سیاست و اقتصاد</button>
+    <button class="category-button" data-query="نفت انرژی اوپک" data-title="نفت و انرژی">🛢 نفت و انرژی</button>
+    <button class="category-button" data-query="بازارهای مالی جهان وال استریت" data-title="بازارهای جهانی">💹 بازارهای جهانی</button>
+  </div>
+</section>
+
+<!-- جدول بازارها -->
+<section class="panel table-panel" id="markets">
+  <div class="panel-title">
+    <h2>📊 بازارهای مهم</h2>
+    <span>برای نمایش نمودار روی هر ردیف کلیک کنید</span>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr><th>بازار</th><th>نماد</th><th>نوع</th><th>عملیات</th></tr>
+      </thead>
+      <tbody>
+        <tr class="row-click" data-symbol="FOREXCOM:XAUUSD"><td>طلا</td><td class="gold"><span class="ltr">XAUUSD</span></td><td>فلز گران‌بها</td><td><button class="table-btn" type="button">نمودار</button></td></tr>
+        <tr class="row-click" data-symbol="BITSTAMP:BTCUSD"><td>بیت‌کوین</td><td class="gold"><span class="ltr">BTCUSD</span></td><td>رمزارز</td><td><button class="table-btn" type="button">نمودار</button></td></tr>
+        <tr class="row-click" data-symbol="BITSTAMP:ETHUSD"><td>اتریوم</td><td class="gold"><span class="ltr">ETHUSD</span></td><td>رمزارز</td><td><button class="table-btn" type="button">نمودار</button></td></tr>
+        <tr class="row-click" data-symbol="TVC:USOIL"><td>نفت خام</td><td class="gold"><span class="ltr">USOIL</span></td><td>انرژی</td><td><button class="table-btn" type="button">نمودار</button></td></tr>
+        <tr class="row-click" data-symbol="TVC:DXY"><td>شاخص دلار</td><td class="gold"><span class="ltr">DXY</span></td><td>شاخص</td><td><button class="table-btn" type="button">نمودار</button></td></tr>
+        <tr class="row-click" data-symbol="FX:EURUSD"><td>یورو به دلار</td><td class="gold"><span class="ltr">EURUSD</span></td><td>جفت‌ارز</td><td><button class="table-btn" type="button">نمودار</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- تقویم اقتصادی -->
+<section class="panel calendar-panel" id="calendar">
+  <div class="panel-title">
+    <h2>📅 تقویم اقتصادی</h2>
+    <span>رویدادهای مهم اقتصادی</span>
+  </div>
+  <div class="calendar-box" id="calendarBox"></div>
+</section>
+
+<!-- تحلیل کشورها -->
+<section class="panel cn-panel" id="countries">
+  <div class="panel-title">
+    <h2>🏛 تحلیل کشورها</h2>
+    <span>داده: بانک جهانی</span>
+  </div>
+
+  <div class="chart-toolbar">
+    <select id="cnC1" class="chart-select" aria-label="کشور"></select>
+    <select id="cnC2" class="chart-select" aria-label="مقایسه با کشور دیگر"><option value="">— مقایسه با کشور دیگر —</option></select>
+    <select id="cnInd" class="chart-select" aria-label="شاخص"></select>
+  </div>
+  <div class="cn-error" id="cnError" role="alert"></div>
+
+  <div class="cn-stats" id="cnStats"></div>
+
+  <div class="cn-chart"><canvas id="cnCanvas"></canvas><div class="cn-tip" id="cnTip"></div><div class="cn-msg" id="cnMsg">در حال دریافت داده...</div></div>
+  <div class="cn-leg">
+    <span><i style="background:#e7c461"></i>تاریخی</span>
+    <span><i style="height:0;border-top:2px dashed #5aa9ff"></i>پیش‌بینی پایه</span>
+    <span><i style="background:rgba(90,169,255,.3);height:10px"></i>بازه‌ی اطمینان ۸۰٪</span>
+    <span><i style="background:#3ac879"></i>کشور دوم</span>
+  </div>
+
+  <h3 class="cn-sub">پیش‌بینی و سناریوها</h3>
+  <div class="table-wrapper" id="cnForecast"></div>
+
+  <h3 class="cn-sub">مقایسه‌ی شاخص‌ها (آخرین مقدار موجود)</h3>
+  <div class="table-wrapper"><table id="cnCompare"></table></div>
+
+  <h3 class="cn-sub">روش‌شناسی</h3>
+  <p class="cn-note" id="cnMethod"></p>
+  <p class="cn-note">پیش‌بینی با مدل هلت با روند میرا و بازه‌ی اطمینان ۸۰٪ ساخته می‌شود؛ «بدبینانه» و «خوش‌بینانه» کران پایین و بالای همین بازه‌اند. «خطای پس‌آزمایی» میانگین قدر مطلق خطای مدل روی ۵ سال اخیر است (مدل با داده‌ی پیش از آن آموزش دیده). برخی شاخص‌ها برای بعضی کشورها ناقص یا چندساله با تأخیر منتشر می‌شوند. این پیش‌بینی‌ها تحلیلی است و توصیه‌ی سرمایه‌گذاری نیست.</p>
+</section>
+
+<!-- کارت‌های اطلاعات -->
+<section class="bottom-grid" id="analysis">
+  <div class="info-card">
+    <h3>🧠 تحلیل روز</h3>
+    <p>در این بخش تحلیل روزانه طلا، بیت‌کوین، اتریوم، دلار و بورس منتشر می‌شود. افزودن ابزارهای تکنیکال و حجم معاملات در نسخه‌های بعدی برنامه‌ریزی شده است.</p>
+  </div>
+  <div class="info-card" id="global">
+    <h3>🌍 بازار جهانی</h3>
+    <p>نمودارها از سرویس <span class="ltr">TradingView</span> نمایش داده می‌شوند و می‌توانید طلا، رمزارزها، نفت و جفت‌ارزها را بررسی کنید.</p>
+  </div>
+  <div class="info-card">
+    <h3>⚡ میرزا</h3>
+    <p>هر اتفاق، یک اثر؛ هر اثر، یک تحلیل. هدف میرزا ارائه اطلاعات بازار به زبان ساده و قابل فهم است.</p>
+  </div>
+</section>
+
+<footer class="footer">
+  <strong>MIRZA</strong><br>
+  هر اتفاق، یک اثر؛ هر اثر، یک تحلیل.<br>
+  اطلاعات این سایت برای اطلاع‌رسانی است و توصیه سرمایه‌گذاری محسوب نمی‌شود.
+</footer>
+
+</main>
+</div>
+
+<nav class="mobile-nav" aria-label="ناوبری">
+  <a href="#home" data-target="home"><span>🏠</span>خانه</a>
+  <a href="#chart" data-target="chart"><span>📊</span>نمودار</a>
+  <a href="#news" data-target="news"><span>📰</span>اخبار</a>
+  <a href="#calendar" data-target="calendar"><span>📅</span>تقویم</a>
+  <a href="#countries" data-target="countries"><span>🏛</span>کشورها</a>
+  <a href="#analysis" data-target="analysis"><span>🧠</span>تحلیل</a>
+</nav>
+
+<script>
+"use strict";
+
+/* =========================================================
+   بارگذاری ویجت‌های TradingView
+========================================================= */
+const TV_BASE = "https://s3.tradingview.com/external-embedding/";
+const TV_LOCALE = "fa_IR";
+
+function mountWidget(container, scriptName, config){
+  if(!container) return;
+  container.innerHTML = "";
+
+  const wrap = document.createElement("div");
+  wrap.className = "tradingview-widget-container";
+
+  const inner = document.createElement("div");
+  inner.className = "tradingview-widget-container__widget";
+
+  const script = document.createElement("script");
+  script.type = "text/javascript";
+  script.src = TV_BASE + scriptName;
+  script.async = true;
+  script.text = JSON.stringify(config);
+
+  wrap.appendChild(inner);
+  wrap.appendChild(script);
+  container.appendChild(wrap);
+}
+
+/* نوار قیمت بالای صفحه */
+mountWidget(
+  document.getElementById("tickerTape"),
+  "embed-widget-ticker-tape.js",
+  {
+    symbols:[
+      {proName:"FOREXCOM:XAUUSD", title:"طلای جهانی"},
+      {proName:"BITSTAMP:BTCUSD", title:"بیت‌کوین"},
+      {proName:"BITSTAMP:ETHUSD", title:"اتریوم"},
+      {proName:"TVC:USOIL", title:"نفت خام"},
+      {proName:"TVC:DXY", title:"شاخص دلار"},
+      {proName:"FX:EURUSD", title:"یورو به دلار"}
+    ],
+    showSymbolLogo:false,
+    colorTheme:"dark",
+    isTransparent:true,
+    displayMode:"adaptive",
+    locale:TV_LOCALE
+  }
+);
+
+/* کارت‌های قیمت زنده */
+document.querySelectorAll(".market-card .widget").forEach(function(box){
+  mountWidget(box, "embed-widget-single-quote.js", {
+    symbol: box.dataset.quote,
+    width:"100%",
+    colorTheme:"dark",
+    isTransparent:true,
+    locale:TV_LOCALE
+  });
+});
+
+/* تقویم اقتصادی */
+mountWidget(
+  document.getElementById("calendarBox"),
+  "embed-widget-events.js",
+  {
+    colorTheme:"dark",
+    isTransparent:true,
+    width:"100%",
+    height:"100%",
+    locale:TV_LOCALE,
+    importanceFilter:"0,1",
+    currencyFilter:"USD,EUR,GBP,JPY,CNY"
+  }
+);
+
+/* =========================================================
+   نمودار اصلی
+========================================================= */
+const chartSelector = document.getElementById("chartSelector");
+const chartPeriod   = document.getElementById("chartPeriod");
+const chartBox      = document.getElementById("chartBox");
+const customSymbol  = document.getElementById("customSymbol");
+const symbolError   = document.getElementById("symbolError");
+const customOption  = document.getElementById("customOption");
+
+let currentSymbol = "FOREXCOM:XAUUSD";
+
+const chartSettings = {
+  "1D":{interval:"30",  range:"1D"},
+  "5D":{interval:"60",  range:"5D"},
+  "1M":{interval:"240", range:"1M"},
+  "3M":{interval:"D",   range:"3M"},
+  "6M":{interval:"D",   range:"6M"},
+  "1Y":{interval:"D",   range:"12M"}
+};
+
+function updateChart(symbol){
+  if(symbol) currentSymbol = symbol;
+
+  const s = chartSettings[chartPeriod.value] || chartSettings["1Y"];
+
+  mountWidget(chartBox, "embed-widget-advanced-chart.js", {
+    autosize:true,
+    symbol:currentSymbol,
+    interval:s.interval,
+    range:s.range,
+    timezone:"Asia/Tehran",
+    theme:"dark",
+    style:"1",
+    locale:TV_LOCALE,
+    backgroundColor:"#090c11",
+    hide_side_toolbar:true,
+    allow_symbol_change:true,
+    withdateranges:true,
+    save_image:false,
+    hide_volume:false,
+    support_host:"https://www.tradingview.com"
+  });
+}
+
+function syncSelector(symbol){
+  const exists = Array.from(chartSelector.options).some(function(o){
+    return o.value === symbol && o.value !== "custom";
+  });
+  if(exists){
+    chartSelector.value = symbol;
+  }else{
+    customOption.hidden = false;
+    customOption.textContent = "نماد دلخواه: " + symbol;
+    chartSelector.value = "custom";
+  }
+}
+
+function showChart(symbol, scroll){
+  syncSelector(symbol);
+  updateChart(symbol);
+  if(scroll){
+    document.getElementById("chart").scrollIntoView({behavior:"smooth", block:"start"});
+  }
+}
+
+chartSelector.addEventListener("change", function(){
+  if(this.value === "custom") return;
+  symbolError.textContent = "";
+  updateChart(this.value);
+});
+
+chartPeriod.addEventListener("change", function(){
+  updateChart(currentSymbol);
+});
+
+const SYMBOL_PATTERN = /^[A-Z0-9_.!&\-]{1,30}(:[A-Z0-9_.!&\-]{1,30})?$/;
+
+function loadCustomSymbol(){
+  const value = customSymbol.value.trim().toUpperCase().replace(/\s+/g,"");
+
+  if(!value){
+    symbolError.textContent = "لطفاً نماد را وارد کنید.";
+    customSymbol.focus();
+    return;
+  }
+  if(!SYMBOL_PATTERN.test(value)){
+    symbolError.textContent = "قالب نماد درست نیست. نمونه درست: NASDAQ:AAPL";
+    customSymbol.focus();
+    return;
+  }
+  symbolError.textContent = "";
+  showChart(value, false);
+}
+
+document.getElementById("customSymbolButton").addEventListener("click", loadCustomSymbol);
+customSymbol.addEventListener("keydown", function(e){
+  if(e.key === "Enter") loadCustomSymbol();
+});
+
+document.getElementById("openChartButton").addEventListener("click", function(){
+  window.open(
+    "https://www.tradingview.com/chart/?symbol=" + encodeURIComponent(currentSymbol),
+    "_blank",
+    "noopener"
+  );
+});
+
+/* کلیک روی کارت‌ها و ردیف‌های جدول */
+document.querySelectorAll(".market-card, tr.row-click").forEach(function(el){
+  el.addEventListener("click", function(){
+    showChart(el.dataset.symbol, true);
+  });
+  if(el.classList.contains("market-card")){
+    el.addEventListener("keydown", function(e){
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        showChart(el.dataset.symbol, true);
+      }
+    });
+  }
+});
+
+updateChart(currentSymbol);
+
+/* =========================================================
+   اخبار (فقط فارسی)
+========================================================= */
+const newsList = document.getElementById("newsList");
+const newsCategoryLabel = document.getElementById("newsCategoryLabel");
+
+let currentNewsQuery = "اقتصاد ایران";
+let currentNewsTitle = "اقتصاد ایران";
+let newsRequestId = 0;
+
+/* سرویس‌های واسط؛ اگر یکی کار نکرد بعدی امتحان می‌شود */
+const PROXIES = [
+  function(u){ return {url:"https://api.allorigins.win/raw?url=" + encodeURIComponent(u), type:"xml"}; },
+  function(u){ return {url:"https://api.allorigins.win/get?url=" + encodeURIComponent(u), type:"wrapped"}; },
+  function(u){ return {url:"https://corsproxy.io/?url=" + encodeURIComponent(u), type:"xml"}; },
+  function(u){ return {url:"https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(u), type:"xml"}; },
+  function(u){ return {url:"https://api.rss2json.com/v1/api.json?rss_url=" + encodeURIComponent(u), type:"json"}; }
+];
+
+function fetchWithTimeout(url, ms){
+  const controller = new AbortController();
+  const timer = setTimeout(function(){ controller.abort(); }, ms);
+  return fetch(url, {cache:"no-store", signal:controller.signal})
+    .finally(function(){ clearTimeout(timer); });
+}
+
+/* تشخیص فارسی بودن عنوان: حداقل ۶۰ درصد حروف باید فارسی/عربی باشد */
+function isPersianText(text){
+  const letters = (text || "").match(/[A-Za-z\u0600-\u06FF]/g) || [];
+  if(!letters.length) return false;
+  const fa = (text || "").match(/[\u0600-\u06FF]/g) || [];
+  return fa.length / letters.length >= 0.6;
+}
+
+/* حذف نام منبع از انتهای عنوان (مثل: عنوان خبر - نام سایت) */
+function cleanTitle(title, source){
+  let t = (title || "").trim();
+  if(source && t.endsWith(" - " + source)){
+    t = t.slice(0, t.length - source.length - 3).trim();
+  }else{
+    t = t.replace(/\s+-\s+[^-]{1,40}$/, "").trim();
+  }
+  return t;
+}
+
+function normalizeItems(items){
+  const seen = new Set();
+  return items
+    .map(function(i){
+      return {
+        title: cleanTitle(i.title, i.source),
+        link: i.link,
+        source: i.source,
+        date: i.date
+      };
+    })
+    .filter(function(i){
+      if(!i.title || !isPersianText(i.title)) return false;
+      if(seen.has(i.title)) return false;
+      seen.add(i.title);
+      return true;
+    });
+}
+
+function parseXML(text){
+  const xml = new DOMParser().parseFromString(text, "text/xml");
+  if(xml.querySelector("parsererror")) throw new Error("bad xml");
+  const items = Array.from(xml.querySelectorAll("item")).map(function(item){
+    const get = function(tag){
+      const n = item.querySelector(tag);
+      return n ? n.textContent.trim() : "";
+    };
+    return {title:get("title"), link:get("link"), source:get("source"), date:get("pubDate")};
+  });
+  if(!items.length) throw new Error("no items");
+  return items;
+}
+
+function parseJSON(text){
+  const data = JSON.parse(text);
+  if(data.status !== "ok" || !data.items || !data.items.length) throw new Error("no items");
+  return data.items.map(function(i){
+    return {title:i.title, link:i.link, source:(i.author || ""), date:i.pubDate};
+  });
+}
+
+function parseWrapped(text){
+  const data = JSON.parse(text);
+  if(!data.contents) throw new Error("no contents");
+  return parseXML(data.contents);
+}
+
+async function fetchNews(query){
+  const rss = "https://news.google.com/rss/search?q=" +
+    encodeURIComponent(query + " when:7d") +
+    "&hl=fa&gl=IR&ceid=IR:fa";
+
+  let lastError;
+
+  for(const make of PROXIES){
+    const p = make(rss);
+    try{
+      const res = await fetchWithTimeout(p.url, 9000);
+      if(!res.ok) throw new Error("http " + res.status);
+      const text = await res.text();
+
+      let raw;
+      if(p.type === "json") raw = parseJSON(text);
+      else if(p.type === "wrapped") raw = parseWrapped(text);
+      else raw = parseXML(text);
+
+      const persian = normalizeItems(raw);
+      if(!persian.length) throw new Error("no persian items");
+      return persian;
+    }catch(err){
+      lastError = err;
+    }
+  }
+  throw lastError || new Error("all proxies failed");
+}
+
+function formatNewsDate(value){
+  if(!value) return "";
+  const d = new Date(value);
+  if(Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString("fa-IR", {month:"short", day:"numeric"}) + " - " +
+         d.toLocaleTimeString("fa-IR", {hour:"2-digit", minute:"2-digit"});
+}
+
+function safeLink(url){
+  return /^https?:\/\//i.test(url) ? url : "#";
+}
+
+/* ذخیره آخرین اخبار موفق (کلید جدید تا اخبار انگلیسی قدیمی برنگردد) */
+function cacheGet(key){
+  try{ return JSON.parse(localStorage.getItem("mirza_news_fa_" + key)); }catch(e){ return null; }
+}
+function cacheSet(key, items){
+  try{ localStorage.setItem("mirza_news_fa_" + key, JSON.stringify(items)); }catch(e){}
+}
+
+function renderNews(items, title, note){
+  newsList.innerHTML = "";
+
+  if(note){
+    const n = document.createElement("div");
+    n.className = "news-note";
+    n.textContent = note;
+    newsList.appendChild(n);
+  }
+
+  items.slice(0, 12).forEach(function(it){
+    const a = document.createElement("a");
+    a.className = "news-item";
+    a.href = safeLink(it.link);
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+
+    const cat = document.createElement("div");
+    cat.className = "news-category";
+    cat.textContent = title;
+
+    const h = document.createElement("div");
+    h.className = "news-title";
+    h.textContent = it.title;
+
+    const meta = document.createElement("div");
+    meta.className = "news-meta";
+    const s1 = document.createElement("span");
+    s1.textContent = it.source || "منبع نامشخص";
+    const s2 = document.createElement("span");
+    s2.textContent = formatNewsDate(it.date);
+    meta.append(s1, s2);
+
+    a.append(cat, h, meta);
+    newsList.appendChild(a);
+  });
+}
+
+function renderNewsError(){
+  newsList.innerHTML =
+    '<div class="news-loading">خبر فارسی تازه‌ای پیدا نشد یا سرویس اخبار پاسخ نمی‌دهد.<br>' +
+    'چند لحظه بعد دوباره امتحان کنید.<br>' +
+    '<button class="retry-button" id="retryNewsButton" type="button">تلاش مجدد</button></div>';
+  document.getElementById("retryNewsButton").addEventListener("click", function(){
+    loadNews(currentNewsQuery, currentNewsTitle);
+  });
+}
+
+async function loadNews(query, title){
+  currentNewsQuery = query;
+  currentNewsTitle = title || query;
+  newsCategoryLabel.textContent = currentNewsTitle;
+
+  const myId = ++newsRequestId;
+
+  newsList.innerHTML = '<div class="news-loading"><div class="spinner"></div>در حال دریافت اخبار...</div>';
+
+  try{
+    const items = await fetchNews(query);
+    if(myId !== newsRequestId) return;
+    cacheSet(query, items.slice(0, 12));
+    renderNews(items, currentNewsTitle);
+  }catch(err){
+    if(myId !== newsRequestId) return;
+    console.error("News error:", err);
+    const cached = cacheGet(query);
+    if(cached && cached.length){
+      renderNews(cached, currentNewsTitle, "اتصال برقرار نشد؛ آخرین اخبار ذخیره‌شده نمایش داده می‌شود.");
+    }else{
+      renderNewsError();
+    }
+  }
+}
+
+/* دکمه‌های دسته‌بندی */
+const categoryButtons = document.querySelectorAll(".category-button");
+categoryButtons.forEach(function(button){
+  button.addEventListener("click", function(){
+    categoryButtons.forEach(function(b){ b.classList.remove("active"); });
+    this.classList.add("active");
+    loadNews(this.dataset.query, this.dataset.title);
+    document.getElementById("news").scrollIntoView({behavior:"smooth", block:"start"});
+  });
+});
+
+loadNews("اقتصاد ایران", "اقتصاد ایران");
+
+/* به‌روزرسانی خودکار هر ۱۵ دقیقه */
+setInterval(function(){
+  loadNews(currentNewsQuery, currentNewsTitle);
+}, 15 * 60 * 1000);
+
+/* =========================================================
+   مشخص‌کردن بخش فعال در منو هنگام اسکرول
+========================================================= */
+const navLinks = document.querySelectorAll("[data-target]");
+const sectionIds = ["home","chart","news","markets","calendar","countries","analysis"];
+
+function setActive(id){
+  navLinks.forEach(function(a){
+    a.classList.toggle("active", a.dataset.target === id);
+  });
+}
+
+if("IntersectionObserver" in window){
+  const observer = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting) setActive(entry.target.id);
+    });
+  }, {rootMargin:"-30% 0px -60% 0px"});
+
+  sectionIds.forEach(function(id){
+    const el = document.getElementById(id);
+    if(el) observer.observe(el);
+  });
+}
+</script>
+<script>
+/* =========================================================
+   تحلیل کشورها (داده‌ی بانک جهانی + پیش‌بینی در مرورگر)
+   داخل تابع جدا تا با کدهای بالا تداخل نداشته باشد
+========================================================= */
+(function(){
+"use strict";
+var WB = "https://api.worldbank.org/v2/country/";
+var IND = {
+  "NY.GDP.MKTP.KD.ZG":["رشد اقتصادی","درصد"],
+  "FP.CPI.TOTL.ZG":["تورم سالانه","درصد"],
+  "SL.UEM.TOTL.ZS":["بیکاری","درصد"],
+  "NY.GDP.PCAP.CD":["تولید ناخالص سرانه","دلار"],
+  "GC.DOD.TOTL.GD.ZS":["بدهی دولت (از تولید ناخالص)","درصد"],
+  "NE.EXP.GNFS.ZS":["صادرات (از تولید ناخالص)","درصد"],
+  "SP.POP.TOTL":["جمعیت","نفر"],
+  "SP.URB.TOTL.IN.ZS":["شهرنشینی","درصد"],
+  "SP.DYN.LE00.IN":["امید به زندگی","سال"],
+  "IT.NET.USER.ZS":["کاربران اینترنت","درصد"],
+  "EN.GHG.CO2.PC.CE.AR5":["کربن سرانه","تن"]
+};
+var CN = {IRN:"ایران",TUR:"ترکیه",SAU:"عربستان",ARE:"امارات",IRQ:"عراق",EGY:"مصر",ISR:"اسرائیل",PAK:"پاکستان",IND:"هند",CHN:"چین",JPN:"ژاپن",KOR:"کره‌ی جنوبی",RUS:"روسیه",DEU:"آلمان",FRA:"فرانسه",GBR:"بریتانیا",USA:"آمریکا",BRA:"برزیل",CAN:"کانادا",AUS:"استرالیا",AZE:"آذربایجان",IDN:"اندونزی"};
+var HORIZON = 5, Z80 = 1.2816, THIS_YEAR = new Date().getFullYear();
+var cache = {}, pts = [], reqId = 0;
+var $ = function(i){ return document.getElementById(i); };
+var sel1=$("cnC1"), sel2=$("cnC2"), selI=$("cnInd"), cv=$("cnCanvas"), tip=$("cnTip"), msg=$("cnMsg");
+
+function fa(n){ return String(n).replace(/\d/g,function(d){return "۰۱۲۳۴۵۶۷۸۹"[d];}); }
+function fmt(v){
+  if(v==null || isNaN(v)) return "—";
+  var a=Math.abs(v);
+  if(a>=1e9) return (v/1e9).toLocaleString("fa-IR",{maximumFractionDigits:2})+" میلیارد";
+  if(a>=1e6) return (v/1e6).toLocaleString("fa-IR",{maximumFractionDigits:2})+" میلیون";
+  return v.toLocaleString("fa-IR",{maximumFractionDigits:a>=100?1:2});
+}
+function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+
+/* ---------- محاسبه ---------- */
+function cleanSeries(map){
+  var ys = Object.keys(map).map(Number).sort(function(a,b){return a-b;});
+  if(ys.length < 2) return null;
+  var years=[], vals=[];
+  for(var y=ys[0]; y<=ys[ys.length-1]; y++){
+    var v;
+    if(map[y]!==undefined) v = map[y];
+    else{
+      var lo=y-1; while(map[lo]===undefined) lo--;
+      var hi=y+1; while(map[hi]===undefined) hi++;
+      v = map[lo] + (map[hi]-map[lo])*(y-lo)/(hi-lo);
+    }
+    years.push(y); vals.push(v);
+  }
+  return {years:years, values:vals};
+}
+function holtFit(y){
+  var best=null, A=[.1,.2,.3,.5,.7,.9], B=[.05,.1,.2,.4], P=[.8,.9,.98];
+  for(var ai=0;ai<A.length;ai++) for(var bi=0;bi<B.length;bi++) for(var pi=0;pi<P.length;pi++){
+    var a=A[ai], b=B[bi], phi=P[pi], l=y[0], t=y[1]-y[0], sse=0;
+    for(var i=1;i<y.length;i++){
+      var pred=l+phi*t, e=y[i]-pred; sse+=e*e;
+      var ln=a*y[i]+(1-a)*pred; t=b*(ln-l)+(1-b)*phi*t; l=ln;
+    }
+    if(!best || sse<best.sse) best={sse:sse,phi:phi,l:l,t:t};
+  }
+  return {phi:best.phi,l:best.l,t:best.t,sigma:Math.sqrt(best.sse/Math.max(y.length-1,1))};
+}
+function holtForecast(y,h){
+  var f=holtFit(y), out=[], damp=0;
+  for(var k=1;k<=h;k++){
+    damp+=Math.pow(f.phi,k);
+    var m=f.l+damp*f.t, w=Z80*f.sigma*Math.sqrt(k);
+    out.push([m,m-w,m+w]);
+  }
+  return out;
+}
+function makeForecast(s){
+  var last = THIS_YEAR-1, n=s.values.length, endY=s.years[n-1];
+  if(n<10 || endY<last-3) return null;
+  var gap=last-endY, all=holtForecast(s.values,HORIZON+Math.max(gap,0)).slice(Math.max(gap,0));
+  var fy=[], i;
+  for(i=0;i<HORIZON;i++) fy.push(endY+Math.max(gap,0)+i+1);
+  var mae=null;
+  if(n>=15){
+    var bt=holtForecast(s.values.slice(0,n-5),5), test=s.values.slice(n-5), sum=0;
+    for(i=0;i<5;i++) sum+=Math.abs(bt[i][0]-test[i]);
+    mae=sum/5;
+  }
+  return {years:fy, base:all.map(function(p){return p[0];}), lo:all.map(function(p){return p[1];}), hi:all.map(function(p){return p[2];}), mae:mae};
+}
+
+/* ---------- دریافت داده ---------- */
+function getJSON(url, ms){
+  var ctl=new AbortController(), timer=setTimeout(function(){ctl.abort();},ms);
+  return fetch(url,{signal:ctl.signal}).then(function(r){
+    if(!r.ok) throw new Error("http "+r.status);
+    return r.json();
+  }).finally(function(){clearTimeout(timer);});
+}
+function fetchSeries(iso, code){
+  var url = WB+iso+"/indicator/"+code+"?format=json&per_page=200&date=1990:"+THIS_YEAR;
+  return getJSON(url,15000).then(function(js){
+    var rows = js && js[1];
+    if(!Array.isArray(rows)) return null;
+    var map={}, c=0;
+    rows.forEach(function(r){ if(r.value!==null && r.value!==undefined){ map[Number(r.date)]=Number(r.value); c++; } });
+    if(!c) return null;
+    var s=cleanSeries(map);
+    if(s) s.forecast=makeForecast(s);
+    return s;
+  });
+}
+function loadCountry(iso){
+  if(cache[iso]) return cache[iso];
+  var codes=Object.keys(IND);
+  var p = Promise.all(codes.map(function(code){
+    return fetchSeries(iso,code).then(function(s){return {code:code,s:s,ok:true};},
+                                      function(){return {code:code,s:null,ok:false};});
+  })).then(function(res){
+    var data={}, failed=0;
+    res.forEach(function(r){ if(r.s) data[r.code]=r.s; if(!r.ok) failed++; });
+    if(failed===codes.length){ delete cache[iso]; throw new Error("network"); }
+    return data;
+  });
+  cache[iso]=p;
+  p.catch(function(){ delete cache[iso]; });
+  return p;
+}
+
+/* ---------- نمایش ---------- */
+function setMsg(t){ msg.textContent=t||""; msg.style.display=t?"flex":"none"; }
+
+function render(){
+  var my=++reqId, c1=sel1.value, c2=sel2.value, ind=selI.value;
+  $("cnError").textContent=""; setMsg("در حال دریافت داده...");
+  var list=[loadCountry(c1)]; if(c2) list.push(loadCountry(c2));
+  Promise.all(list).then(function(r){
+    if(my!==reqId) return;
+    paint(c1,r[0],c2,r[1]||null,ind);
+  }).catch(function(){
+    if(my!==reqId) return;
+    pts=[]; clearCanvas();
+    setMsg("دریافت داده ممکن نشد.");
+    $("cnError").textContent="اتصال به بانک جهانی برقرار نشد. اینترنت را بررسی کنید و دوباره کشور یا شاخص را انتخاب کنید.";
+  });
+}
+
+function paint(c1,d1,c2,d2,ind){
+  var meta=IND[ind], s=d1[ind], f=s&&s.forecast, st=$("cnStats");
+  st.innerHTML="";
+  function stat(l,v){
+    var d=document.createElement("div"); d.className="cn-stat";
+    var a=document.createElement("small"); a.textContent=l;
+    var b=document.createElement("b"); b.textContent=v;
+    d.appendChild(a); d.appendChild(b); st.appendChild(d);
+  }
+  if(s){
+    var n=s.values.length;
+    stat("آخرین مقدار ("+fa(s.years[n-1])+")",fmt(s.values[n-1]));
+    if(n>5) stat("۵ سال قبل",fmt(s.values[n-6]));
+    stat("بیشینه‌ی تاریخی",fmt(Math.max.apply(null,s.values)));
+    stat("کمینه‌ی تاریخی",fmt(Math.min.apply(null,s.values)));
+  }else stat("وضعیت","داده‌ای موجود نیست");
+
+  var fc=$("cnForecast");
+  if(!f){
+    fc.innerHTML="<p class='cn-note'>برای این شاخص و کشور پیش‌بینی ساخته نشده است (داده‌ی کافی یا به‌روز وجود ندارد).</p>";
+  }else{
+    var h="<table><tr><th>سال</th><th>بدبینانه</th><th>پایه</th><th>خوش‌بینانه</th></tr>";
+    f.years.forEach(function(y,i){ h+="<tr><td>"+fa(y)+"</td><td>"+fmt(f.lo[i])+"</td><td class='gold'>"+fmt(f.base[i])+"</td><td>"+fmt(f.hi[i])+"</td></tr>"; });
+    h+="</table><p class='cn-note'>خطای پس‌آزمایی (۵ سال اخیر): "+(f.mae==null?"داده‌ی کافی برای سنجش نیست":fmt(f.mae)+" "+esc(meta[1]))+"</p>";
+    fc.innerHTML=h;
+  }
+
+  var t="<tr><th>شاخص</th><th>"+esc(CN[c1])+"</th>"+(c2?"<th>"+esc(CN[c2])+"</th>":"")+"</tr>";
+  Object.keys(IND).forEach(function(k){
+    var a=d1[k], b=d2&&d2[k];
+    t+="<tr><td>"+esc(IND[k][0])+"</td><td>"+(a?fmt(a.values[a.values.length-1]):"—")+"</td>"+(c2?"<td>"+(b?fmt(b.values[b.values.length-1]):"—")+"</td>":"")+"</tr>";
+  });
+  $("cnCompare").innerHTML=t;
+  $("cnMethod").textContent="منبع داده: بانک جهانی (World Bank WDI) — داده‌ها هنگام باز شدن صفحه دریافت می‌شوند ("+new Date().toLocaleDateString("fa-IR")+"). "+esc(CN[c1])+" — "+meta[0]+" ("+meta[1]+").";
+
+  draw(c1,s,c2,d2&&d2[ind]);
+}
+
+function clearCanvas(){
+  var dpr=window.devicePixelRatio||1, r=cv.getBoundingClientRect();
+  cv.width=r.width*dpr; cv.height=r.height*dpr;
+  var g=cv.getContext("2d"); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,r.width,r.height);
+  return {g:g,W:r.width,H:r.height};
+}
+
+var last = null;
+function draw(c1,s,c2,s2){
+  last=[c1,s,c2,s2];
+  var o=clearCanvas(), g=o.g, W=o.W, H=o.H; pts=[];
+  if(!s){ setMsg("برای این شاخص داده‌ای موجود نیست."); return; }
+  setMsg("");
+  var f=s.forecast, all=s.values.slice(), x0=s.years[0], x1=s.years[s.years.length-1];
+  if(f){ all=all.concat(f.lo,f.hi); x1=f.years[f.years.length-1]; }
+  if(s2){ all=all.concat(s2.values); x0=Math.min(x0,s2.years[0]); x1=Math.max(x1,s2.years[s2.years.length-1]); }
+  var mn=Math.min.apply(null,all), mx=Math.max.apply(null,all);
+  if(mn===mx){ mn-=1; mx+=1; }
+  var pad=(mx-mn)*.08; mn-=pad; mx+=pad;
+  var L=14,R=64,T=14,B=28,pw=W-L-R,ph=H-T-B;
+  var X=function(y){ return L+pw*(1-(y-x0)/((x1-x0)||1)); };   /* راست‌به‌چپ: قدیمی‌ترین سمت راست */
+  var Y=function(v){ return T+ph*(1-(v-mn)/(mx-mn)); };
+  g.font="11px Vazirmatn,Tahoma"; g.fillStyle="#8a93a0"; g.strokeStyle="#252b35"; g.lineWidth=1; g.textAlign="left";
+  var i;
+  for(i=0;i<=4;i++){ var v=mn+(mx-mn)*i/4, y=Y(v); g.beginPath(); g.moveTo(L,y); g.lineTo(W-R,y); g.stroke(); g.fillText(fmt(v),W-R+6,y+4); }
+  g.textAlign="center";
+  var step=Math.max(1,Math.round((x1-x0)/8));
+  for(var yy=x0; yy<=x1; yy+=step) g.fillText(fa(yy),X(yy),H-8);
+  function line(ys,vs,col,dash){
+    g.beginPath(); g.strokeStyle=col; g.lineWidth=2; g.setLineDash(dash||[]);
+    ys.forEach(function(y,k){ var px=X(y), py=Y(vs[k]); if(k) g.lineTo(px,py); else g.moveTo(px,py); });
+    g.stroke(); g.setLineDash([]);
+  }
+  var n=s.years.length;
+  if(f){
+    g.beginPath();
+    f.years.forEach(function(y,k){ var px=X(y), py=Y(f.hi[k]); if(k) g.lineTo(px,py); else g.moveTo(px,py); });
+    for(i=f.years.length-1;i>=0;i--) g.lineTo(X(f.years[i]),Y(f.lo[i]));
+    g.closePath(); g.fillStyle="rgba(90,169,255,.2)"; g.fill();
+    line([s.years[n-1]].concat(f.years),[s.values[n-1]].concat(f.base),"#5aa9ff",[6,4]);
+    f.years.forEach(function(y,k){ pts.push({x:X(y),y:Y(f.base[k]),t:CN[c1]+" — "+fa(y)+" (پیش‌بینی): "+fmt(f.base[k])+" ["+fmt(f.lo[k])+" تا "+fmt(f.hi[k])+"]"}); });
+  }
+  line(s.years,s.values,"#e7c461");
+  s.years.forEach(function(y,k){ pts.push({x:X(y),y:Y(s.values[k]),t:CN[c1]+" — "+fa(y)+": "+fmt(s.values[k])}); });
+  if(s2){
+    line(s2.years,s2.values,"#3ac879");
+    s2.years.forEach(function(y,k){ pts.push({x:X(y),y:Y(s2.values[k]),t:CN[c2]+" — "+fa(y)+": "+fmt(s2.values[k])}); });
+  }
+}
+
+function onMove(e){
+  var r=cv.getBoundingClientRect(), p=e.touches?e.touches[0]:e;
+  var mx=p.clientX-r.left, my=p.clientY-r.top, best=null, bd=1e9;
+  pts.forEach(function(q){ var d=Math.hypot(q.x-mx,q.y-my); if(d<bd){bd=d;best=q;} });
+  if(best && bd<32){
+    tip.style.display="block"; tip.textContent=best.t;
+    tip.style.left=Math.max(0,Math.min(best.x-60,r.width-tip.offsetWidth-4))+"px";
+    tip.style.top=Math.max(best.y-38,0)+"px";
+  }else tip.style.display="none";
+}
+cv.addEventListener("mousemove",onMove);
+cv.addEventListener("touchstart",onMove,{passive:true});
+cv.addEventListener("mouseleave",function(){tip.style.display="none";});
+
+/* ---------- راه‌اندازی ---------- */
+Object.keys(CN).sort(function(a,b){return CN[a].localeCompare(CN[b],"fa");}).forEach(function(k){
+  [sel1,sel2].forEach(function(s){ var o=document.createElement("option"); o.value=k; o.textContent=CN[k]; s.appendChild(o); });
+});
+Object.keys(IND).forEach(function(k){ var o=document.createElement("option"); o.value=k; o.textContent=IND[k][0]; selI.appendChild(o); });
+sel1.value="IRN";
+[sel1,sel2,selI].forEach(function(s){ s.addEventListener("change",render); });
+
+/* بارگذاری تنبل: فقط وقتی بخش به صفحه نزدیک شد داده را بگیر */
+var started=false;
+function start(){ if(started) return; started=true; render(); }
+var sec=$("countries");
+if("IntersectionObserver" in window){
+  new IntersectionObserver(function(en,ob){
+    if(en[0].isIntersecting){ ob.disconnect(); start(); }
+  },{rootMargin:"300px"}).observe(sec);
+}else start();
+
+var rt; window.addEventListener("resize",function(){
+  clearTimeout(rt); rt=setTimeout(function(){ if(last) draw.apply(null,last); },150);
+});
+})();
+</script>
+
+</body>
+</html>
