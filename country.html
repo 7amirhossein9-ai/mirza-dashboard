@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>میرزا | تحلیل کشورها</title>
+<meta name="description" content="میرزا | تحلیل اقتصادی، اجتماعی و سیاسی کشورها همراه با پیش‌بینی">
+<meta name="theme-color" content="#080a0f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+<style>
+:root{
+  --bg:#080a0f; --card:#0f131b; --card2:#141926; --line:#1f2636;
+  --text:#e8ecf5; --muted:#8e99b0; --gold:#e8b64c; --cyan:#4cc9e8;
+  --green:#3ecf8e; --red:#ef5b5b; --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:'Vazirmatn',Tahoma,sans-serif; line-height:1.9; font-size:15px;
+  -webkit-font-smoothing:antialiased;
+}
+a{color:inherit;text-decoration:none}
+button,select{font-family:inherit;font-size:inherit}
+
+/* ---------- نوار بالا ---------- */
+.top{
+  position:sticky; top:0; z-index:50; display:flex; align-items:center;
+  justify-content:space-between; gap:12px; padding:12px 20px;
+  background:rgba(8,10,15,.92); backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.brand{font-weight:800; font-size:20px; letter-spacing:2px; direction:ltr}
+.brand span{color:var(--gold)}
+.top-title{color:var(--muted); font-weight:500}
+.back{color:var(--gold); font-size:14px}
+
+main{max-width:1180px; margin:0 auto; padding:24px 16px 60px}
+
+.hero h1{font-size:28px; font-weight:800; margin-bottom:6px}
+.hero p{color:var(--muted); max-width:760px}
+
+/* ---------- کنترل‌ها ---------- */
+.controls{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:12px; margin:22px 0 18px;
+}
+.controls label{display:flex; flex-direction:column; gap:6px; color:var(--muted); font-size:13px}
+.controls select{
+  background:var(--card); color:var(--text); border:1px solid var(--line);
+  border-radius:10px; padding:10px 12px; outline:none;
+}
+.controls select:focus{border-color:var(--gold)}
+
+/* ---------- خلاصه‌ی وضعیت ---------- */
+.snapshot{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px;
+  margin-bottom:22px;
+}
+.snap{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  padding:14px 16px;
+}
+.snap .l{color:var(--muted); font-size:12.5px}
+.snap .v{font-size:19px; font-weight:700; margin-top:2px}
+.snap .s{color:var(--muted); font-size:12px}
+
+/* ---------- تب‌ها و چیپ‌ها ---------- */
+.tabs{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px}
+.tab{
+  background:var(--card); color:var(--muted); border:1px solid var(--line);
+  padding:9px 18px; border-radius:999px; cursor:pointer; transition:.15s;
+}
+.tab.active{background:var(--gold); color:#1a1300; border-color:var(--gold); font-weight:700}
+.chips{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px}
+.chip{
+  background:transparent; color:var(--text); border:1px solid var(--line);
+  padding:6px 14px; border-radius:10px; cursor:pointer; font-size:13.5px; transition:.15s;
+}
+.chip:hover{border-color:var(--gold)}
+.chip.active{background:var(--card2); border-color:var(--gold); color:var(--gold)}
+
+/* ---------- پنل اصلی ---------- */
+.panel{
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  padding:22px; margin-bottom:20px;
+}
+.panel h2{font-size:21px; font-weight:800; margin-bottom:6px}
+.panel h3{font-size:15px; font-weight:700; color:var(--gold); margin:20px 0 10px}
+.goal{color:var(--muted); border-right:3px solid var(--gold); padding-right:12px}
+.glance{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px}
+.g{background:var(--card2); border:1px solid var(--line); border-radius:12px; padding:10px 14px}
+.g .l{color:var(--muted); font-size:12px}
+.g .v{font-weight:700; font-size:16px}
+.g .s{color:var(--muted); font-size:11.5px}
+.chartbox{position:relative; height:400px; margin-top:16px; direction:ltr}
+#interp p{margin-bottom:10px; color:#cfd6e6}
+.scen{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:10px}
+.sc{border-radius:12px; padding:12px 14px; border:1px solid var(--line); background:var(--card2)}
+.sc .l{font-size:12.5px; color:var(--muted)}
+.sc .v{font-size:17px; font-weight:700}
+.sc.pess{border-color:rgba(239,91,91,.5)}
+.sc.base{border-color:rgba(232,182,76,.6)}
+.sc.opt{border-color:rgba(62,207,142,.5)}
+.note{color:var(--muted); font-size:12.5px; margin-top:8px}
+.warn{
+  background:rgba(239,91,91,.08); border:1px solid rgba(239,91,91,.35);
+  border-radius:12px; padding:10px 14px; color:#f3b4b4; font-size:13.5px; margin-top:10px;
+}
+.loading,.empty{color:var(--muted); padding:18px 4px}
+.actions{margin-top:16px; display:flex; gap:10px; flex-wrap:wrap}
+.btn{
+  background:transparent; color:var(--gold); border:1px solid var(--gold);
+  border-radius:10px; padding:8px 16px; cursor:pointer;
+}
+.btn:hover{background:var(--gold); color:#1a1300}
+.soon{border-style:dashed}
+.soon p,.method p,.method li{color:#b9c2d6}
+.method ul{padding-right:20px}
+footer{text-align:center; color:var(--muted); font-size:12.5px; padding:20px 12px}
+
+@media(max-width:640px){
+  .hero h1{font-size:22px}
+  .chartbox{height:320px}
+  .top-title{display:none}
+}
+</style>
+</head>
+
+<body>
+
+<header class="top">
+  <a class="brand" href="index.html">MIRZA <span>◆</span></a>
+  <div class="top-title">تحلیل کشورها</div>
+  <a class="back" href="index.html">بازگشت به داشبورد ←</a>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>تحلیل و پیش‌بینی کشورها</h1>
+    <p>شاخص‌های اقتصادی، اجتماعی، سیاسی و محیط‌زیستی هر کشور را در گذر زمان ببینید، با کشور دیگر مقایسه کنید و برآورد آینده را همراه با بازه‌ی عدم‌قطعیت مشاهده کنید.</p>
+  </section>
+
+  <section class="controls">
+    <label>کشور
+      <select id="country"></select>
+    </label>
+    <label>مقایسه با
+      <select id="compare"><option value="">بدون مقایسه</option></select>
+    </label>
+    <label>افق پیش‌بینی
+      <select id="horizon">
+        <option value="3">۳ سال</option>
+        <option value="5" selected>۵ سال</option>
+        <option value="10">۱۰ سال</option>
+      </select>
+    </label>
+  </section>
+
+  <section class="snapshot" id="snapshot"></section>
+
+  <nav class="tabs" id="tabs"></nav>
+  <div class="chips" id="chips"></div>
+
+  <section class="panel" id="panel">
+    <h2 id="indTitle"></h2>
+    <p class="goal" id="goal"></p>
+
+    <h3>نمای کلی نمودار</h3>
+    <div class="glance" id="glance"></div>
+
+    <div class="chartbox"><canvas id="chart"></canvas></div>
+    <p class="note" id="chartNote"></p>
+
+    <h3>تفسیر</h3>
+    <div id="interp"></div>
+
+    <h3>سناریوهای آینده</h3>
+    <div id="scen"></div>
+
+    <div class="actions">
+      <button class="btn" id="csv">دریافت جدول داده (اکسل)</button>
+    </div>
+  </section>
+
+  <section class="panel soon">
+    <h2>🗣 لحن اخبار و گفتار سیاسی (به‌زودی)</h2>
+    <p>در مرحله‌ی بعد، برای هر کشور نمودار «لحن خبرها» و موضوعات پرتکرار گفتار سیاسی‌ها اضافه می‌شود. این بخش به منبع داده‌ی جداگانه و پردازش زمان‌بندی‌شده نیاز دارد و عمداً بعد از این مرحله ساخته می‌شود.</p>
+  </section>
+
+  <section class="panel method">
+    <h2>📘 روش‌شناسی و محدودیت‌ها</h2>
+    <ul>
+      <li>منبع داده: بانک جهانی، شامل شاخص‌های توسعه و شاخص‌های حکمرانی. داده مستقیماً هنگام بازدید از سرویس رسمی بانک جهانی گرفته می‌شود.</li>
+      <li>آخرین سال موجود برای بیشتر شاخص‌ها یک تا دو سال قبل است. برای کشورهای تحت تحریم یا جنگ، تأخیر و عدم‌قطعیت داده بیشتر است.</li>
+      <li>پیش‌بینی: سه مدل ساده (مقدار آخر، روند خطی، هموارسازی نمایی با روند میرا) روی چند سال آخر آزمون می‌شوند و مدلی که کمترین خطا را داشته انتخاب می‌شود. بازه‌ی نمایش‌داده‌شده حدود هشتاد درصد اطمینان دارد.</li>
+      <li>مدل فقط الگوی گذشته را امتداد می‌دهد. جنگ، تحریم، تغییر دولت، بحران مالی و شوک‌های ناگهانی در آن لحاظ نمی‌شود.</li>
+      <li>سناریوهای بدبینانه و خوش‌بینانه همان کران‌های بازه‌ی اطمینان هستند، نه پیش‌بینی رویداد.</li>
+      <li>شاخص‌های حکمرانی روی مقیاس منفی دو و نیم تا مثبت دو و نیم هستند و عدد بزرگ‌تر یعنی وضعیت بهتر.</li>
+    </ul>
+  </section>
+</main>
+
+<footer>
+  MIRZA ◆ — اطلاعات این صفحه برای اطلاع‌رسانی و تحلیل است و توصیه سرمایه‌گذاری یا سیاست‌گذاری محسوب نمی‌شود.
+</footer>
+
+<script>
+/* =====================================================
+   ۱) تنظیمات و تعریف داده‌ها
+   ===================================================== */
+const CURRENT_YEAR = new Date().getFullYear();
+
+const COUNTRIES = [
+  {iso:'IRN', name:'ایران'}, {iso:'TUR', name:'ترکیه'}, {iso:'IRQ', name:'عراق'},
+  {iso:'SAU', name:'عربستان سعودی'}, {iso:'ARE', name:'امارات متحده عربی'},
+  {iso:'QAT', name:'قطر'}, {iso:'KWT', name:'کویت'}, {iso:'OMN', name:'عمان'},
+  {iso:'EGY', name:'مصر'}, {iso:'PAK', name:'پاکستان'}, {iso:'AFG', name:'افغانستان'},
+  {iso:'AZE', name:'جمهوری آذربایجان'}, {iso:'ARM', name:'ارمنستان'},
+  {iso:'KAZ', name:'قزاقستان'}, {iso:'UZB', name:'ازبکستان'}, {iso:'TKM', name:'ترکمنستان'},
+  {iso:'RUS', name:'روسیه'}, {iso:'UKR', name:'اوکراین'}, {iso:'ISR', name:'اسرائیل'},
+  {iso:'CHN', name:'چین'}, {iso:'IND', name:'هند'}, {iso:'JPN', name:'ژاپن'},
+  {iso:'KOR', name:'کره‌ی جنوبی'}, {iso:'IDN', name:'اندونزی'}, {iso:'MYS', name:'مالزی'},
+  {iso:'THA', name:'تایلند'}, {iso:'VNM', name:'ویتنام'},
+  {iso:'USA', name:'ایالات متحده'}, {iso:'CAN', name:'کانادا'}, {iso:'MEX', name:'مکزیک'},
+  {iso:'BRA', name:'برزیل'}, {iso:'ARG', name:'آرژانتین'}, {iso:'VEN', name:'ونزوئلا'},
+  {iso:'DEU', name:'آلمان'}, {iso:'FRA', name:'فرانسه'}, {iso:'GBR', name:'بریتانیا'},
+  {iso:'ITA', name:'ایتالیا'}, {iso:'ESP', name:'اسپانیا'}, {iso:'NLD', name:'هلند'},
+  {iso:'CHE', name:'سوئیس'}, {iso:'SWE', name:'سوئد'}, {iso:'POL', name:'لهستان'},
+  {iso:'NGA', name:'نیجریه'}, {iso:'ZAF', name:'آفریقای جنوبی'}, {iso:'ETH', name:'اتیوپی'},
+  {iso:'AUS', name:'استرالیا'}, {iso:'WLD', name:'جهان (میانگین کل)'}
+];
+
+/*
+  فیلدهای هر شاخص:
+  id: شناسه | code/codes: کد بانک جهانی | source: شماره‌ی پایگاه (اختیاری)
+  name: نام فارسی | unit: نوع واحد | good: جهت مطلوب (up/down/neutral)
+  goal: هدف تحلیل | min/max: محدوده‌ی مجاز برای پیش‌بینی
+*/
+const CATEGORIES = {
+  economy: {
+    title:'اقتصادی', icon:'💰',
+    indicators:[
+      {id:'gdp', code:'NY.GDP.MKTP.CD', name:'تولید ناخالص داخلی', unit:'usd', good:'up', min:0,
+       goal:'هدف تحلیل: سنجیدن اندازه‌ی اقتصاد کشور و مسیر بلندمدت آن.'},
+      {id:'gdp_pc', code:'NY.GDP.PCAP.CD', name:'تولید ناخالص سرانه', unit:'usd', good:'up', min:0,
+       goal:'هدف تحلیل: سنجیدن سطح درآمد متوسط هر شهروند و مقایسه‌ی رفاه بین کشورها.'},
+      {id:'gdp_growth', code:'NY.GDP.MKTP.KD.ZG', name:'رشد اقتصادی', unit:'pct', good:'up',
+       goal:'هدف تحلیل: بررسی سرعت رشد یا رکود اقتصاد و دوره‌های بحران.'},
+      {id:'inflation', code:'FP.CPI.TOTL.ZG', name:'تورم (شاخص قیمت مصرف‌کننده)', unit:'pct', good:'down',
+       goal:'هدف تحلیل: سنجیدن فشار قیمت‌ها بر خانوارها و ثبات پولی.'},
+      {id:'unemployment', code:'SL.UEM.TOTL.ZS', name:'نرخ بیکاری', unit:'pct', good:'down', min:0,
+       goal:'هدف تحلیل: بررسی وضعیت بازار کار.'},
+      {id:'debt', code:'GC.DOD.TOTL.GD.ZS', name:'بدهی دولت مرکزی (درصد از تولید)', unit:'pct', good:'down', min:0,
+       goal:'هدف تحلیل: سنجیدن بار بدهی دولت نسبت به اندازه‌ی اقتصاد.'},
+      {id:'reserves', code:'FI.RES.TOTL.CD', name:'ذخایر ارزی و طلا', unit:'usd', good:'up', min:0,
+       goal:'هدف تحلیل: سنجیدن توان کشور در برابر شوک‌های ارزی.'},
+      {id:'exports', code:'NE.EXP.GNFS.ZS', name:'صادرات (درصد از تولید)', unit:'pct', good:'neutral', min:0,
+       goal:'هدف تحلیل: بررسی درجه‌ی اتکای اقتصاد به بازارهای خارجی.'},
+      {id:'imports', code:'NE.IMP.GNFS.ZS', name:'واردات (درصد از تولید)', unit:'pct', good:'neutral', min:0,
+       goal:'هدف تحلیل: بررسی وابستگی اقتصاد به کالاها و خدمات وارداتی.'},
+      {id:'fdi', code:'BX.KLT.DINV.WD.GD.ZS', name:'سرمایه‌گذاری مستقیم خارجی (درصد از تولید)', unit:'pct', good:'up',
+       goal:'هدف تحلیل: سنجیدن جذابیت اقتصاد برای سرمایه‌ی خارجی.'},
+      {id:'manuf', code:'NV.IND.MANF.ZS', name:'سهم صنایع تولیدی از اقتصاد', unit:'pct', good:'neutral', min:0, max:100,
+       goal:'هدف تحلیل: بررسی سهم تولیدات صنعتی در ساختار اقتصاد.'},
+      {id:'industry', code:'NV.IND.TOTL.ZS', name:'سهم صنعت (با معدن و انرژی)', unit:'pct', good:'neutral', min:0, max:100,
+       goal:'هدف تحلیل: سنجیدن وزن صنعت، معدن، ساختمان و انرژی در اقتصاد.'},
+      {id:'agri', code:'NV.AGR.TOTL.ZS', name:'سهم کشاورزی از اقتصاد', unit:'pct', good:'neutral', min:0, max:100,
+       goal:'هدف تحلیل: بررسی نقش کشاورزی در تولید ملی.'},
+      {id:'services', code:'NV.SRV.TOTL.ZS', name:'سهم خدمات از اقتصاد', unit:'pct', good:'neutral', min:0, max:100,
+       goal:'هدف تحلیل: بررسی میزان گذار اقتصاد به سمت خدمات.'},
+      {id:'cereal', code:'AG.PRD.CREL.MT', name:'تولید غلات', unit:'ton', good:'up', min:0,
+       goal:'هدف تحلیل: بررسی تولید غذایی پایه و امنیت غذایی.'},
+      {id:'fuel_exp', code:'TX.VAL.FUEL.ZS.UN', name:'سهم سوخت از صادرات کالا', unit:'pct', good:'neutral', min:0, max:100,
+       goal:'هدف تحلیل: سنجیدن وابستگی صادرات به نفت، گاز و سوخت.'},
+      {id:'tech_exp', code:'TX.VAL.TECH.MF.ZS', name:'سهم فناوری پیشرفته از صادرات صنعتی', unit:'pct', good:'up', min:0, max:100,
+       goal:'هدف تحلیل: سنجیدن پیچیدگی و سطح فناوری تولیدات صادراتی.'}
+    ]
+  },
+  social: {
+    title:'اجتماعی', icon:'👥',
+    indicators:[
+      {id:'population', code:'SP.POP.TOTL', name:'جمعیت', unit:'people', good:'neutral', min:0,
+       goal:'هدف تحلیل: بررسی اندازه و مسیر رشد جمعیت.'},
+      {id:'pop_growth', code:'SP.POP.GROW', name:'نرخ رشد جمعیت', unit:'pct', good:'neutral',
+       goal:'هدف تحلیل: سنجیدن سرعت رشد یا کاهش جمعیت.'},
+      {id:'life_exp', code:'SP.DYN.LE00.IN', name:'امید به زندگی', unit:'years', good:'up', min:0,
+       goal:'هدف تحلیل: سنجیدن سطح سلامت و کیفیت زندگی.'},
+      {id:'fertility', code:'SP.DYN.TFRT.IN', name:'نرخ باروری', unit:'num', good:'neutral', min:0,
+       goal:'هدف تحلیل: بررسی روند زاد و ولد و آینده‌ی ساختار سنی. عدد حدود دو و یک دهم برای حفظ جمعیت لازم است.'},
+      {id:'urban', code:'SP.URB.TOTL.IN.ZS', name:'سهم جمعیت شهری', unit:'pct', good:'neutral', min:0, max:100,
+       goal:'هدف تحلیل: بررسی روند شهرنشینی.'},
+      {id:'internet', code:'IT.NET.USER.ZS', name:'کاربران اینترنت', unit:'pct', good:'up', min:0, max:100,
+       goal:'هدف تحلیل: سنجیدن دسترسی مردم به اینترنت و اقتصاد دیجیتال.'},
+      {id:'gini', code:'SI.POV.GINI', name:'نابرابری درآمدی (ضریب جینی)', unit:'index', good:'down', min:0, max:100,
+       goal:'هدف تحلیل: سنجیدن شکاف درآمدی. عدد بزرگ‌تر یعنی نابرابری بیشتر.'},
+      {id:'fem_labor', code:'SL.TLF.CACT.FE.ZS', name:'مشارکت زنان در نیروی کار', unit:'pct', good:'up', min:0, max:100,
+       goal:'هدف تحلیل: بررسی حضور زنان در بازار کار.'},
+      {id:'youth_unemp', code:'SL.UEM.1524.ZS', name:'بیکاری جوانان (۱۵ تا ۲۴ سال)', unit:'pct', good:'down', min:0, max:100,
+       goal:'هدف تحلیل: سنجیدن فشار بیکاری بر نسل جوان.'},
+      {id:'school', code:'SE.SEC.ENRR', name:'ثبت‌نام دبیرستان (نسبت ناخالص)', unit:'pct', good:'up', min:0,
+       goal:'هدف تحلیل: بررسی دسترسی به آموزش متوسطه.'},
+      {id:'literacy', code:'SE.ADT.LITR.ZS', name:'نرخ باسوادی بزرگسالان', unit:'pct', good:'up', min:0, max:100,
+       goal:'هدف تحلیل: بررسی سطح پایه‌ی سواد.'}
+    ]
+  },
+  politics: {
+    title:'سیاسی و حکمرانی', icon:'🏛',
+    indicators:[
+      {id:'stability', codes:['PV.EST','GOV_WGI_PV.EST'], source:3, name:'ثبات سیاسی و نبود خشونت', unit:'index', good:'up', min:-2.5, max:2.5,
+       goal:'هدف تحلیل: سنجیدن احتمال بی‌ثباتی سیاسی و خشونت. مقیاس منفی دو و نیم تا مثبت دو و نیم.'},
+      {id:'effectiveness', codes:['GE.EST','GOV_WGI_GE.EST'], source:3, name:'اثربخشی دولت', unit:'index', good:'up', min:-2.5, max:2.5,
+       goal:'هدف تحلیل: سنجیدن کیفیت خدمات عمومی و توان اجرایی دولت.'},
+      {id:'corruption', codes:['CC.EST','GOV_WGI_CC.EST'], source:3, name:'کنترل فساد', unit:'index', good:'up', min:-2.5, max:2.5,
+       goal:'هدف تحلیل: سنجیدن میزان مهار فساد. عدد بزرگ‌تر یعنی کنترل بهتر.'},
+      {id:'rule_law', codes:['RL.EST','GOV_WGI_RL.EST'], source:3, name:'حاکمیت قانون', unit:'index', good:'up', min:-2.5, max:2.5,
+       goal:'هدف تحلیل: سنجیدن اعتماد به قانون، قراردادها و دادگاه‌ها.'},
+      {id:'voice', codes:['VA.EST','GOV_WGI_VA.EST'], source:3, name:'پاسخگویی و مشارکت سیاسی', unit:'index', good:'up', min:-2.5, max:2.5,
+       goal:'هدف تحلیل: سنجیدن آزادی بیان، رسانه و مشارکت شهروندان در انتخاب دولت.'},
+      {id:'reg_quality', codes:['RQ.EST','GOV_WGI_RQ.EST'], source:3, name:'کیفیت مقررات و فضای کسب‌وکار', unit:'index', good:'up', min:-2.5, max:2.5,
+       goal:'هدف تحلیل: سنجیدن توان دولت در وضع مقررات که به بخش خصوصی کمک کند.'},
+      {id:'military', code:'MS.MIL.XPND.GD.ZS', name:'هزینه‌ی نظامی (درصد از تولید)', unit:'pct', good:'neutral', min:0,
+       goal:'هدف تحلیل: سنجیدن سهم هزینه‌های دفاعی از اقتصاد.'}
+    ]
+  },
+  environment: {
+    title:'انرژی و محیط‌زیست', icon:'🌱',
+    indicators:[
+      {id:'co2_pc', codes:['EN.GHG.CO2.PC.CE.AR5','EN.ATM.CO2E.PC'], name:'انتشار دی‌اکسید کربن سرانه', unit:'tco2', good:'down', min:0,
+       goal:'هدف تحلیل: سنجیدن سهم هر شهروند در انتشار گازهای گلخانه‌ای.'},
+      {id:'renew', code:'EG.FEC.RNEW.ZS', name:'سهم انرژی‌های تجدیدپذیر', unit:'pct', good:'up', min:0, max:100,
+       goal:'هدف تحلیل: بررسی گذار به انرژی پاک.'},
+      {id:'energy_use', code:'EG.USE.PCAP.KG.OE', name:'مصرف انرژی سرانه', unit:'kgoe', good:'neutral', min:0,
+       goal:'هدف تحلیل: بررسی شدت مصرف انرژی در اقتصاد و زندگی روزمره.'},
+      {id:'elec_access', code:'EG.ELC.ACCS.ZS', name:'دسترسی به برق', unit:'pct', good:'up', min:0, max:100,
+       goal:'هدف تحلیل: بررسی پوشش زیرساخت برق.'},
+      {id:'forest', code:'AG.LND.FRST.ZS', name:'سهم جنگل از خاک کشور', unit:'pct', good:'up', min:0, max:100,
+       goal:'هدف تحلیل: بررسی روند پوشش جنگلی.'},
+      {id:'agri_land', code:'AG.LND.AGRI.ZS', name:'سهم زمین کشاورزی', unit:'pct', good:'neutral', min:0, max:100,
+       goal:'هدف تحلیل: بررسی روند کاربری زمین.'},
+      {id:'water', code:'ER.H2O.FWTL.ZS', name:'برداشت آب شیرین (درصد از منابع تجدیدشونده)', unit:'pct', good:'down', min:0,
+       goal:'هدف تحلیل: سنجیدن فشار بر منابع آبی. عدد بالای چهل درصد یعنی تنش آبی شدید.'},
+      {id:'pm25', code:'EN.ATM.PM25.MC.M3', name:'آلودگی هوا (ذرات ریز)', unit:'ugm3', good:'down', min:0,
+       goal:'هدف تحلیل: سنجیدن کیفیت هوایی که شهروندان تنفس می‌کنند.'}
+    ]
+  }
+};
+
+const SNAPSHOT_IDS = ['gdp','gdp_growth','inflation','unemployment','population','life_exp'];
+
+/* =====================================================
+   ۲) ابزارهای قالب‌بندی فارسی
+   ===================================================== */
+const DIGITS = '۰۱۲۳۴۵۶۷۸۹';
+const faYear = y => String(y).replace(/\d/g, d => DIGITS[d]);
+const faNum = (n, d = 2) => new Intl.NumberFormat('fa-IR', {maximumFractionDigits: d}).format(n);
+
+function fmtBig(v){
+  const a = Math.abs(v);
+  if (a >= 1e12) return faNum(v/1e12, 2) + ' تریلیون';
+  if (a >= 1e9)  return faNum(v/1e9, 2) + ' میلیارد';
+  if (a >= 1e6)  return faNum(v/1e6, 2) + ' میلیون';
+  if (a >= 1e3)  return faNum(v/1e3, 1) + ' هزار';
+  return faNum(v, 0);
+}
+function fmt(v, unit){
+  if (v === null || v === undefined || Number.isNaN(v)) return '—';
+  switch(unit){
+    case 'usd':    return fmtBig(v) + ' دلار';
+    case 'people': return fmtBig(v) + ' نفر';
+    case 'ton':    return fmtBig(v) + ' تن';
+    case 'pct':    return faNum(v, 1) + '٪';
+    case 'years':  return faNum(v, 1) + ' سال';
+    case 'tco2':   return faNum(v, 2) + ' تن';
+    case 'kgoe':   return faNum(v, 0) + ' کیلوگرم معادل نفت';
+    case 'ugm3':   return faNum(v, 1) + ' میکروگرم بر مترمکعب';
+    default:       return faNum(v, 2);
+  }
+}
+const countryName = iso => (COUNTRIES.find(c => c.iso === iso) || {}).name || iso;
+
+/* =====================================================
+   ۳) دریافت داده از بانک جهانی
+   ===================================================== */
+const cache = new Map();
+
+async function fetchSeries(iso, ind){
+  const key = iso + '|' + ind.id;
+  if (cache.has(key)) return cache.get(key);
+  const codes = ind.codes || [ind.code];
+  let result = [];
+  for (const code of codes){
+    try{
+      let url = `https://api.worldbank.org/v2/country/${iso}/indicator/${code}`
+              + `?format=json&per_page=200&date=1985:${CURRENT_YEAR}`;
+      if (ind.source) url += `&source=${ind.source}`;
+      const r = await fetch(url);
+      if (!r.ok) continue;
+      const j = await r.json();
+      const rows = (Array.isArray(j) && Array.isArray(j[1])) ? j[1] : [];
+      const pts = rows
+        .filter(x => x.value !== null && x.value !== undefined)
+        .map(x => ({year: +x.date, value: +x.value}))
+        .sort((a, b) => a.year - b.year);
+      if (pts.length){ result = pts; break; }
+    }catch(e){ /* کد بعدی امتحان می‌شود */ }
+  }
+  cache.set(key, result);
+  return result;
+}
+
+/* =====================================================
+   ۴) مدل‌های پیش‌بینی
+   ===================================================== */
+function forecastNaive(v, h){
+  return Array(h).fill(v[v.length - 1]);
+}
+function forecastLinear(v, h){
+  const w = v.slice(-15), n = w.length;
+  let sx=0, sy=0, sxx=0, sxy=0;
+  w.forEach((y, x) => { sx+=x; sy+=y; sxx+=x*x; sxy+=x*y; });
+  const den = n*sxx - sx*sx;
+  const b = den === 0 ? 0 : (n*sxy - sx*sy) / den;
+  const a = (sy - b*sx) / n;
+  return Array.from({length:h}, (_, k) => a + b*(n + k));
+}
+function forecastHolt(v, h){
+  const phi = 0.9;
+  let best = null;
+  for (let al = 0.1; al <= 0.95; al += 0.15){
+    for (let be = 0.05; be <= 0.5; be += 0.15){
+      let l = v[0], b = v[1] - v[0], sse = 0;
+      for (let t = 1; t < v.length; t++){
+        const pred = l + phi*b;
+        const e = v[t] - pred; sse += e*e;
+        const lNew = al*v[t] + (1-al)*(l + phi*b);
+        b = be*(lNew - l) + (1-be)*phi*b;
+        l = lNew;
+      }
+      if (!best || sse < best.sse) best = {sse, l, b};
+    }
+  }
+  const out = []; let cum = 0;
+  for (let k = 1; k <= h; k++){ cum += Math.pow(phi, k); out.push(best.l + cum*best.b); }
+  return out;
+}
+const MODELS = {
+  naive:  {name:'مقدار آخر (ساده)', fn:forecastNaive},
+  linear: {name:'روند خطی', fn:forecastLinear},
+  holt:   {name:'هموارسازی نمایی با روند میرا', fn:forecastHolt}
+};
+
+function canForecast(pts){
+  const w = pts.slice(-30);
+  if (w.length < 8) return {ok:false, why:'تعداد سال‌های دارای داده برای پیش‌بینی کافی نیست.'};
+  const last = w[w.length-1].year;
+  if (last < CURRENT_YEAR - 5) return {ok:false, why:'آخرین داده‌ی موجود قدیمی است و پیش‌بینی از روی آن قابل اتکا نیست.'};
+  const span = last - w[0].year + 1;
+  if (span > w.length * 1.5) return {ok:false, why:'داده‌ی این شاخص سالانه و پیوسته نیست و پیش‌بینی ممکن نیست.'};
+  return {ok:true};
+}
+
+function runForecast(pts, h, ind){
+  const v = pts.slice(-30).map(p => p.value);
+  const hold = Math.min(4, Math.floor(v.length / 3));
+  const train = v.slice(0, -hold), test = v.slice(-hold);
+  let best = null;
+  for (const [key, m] of Object.entries(MODELS)){
+    const pred = m.fn(train, hold);
+    const errs = pred.map((p, i) => test[i] - p);
+    const mae  = errs.reduce((s, e) => s + Math.abs(e), 0) / hold;
+    const rmse = Math.sqrt(errs.reduce((s, e) => s + e*e, 0) / hold);
+    if (!best || mae < best.mae) best = {key, mae, rmse};
+  }
+  const last = v[v.length-1];
+  const clamp = x => {
+    if (ind.min !== undefined) x = Math.max(ind.min, x);
+    if (ind.max !== undefined) x = Math.min(ind.max, x);
+    return x;
+  };
+  const fc = MODELS[best.key].fn(v, h).map(clamp);
+  const spread = Math.max(best.rmse, Math.abs(last) * 0.01, 1e-9);
+  const z = 1.28; // حدود هشتاد درصد
+  const lo = fc.map((x, i) => clamp(x - z*spread*Math.sqrt(i+1)));
+  const hi = fc.map((x, i) => clamp(x + z*spread*Math.sqrt(i+1)));
+  const lastYear = pts[pts.length-1].year;
+  return {
+    key:best.key, name:MODELS[best.key].name, mae:best.mae, rmse:best.rmse, hold,
+    years: fc.map((_, i) => lastYear + 1 + i), fc, lo, hi
+  };
+}
+
+/* =====================================================
+   ۵) تفسیر خودکار فارسی
+   ===================================================== */
+const ABS_UNITS = ['pct','index','years','num','tco2','ugm3'];
+
+function changeText(from, to, unit){
+  if (ABS_UNITS.includes(unit) || from <= 0){
+    const d = to - from;
+    const u = unit === 'pct' ? ' واحد درصد' : '';
+    return `${d >= 0 ? 'افزایش' : 'کاهش'} ${faNum(Math.abs(d), 2)}${u}`;
+  }
+  const rel = (to / from - 1) * 100;
+  return `${rel >= 0 ? 'رشد' : 'کاهش'} ${faNum(Math.abs(rel), 1)} درصد`;
+}
+
+function buildInterpretation(ind, iso, pts, fo, cmpIso, cmpPts){
+  const name = countryName(iso);
+  const out = [];
+  const last = pts[pts.length-1];
+  out.push(`آخرین مقدار ثبت‌شده برای ${ind.name} در ${name}، مربوط به سال ${faYear(last.year)}، برابر ${fmt(last.value, ind.unit)} است.`);
+
+  const ref = [...pts].reverse().find(p => p.year <= last.year - 5);
+  if (ref){
+    out.push(`نسبت به سال ${faYear(ref.year)} (پنج سال یا بیشتر قبل)، ${changeText(ref.value, last.value, ind.unit)} دیده می‌شود.`);
+  }
+  const mx = pts.reduce((a, b) => b.value > a.value ? b : a);
+  const mn = pts.reduce((a, b) => b.value < a.value ? b : a);
+  if (pts.length > 3){
+    out.push(`در بازه‌ی داده‌ها، بالاترین مقدار مربوط به سال ${faYear(mx.year)} (${fmt(mx.value, ind.unit)}) و پایین‌ترین مقدار مربوط به سال ${faYear(mn.year)} (${fmt(mn.value, ind.unit)}) است.`);
+  }
+  if (cmpIso && cmpPts && cmpPts.length){
+    const c = cmpPts[cmpPts.length-1];
+    out.push(`برای مقایسه، آخرین مقدار ${countryName(cmpIso)} در سال ${faYear(c.year)} برابر ${fmt(c.value, ind.unit)} است، در برابر ${fmt(last.value, ind.unit)} برای ${name}.`);
+  }
+  if (fo){
+    const end = fo.fc[fo.fc.length-1], endYear = fo.years[fo.years.length-1];
+    out.push(`مدل «${fo.name}» در آزمون روی ${faYear(fo.hold)} سال آخر داده کمترین خطا را داشت (میانگین خطای مطلق ${fmt(fo.mae, ind.unit)}). بر پایه‌ی آن، مقدار این شاخص تا سال ${faYear(endYear)} حدود ${fmt(end, ind.unit)} برآورد می‌شود، با بازه‌ی هشتاد درصدی از ${fmt(fo.lo[fo.lo.length-1], ind.unit)} تا ${fmt(fo.hi[fo.hi.length-1], ind.unit)}.`);
+    if (ind.good !== 'neutral' && Math.abs(end - last.value) > 1e-9){
+      const better = (ind.good === 'up' && end > last.value) || (ind.good === 'down' && end < last.value);
+      out.push(better
+        ? 'جهت مسیر برآوردشده، با معیارهای متداول توسعه، مطلوب ارزیابی می‌شود.'
+        : 'جهت مسیر برآوردشده، با معیارهای متداول توسعه، نگران‌کننده ارزیابی می‌شود.');
+    }
+  }
+  return out;
+}
+
+/* =====================================================
+   ۶) نمودار
+   ===================================================== */
+let chart = null;
+Chart.defaults.font.family = "Vazirmatn, Tahoma, sans-serif";
+Chart.defaults.color = '#8e99b0';
+
+function drawChart(ind, iso, pts, fo, cmpIso, cmpPts, cmpFo){
+  const GOLD = '#e8b64c', CYAN = '#4cc9e8';
+  const yearsSet = new Set();
+  pts.forEach(p => yearsSet.add(p.year));
+  (cmpPts || []).forEach(p => yearsSet.add(p.year));
+  if (fo) fo.years.forEach(y => yearsSet.add(y));
+  if (cmpFo) cmpFo.years.forEach(y => yearsSet.add(y));
+  const labels = [...yearsSet].sort((a, b) => a - b);
+
+  const toMap = arr => new Map(arr.map(p => [p.year, p.value]));
+  const series = (map, extra) => Object.assign({
+    data: labels.map(y => map.has(y) ? map.get(y) : null),
+    borderWidth: 2.5, pointRadius: 2, pointHoverRadius: 5,
+    spanGaps: true, tension: 0.25
+  }, extra);
+
+  const lastOf = a => a[a.length-1];
+  const fcMap = (p, f) => {
+    const m = new Map([[lastOf(p).year, lastOf(p).value]]);
+    f.years.forEach((y, i) => m.set(y, f.fc[i]));
+    return m;
+  };
+  const bandMap = (p, f, arr) => {
+    const m = new Map([[lastOf(p).year, lastOf(p).value]]);
+    f.years.forEach((y, i) => m.set(y, arr[i]));
+    return m;
+  };
+
+  const datasets = [];
+  datasets.push(series(toMap(pts), {
+    label: countryName(iso), borderColor: GOLD, backgroundColor: GOLD
+  }));
+  if (fo){
+    datasets.push(series(bandMap(pts, fo, fo.lo), {
+      label: '_lo', borderWidth: 0, pointRadius: 0, pointHoverRadius: 0, borderColor: 'transparent'
+    }));
+    datasets.push(series(bandMap(pts, fo, fo.hi), {
+      label: '_hi', borderWidth: 0, pointRadius: 0, pointHoverRadius: 0,
+      borderColor: 'transparent', backgroundColor: 'rgba(232,182,76,.16)', fill: '-1'
+    }));
+    datasets.push(series(fcMap(pts, fo), {
+      label: countryName(iso) + ' (پیش‌بینی)', borderColor: GOLD, backgroundColor: GOLD,
+      borderDash: [7, 5], pointRadius: 0
+    }));
+  }
+  if (cmpIso && cmpPts && cmpPts.length){
+    datasets.push(series(toMap(cmpPts), {
+      label: countryName(cmpIso), borderColor: CYAN, backgroundColor: CYAN
+    }));
+    if (cmpFo){
+      datasets.push(series(fcMap(cmpPts, cmpFo), {
+        label: countryName(cmpIso) + ' (پیش‌بینی)', borderColor: CYAN, backgroundColor: CYAN,
+        borderDash: [7, 5], pointRadius: 0
+      }));
+    }
+  }
+
+  if (chart) chart.destroy();
+  chart = new Chart(document.getElementById('chart'), {
+    type: 'line',
+    data: {labels, datasets},
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: {mode: 'index', intersect: false},
+      plugins: {
+        legend: {
+          rtl: true, textDirection: 'rtl',
+          labels: {filter: item => !item.text.startsWith('_'), usePointStyle: true}
+        },
+        tooltip: {
+          rtl: true, textDirection: 'rtl',
+          filter: item => !item.dataset.label.startsWith('_'),
+          callbacks: {
+            title: items => 'سال ' + faYear(items[0].label),
+            label: ctx => `${ctx.dataset.label}: ${fmt(ctx.parsed.y, ind.unit)}`
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: {color: 'rgba(255,255,255,.04)'},
+          ticks: {
+            maxTicksLimit: 12,
+            callback: function(val){ return faYear(this.getLabelForValue(val)); }
+          },
+          title: {display: true, text: 'سال میلادی'}
+        },
+        y: {
+          grid: {color: 'rgba(255,255,255,.06)'},
+          ticks: {
+            callback: v => ['usd','people','ton'].includes(ind.unit) ? fmtBig(v) : faNum(v, 2)
+          }
+        }
+      }
+    }
+  });
+}
+
+/* =====================================================
+   ۷) رابط کاربری
+   ===================================================== */
+const state = {cat: 'economy', ind: 'gdp', iso: 'IRN', cmp: '', h: 5};
+const $ = id => document.getElementById(id);
+const indIndex = {};
+Object.values(CATEGORIES).forEach(c => c.indicators.forEach(i => indIndex[i.id] = i));
+let renderToken = 0, snapToken = 0, csvData = null;
+
+function fillSelects(){
+  COUNTRIES.forEach(c => {
+    $('country').add(new Option(c.name, c.iso));
+    $('compare').add(new Option(c.name, c.iso));
+  });
+  $('country').value = state.iso;
+}
+function renderTabs(){
+  $('tabs').innerHTML = '';
+  Object.entries(CATEGORIES).forEach(([key, c]) => {
+    const b = document.createElement('button');
+    b.className = 'tab' + (key === state.cat ? ' active' : '');
+    b.textContent = `${c.icon} ${c.title}`;
+    b.onclick = () => {
+      state.cat = key;
+      state.ind = CATEGORIES[key].indicators[0].id;
+      renderTabs(); renderChips(); render();
+    };
+    $('tabs').appendChild(b);
+  });
+}
+function renderChips(){
+  $('chips').innerHTML = '';
+  CATEGORIES[state.cat].indicators.forEach(i => {
+    const b = document.createElement('button');
+    b.className = 'chip' + (i.id === state.ind ? ' active' : '');
+    b.textContent = i.name;
+    b.onclick = () => { state.ind = i.id; renderChips(); render(); };
+    $('chips').appendChild(b);
+  });
+}
+
+async function renderSnapshot(){
+  const token = ++snapToken;
+  $('snapshot').innerHTML = '<div class="loading">در حال دریافت خلاصه‌ی وضعیت…</div>';
+  const items = await Promise.all(SNAPSHOT_IDS.map(async id => {
+    const ind = indIndex[id];
+    const pts = await fetchSeries(state.iso, ind);
+    return {ind, last: pts[pts.length-1]};
+  }));
+  if (token !== snapToken) return;
+  $('snapshot').innerHTML = items.map(({ind, last}) => `
+    <div class="snap">
+      <div class="l">${ind.name}</div>
+      <div class="v">${last ? fmt(last.value, ind.unit) : '—'}</div>
+      <div class="s">${last ? 'سال ' + faYear(last.year) : 'داده‌ای ثبت نشده'}</div>
+    </div>`).join('');
+}
+
+async function render(){
+  const token = ++renderToken;
+  const ind = indIndex[state.ind];
+  const name = countryName(state.iso);
+
+  $('indTitle').textContent = `${ind.name} — ${name}`;
+  $('goal').textContent = ind.goal;
+  $('glance').innerHTML = '<div class="loading">در حال دریافت داده از بانک جهانی…</div>';
+  $('interp').innerHTML = ''; $('scen').innerHTML = ''; $('chartNote').textContent = '';
+  csvData = null;
+
+  const [pts, cmpPts] = await Promise.all([
+    fetchSeries(state.iso, ind),
+    state.cmp ? fetchSeries(state.cmp, ind) : Promise.resolve([])
+  ]);
+  if (token !== renderToken) return;
+
+  if (!pts.length){
+    if (chart){ chart.destroy(); chart = null; }
+    $('glance').innerHTML = '';
+    $('interp').innerHTML = '<div class="empty">برای این کشور و این شاخص، بانک جهانی داده‌ای ثبت نکرده است. شاخص یا کشور دیگری را امتحان کنید.</div>';
+    return;
+  }
+
+  /* پیش‌بینی */
+  let fo = null, cmpFo = null, forecastWhy = '';
+  const gate = canForecast(pts);
+  if (gate.ok) fo = runForecast(pts, state.h, ind); else forecastWhy = gate.why;
+  if (state.cmp && cmpPts.length && canForecast(cmpPts).ok) cmpFo = runForecast(cmpPts, state.h, ind);
+
+  /* نمای کلی نمودار */
+  const last = pts[pts.length-1];
+  const ref = [...pts].reverse().find(p => p.year <= last.year - 5);
+  const mx = pts.reduce((a, b) => b.value > a.value ? b : a);
+  const mn = pts.reduce((a, b) => b.value < a.value ? b : a);
+  const cards = [
+    ['آخرین مقدار', fmt(last.value, ind.unit), 'سال ' + faYear(last.year)],
+    ['تغییر نسبت به پنج سال قبل', ref ? changeText(ref.value, last.value, ind.unit) : '—', ref ? 'از سال ' + faYear(ref.year) : 'داده‌ی کافی نیست'],
+    ['بیشترین مقدار', fmt(mx.value, ind.unit), 'سال ' + faYear(mx.year)],
+    ['کمترین مقدار', fmt(mn.value, ind.unit), 'سال ' + faYear(mn.year)],
+    ['بازه‌ی داده', `${faYear(pts[0].year)} تا ${faYear(last.year)}`, faNum(pts.length, 0) + ' سال دارای داده']
+  ];
+  if (fo){
+    cards.push(['برآورد پایان افق', fmt(fo.fc[fo.fc.length-1], ind.unit), 'سال ' + faYear(fo.years[fo.years.length-1])]);
+  }
+  $('glance').innerHTML = cards.map(c => `
+    <div class="g"><div class="l">${c[0]}</div><div class="v">${c[1]}</div><div class="s">${c[2]}</div></div>`).join('');
+
+  /* نمودار */
+  drawChart(ind, state.iso, pts, fo, state.cmp, cmpPts, cmpFo);
+  $('chartNote').textContent = fo
+    ? 'خط‌چین پیش‌بینی است و ناحیه‌ی سایه‌دار بازه‌ی هشتاد درصدی عدم‌قطعیت را نشان می‌دهد.'
+    : '';
+  if (state.cmp && !cmpPts.length){
+    $('chartNote').textContent += ` برای ${countryName(state.cmp)} داده‌ای در این شاخص ثبت نشده است.`;
+  }
+
+  /* تفسیر */
+  const lines = buildInterpretation(ind, state.iso, pts, fo, state.cmp, cmpPts);
+  let html = lines.map(l => `<p>${l}</p>`).join('');
+  if (!fo) html += `<div class="warn">پیش‌بینی نمایش داده نشد: ${forecastWhy}</div>`;
+  else html += '<div class="warn">این برآورد فقط الگوی گذشته را امتداد می‌دهد و شوک‌هایی مثل جنگ، تحریم، تغییر سیاست یا بحران مالی را پیش‌بینی نمی‌کند.</div>';
+  $('interp').innerHTML = html;
+
+  /* سناریوها */
+  if (fo){
+    const i = fo.fc.length - 1, y = faYear(fo.years[i]);
+    let pessV, optV, pessL, optL;
+    if (ind.good === 'up'){ pessV = fo.lo[i]; optV = fo.hi[i]; pessL = 'بدبینانه'; optL = 'خوش‌بینانه'; }
+    else if (ind.good === 'down'){ pessV = fo.hi[i]; optV = fo.lo[i]; pessL = 'بدبینانه'; optL = 'خوش‌بینانه'; }
+    else { pessV = fo.lo[i]; optV = fo.hi[i]; pessL = 'کران پایین'; optL = 'کران بالا'; }
+    $('scen').innerHTML = `
+      <div class="scen">
+        <div class="sc pess"><div class="l">${pessL} — سال ${y}</div><div class="v">${fmt(pessV, ind.unit)}</div></div>
+        <div class="sc base"><div class="l">سناریوی پایه — سال ${y}</div><div class="v">${fmt(fo.fc[i], ind.unit)}</div></div>
+        <div class="sc opt"><div class="l">${optL} — سال ${y}</div><div class="v">${fmt(optV, ind.unit)}</div></div>
+      </div>
+      <p class="note">سناریوها همان کران‌ها و مرکز بازه‌ی هشتاد درصدی مدل هستند، نه پیش‌بینی رویداد مشخص.</p>`;
+  } else {
+    $('scen').innerHTML = '<div class="empty">برای این شاخص سناریوی آینده محاسبه نشد.</div>';
+  }
+
+  csvData = {ind, pts, fo};
+}
+
+/* خروجی جدول داده */
+function downloadCsv(){
+  if (!csvData) return;
+  const {ind, pts, fo} = csvData;
+  let rows = ['سال,مقدار,نوع'];
+  pts.forEach(p => rows.push(`${p.year},${p.value},تاریخی`));
+  if (fo) fo.years.forEach((y, i) => rows.push(`${y},${fo.fc[i]},پیش‌بینی`));
+  const blob = new Blob(['\ufeff' + rows.join('\n')], {type: 'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `mirza-${state.iso}-${ind.id}.csv`;
+  document.body.appendChild(a); a.click(); a.remove();
+}
+
+/* رویدادها */
+$('country').addEventListener('change', e => { state.iso = e.target.value; renderSnapshot(); render(); });
+$('compare').addEventListener('change', e => { state.cmp = e.target.value; render(); });
+$('horizon').addEventListener('change', e => { state.h = +e.target.value; render(); });
+$('csv').addEventListener('click', downloadCsv);
+
+/* شروع */
+fillSelects();
+renderTabs();
+renderChips();
+renderSnapshot();
+render();
+</script>
+</body>
+</html>
