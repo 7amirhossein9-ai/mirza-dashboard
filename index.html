@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="میرزا | قیمت زنده، نمودار، تحلیل فنی و اخبار فارسی بازارهای مالی">
+<meta name="theme-color" content="#080a0f">
+<meta property="og:title" content="میرزا | بازارهای مالی">
+<meta property="og:description" content="قیمت زنده، نمودار، تحلیل فنی و اخبار فارسی">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%88%3C/text%3E%3C/svg%3E">
+<title>میرزا | بازارهای مالی</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header class="header">
+  <a class="brand" href="#home" aria-label="میرزا">
+    <img id="logoImg" class="brand-img" alt="لوگوی میرزا" hidden>
+    <div class="logo" id="logoText">MIRZA <span>◆</span></div>
+  </a>
+  <div class="header-right"><span class="live-dot"></span> بازارهای مالی</div>
+</header>
+
+<div class="ticker" id="ticker"><div class="ticker-track" id="tickerTrack"><span class="ticker-msg">در حال دریافت قیمت‌ها...</span></div></div>
+
+<div class="layout">
+
+<aside class="sidebar">
+  <div class="sidebar-title">داشبورد</div>
+  <a href="#home" class="nav active" data-target="home">🏠 نمای کلی</a>
+  <a href="#pulse" class="nav" data-target="pulse">🧭 نبض بازار</a>
+
+  <div class="sidebar-title">بازارها</div>
+  <a href="#iran" class="nav" data-target="iran">🇮🇷 بازار ایران</a>
+  <a href="#chart" class="nav" data-target="chart">📊 نمودار</a>
+  <a href="#markets" class="nav" data-target="markets">💰 جدول قیمت‌ها</a>
+
+  <div class="sidebar-title">اخبار و تحلیل</div>
+  <a href="#news" class="nav" data-target="news">📰 اخبار فارسی</a>
+  <a href="#statements" class="nav" data-target="statements">🎙 سخنان مقامات</a>
+  <a href="#countries" class="nav" data-target="countries">🌍 تحلیل کشورها</a>
+  <a href="#analysis" class="nav" data-target="analysis">🧠 تحلیل فنی</a>
+</aside>
+
+<main class="main" id="home">
+
+<section class="page-title">
+  <div>
+    <h1>نمای کلی بازار</h1>
+    <p>طلا، رمزارز، نفت، ارز و شاخص‌های جهانی</p>
+  </div>
+  <div class="status-line">
+    <span id="quotesStatus">در حال دریافت قیمت‌ها...</span>
+    <button class="btn secondary small" id="refreshQuotesBtn" type="button">به‌روزرسانی قیمت‌ها</button>
+  </div>
+</section>
+
+<section class="market-grid" id="cards"></section>
+
+<!-- نبض بازار -->
+<section class="panel pulse-panel" id="pulse">
+  <div class="panel-title">
+    <h2>🧭 نبض بازار امروز</h2>
+    <span id="pulseLabel">—</span>
+  </div>
+  <div class="pulse-summary" id="pulseSummary">در حال محاسبه...</div>
+  <div class="tech-grid" id="pulseGrid"></div>
+</section>
+
+<!-- بازار ایران -->
+<section class="panel iran-panel" id="iran">
+  <div class="panel-title">
+    <h2>🇮🇷 بازار ایران: طلا، سکه، نقره و ارز</h2>
+    <span id="iranStatus">در حال دریافت...</span>
+  </div>
+  <div class="tech-grid" id="iranKpis"></div>
+  <div class="iran-tools">
+    <label for="manualUsd">نرخ دلار دستی (تومان):</label>
+    <input id="manualUsd" class="field" type="text" inputmode="numeric" dir="ltr" placeholder="100000" autocomplete="off">
+    <button class="btn small" id="manualUsdBtn" type="button">اعمال</button>
+    <button class="btn secondary small" id="iranRefreshBtn" type="button">به‌روزرسانی</button>
+    <span class="small-note">اگر منبع بازار آزاد در دسترس نبود، ارزش‌ها با همین نرخ محاسبه می‌شوند.</span>
+  </div>
+  <div class="table-wrapper">
+    <table style="min-width:900px">
+      <thead>
+        <tr>
+          <th>دارایی</th><th>واحد</th><th>قیمت (تومان)</th><th>تغییر روز</th><th>درصد</th>
+          <th>کمترین / بیشترین</th><th>ارزش بر پایه قیمت جهانی</th><th>اختلاف با ارزش جهانی</th><th>منبع</th>
+        </tr>
+      </thead>
+      <tbody id="iranBody"></tbody>
+    </table>
+  </div>
+  <div class="insights" id="iranInsights"></div>
+  <div class="disclaimer">
+    ارزش بر پایه قیمت جهانی = قیمت اونس جهانی ÷ ۳۱٫۱۰۳۵ × گرم طلای خالص × نرخ دلار بازار آزاد.
+    این عدد اجرت ساخت، مالیات و حباب را شامل نمی‌شود؛ پس «اختلاف» را باید نشانه‌ی حباب و هزینه‌ها دانست، نه سود تضمینی.
+    وزن و عیار سکه‌ها: امامی و بهار آزادی ۸٫۱۳۳ گرم، نیم‌سکه ۴٫۰۶۶۵ گرم، ربع‌سکه ۲٫۰۳۳ گرم، سکه گرمی ۱ گرم، همگی با عیار ۹۰۰.
+  </div>
+</section>
+
+
+<section class="two-column" id="chart">
+
+  <!-- نمودار -->
+  <div class="panel">
+    <div class="panel-title">
+      <h2>📈 نمودار قیمت</h2>
+      <span id="chartSource">در حال بارگذاری...</span>
+    </div>
+
+    <div class="chart-head">
+      <div>
+        <div class="ch-name" id="chName">—</div>
+        <div class="ch-big ltr" id="chPrice">—</div>
+        <div class="ch-chg" id="chChange"></div>
+      </div>
+      <div class="ch-stats" id="chStats"></div>
+    </div>
+
+    <div class="chart-toolbar">
+      <select id="chartSelector" class="field" aria-label="انتخاب بازار"></select>
+      <select id="chartPeriod" class="field" aria-label="بازه زمانی">
+        <option value="1D">۱ روز</option>
+        <option value="5D">۵ روز</option>
+        <option value="1M">۱ ماه</option>
+        <option value="3M">۳ ماه</option>
+        <option value="6M">۶ ماه</option>
+        <option value="1Y" selected>۱ سال</option>
+        <option value="5Y">۵ سال</option>
+      </select>
+      <select id="chartMode" class="field" aria-label="نوع نمودار">
+        <option value="candle">کندل‌استیک</option>
+        <option value="line">خطی</option>
+        <option value="area">ناحیه‌ای</option>
+      </select>
+      <label class="check"><input type="checkbox" id="optSma20" checked> میانگین ۲۰</label>
+      <label class="check"><input type="checkbox" id="optSma50"> میانگین ۵۰</label>
+      <label class="check"><input type="checkbox" id="optVolume" checked> حجم</label>
+    </div>
+
+    <div class="chart-toolbar">
+      <input id="customSymbol" class="field custom-symbol" type="text" dir="ltr" placeholder="AAPL" autocomplete="off" spellcheck="false">
+      <button id="customSymbolBtn" class="btn" type="button">نمایش نماد</button>
+      <button id="reloadChartBtn" class="btn secondary" type="button">بارگذاری دوباره</button>
+      <button id="csvBtn" class="btn secondary" type="button">دانلود فایل <span class="ltr">CSV</span></button>
+    </div>
+    <div class="form-error" id="symbolError" role="alert"></div>
+    <div class="chart-hint">
+      برای نماد دلخواه، قالب سایت یاهو فاینانس را وارد کنید، مثلاً
+      <code>AAPL</code> <code>TSLA</code> <code>^DJI</code> <code>EURUSD=X</code>
+    </div>
+
+    <div class="legend" id="legend"></div>
+    <div class="chart-box" id="chartBox">
+      <canvas id="chartCanvas"></canvas>
+      <div class="chart-overlay" id="chartOverlay">در حال بارگذاری نمودار...</div>
+    </div>
+    <div class="chart-foot" id="chartFoot"></div>
+  </div>
+
+  <!-- اخبار -->
+  <div class="panel" id="news">
+    <div class="panel-title">
+      <h2>📰 آخرین اخبار</h2>
+      <span id="newsCategoryLabel">تازه‌ترین</span>
+    </div>
+
+    <div class="chips" id="newsChips"></div>
+
+    <form class="news-search" id="newsSearchForm">
+      <input id="newsSearchInput" class="field" type="text" placeholder="جستجوی خبر فارسی...">
+      <button class="btn" type="submit">جستجو</button>
+    </form>
+
+    <div class="news-status" id="newsStatus"></div>
+
+    <div id="newsList" class="news-list">
+      <div class="news-loading"><div class="spinner"></div>در حال دریافت اخبار...</div>
+    </div>
+  </div>
+
+</section>
+
+<!-- سخنان مقامات آمریکایی -->
+<section class="panel st-panel" id="statements">
+  <div class="panel-title">
+    <h2>🎙 سخنان و پست‌های مقامات آمریکایی، تحلیل و واکنش بازار</h2>
+    <span id="stStatus">—</span>
+  </div>
+  <div class="chips" id="stChips"></div>
+  <div class="chart-toolbar">
+    <label class="check"><input type="checkbox" id="stOnlyMarket" checked> فقط موارد مرتبط با بازار</label>
+    <button class="btn secondary small" id="stRefresh" type="button">به‌روزرسانی</button>
+  </div>
+  <div class="st-list" id="stList"><div class="news-loading"><div class="spinner"></div>در حال دریافت...</div></div>
+  <div class="disclaimer">
+    متن‌های انگلیسی به‌صورت خودکار ترجمه می‌شوند و ممکن است دقیق نباشند؛ متن اصلی زیر هر مورد هست.
+    تحلیل‌ها قاعده‌محور و آماری‌اند (کلیدواژه و لحن متن)، نظر کارشناس نیستند.
+    «واکنش بازار» فقط تغییر قیمت پس از زمان انتشار را نشان می‌دهد و همزمانی دو اتفاق به معنی رابطه‌ی علت و معلولی نیست.
+    پست‌های شبکه‌ی ایکس (توییتر) از طریق گزارش رسانه‌ها رصد می‌شود، چون دسترسی مستقیم به آن رایگان نیست.
+  </div>
+</section>
+
+<!-- تحلیل کشورها -->
+<section class="panel country-panel" id="countries">
+  <div class="panel-title">
+    <h2>🌍 تحلیل و مقایسه‌ی اقتصاد کشورها</h2>
+    <span id="cStatus">—</span>
+  </div>
+  <div class="chart-toolbar">
+    <select id="cIndicator" class="field" aria-label="شاخص"></select>
+    <select id="cFrom" class="field" aria-label="سال شروع">
+      <option value="2000">از سال ۲۰۰۰</option>
+      <option value="2005">از سال ۲۰۰۵</option>
+      <option value="2010" selected>از سال ۲۰۱۰</option>
+      <option value="2015">از سال ۲۰۱۵</option>
+      <option value="2020">از سال ۲۰۲۰</option>
+    </select>
+    <select id="cBase" class="field" aria-label="کشور مبنا"></select>
+    <select id="cHorizon" class="field" aria-label="پیش‌بینی">
+      <option value="0">بدون پیش‌بینی</option>
+      <option value="3">پیش‌بینی ۳ ساله</option>
+      <option value="5" selected>پیش‌بینی ۵ ساله</option>
+      <option value="10">پیش‌بینی ۱۰ ساله</option>
+    </select>
+    <label class="check"><input type="checkbox" id="cIndex"> روند به‌صورت شاخص (سال پایه = ۱۰۰)</label>
+    <button class="btn secondary small" id="cReload" type="button">بارگذاری دوباره</button>
+    <button class="btn secondary small" id="cCsv" type="button">دریافت جدول داده (<span class="ltr">CSV</span>)</button>
+  </div>
+  <div class="small-note" style="margin-bottom:4px">کشورها را انتخاب کنید (حداکثر ۱۰ کشور):</div>
+  <div class="chips" id="cChips"></div>
+
+  <div class="two-even">
+    <div>
+      <div class="cbox-title" id="cBarsTitle">مقایسه‌ی آخرین مقدار</div>
+      <div class="cbox" id="cBarsBox"><canvas id="cBars"></canvas></div>
+    </div>
+    <div>
+      <div class="cbox-title" id="cLinesTitle">روند در طول زمان</div>
+      <div class="cbox" id="cLinesBox"><canvas id="cLines"></canvas></div>
+    </div>
+  </div>
+  <div class="legend" id="cLegend"></div>
+
+  <div class="insights" id="cInsights"></div>
+
+  <div class="table-wrapper">
+    <table style="min-width:900px">
+      <thead id="cHead"></thead>
+      <tbody id="cBody"></tbody>
+    </table>
+  </div>
+  <div class="disclaimer">
+    منبع داده: بانک جهانی. آخرین سال منتشرشده برای هر کشور معمولاً یک تا دو سال تأخیر دارد و برای کشورهای تحت تحریم یا درگیر جنگ ممکن است ناقص باشد.
+    GDP به دلار جاری است و با تغییر نرخ ارز تغییر می‌کند؛ برای مقایسه‌ی قدرت خرید از شاخص «برابری قدرت خرید» استفاده کنید.
+    روش پیش‌بینی: سه مدل ساده (مقدار آخر، روند خطی، هموارسازی نمایی با روند میرا) روی چند سال پایانی آزمون می‌شوند و مدلی که کمترین خطای پس‌نگر را دارد انتخاب می‌شود؛ بازه‌ی نمایش‌داده‌شده حدود ۸۰٪ اطمینان دارد. سال‌های خالیِ کوتاه با درون‌یابی پر می‌شوند. این صفحه تحلیلی است و توصیه‌ی سرمایه‌گذاری یا سیاست‌گذاری نیست.
+  </div>
+</section>
+
+<!-- جدول قیمت‌ها -->
+<section class="panel table-panel" id="markets">
+  <div class="panel-title">
+    <h2>📊 جدول قیمت بازارهای مهم</h2>
+    <span>برای نمایش نمودار روی هر ردیف کلیک کنید</span>
+  </div>
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>بازار</th><th>نماد</th><th>نوع</th><th>قیمت</th><th>تغییر</th>
+          <th>درصد تغییر</th><th>کمترین امروز</th><th>بیشترین امروز</th><th>به‌روزرسانی</th><th>عملیات</th>
+        </tr>
+      </thead>
+      <tbody id="marketsBody"></tbody>
+    </table>
+  </div>
+</section>
+
+<!-- تحلیل فنی -->
+<section class="panel tech-panel" id="analysis">
+  <div class="panel-title">
+    <h2>🧠 تحلیل فنی نماد انتخاب‌شده</h2>
+    <span id="techLabel">—</span>
+  </div>
+  <div class="tech-grid" id="techGrid"></div>
+  <div class="disclaimer">
+    این اعداد فقط محاسبه‌ی آماری روی کندل‌های نمایش‌داده‌شده هستند و توصیه‌ی خرید یا فروش محسوب نمی‌شوند.
+    با تغییر بازه‌ی زمانی، فاصله‌ی کندل‌ها و نتیجه‌ی تحلیل هم تغییر می‌کند.
+  </div>
+</section>
+
+<section class="bottom-grid">
+  <div class="info-card">
+    <h3>📡 منبع داده</h3>
+    <p>قیمت‌ها و نمودارها از <span class="ltr">Yahoo Finance</span> و در صورت قطعی از <span class="ltr">Stooq</span> و <span class="ltr">CoinGecko</span>، قیمت بازار ایران از <span class="ltr">tgju.org</span> و داده‌های اقتصادی کشورها از بانک جهانی گرفته می‌شود. داده‌ها ممکن است چند دقیقه تأخیر داشته باشند.</p>
+  </div>
+  <div class="info-card">
+    <h3>📰 اخبار فارسی</h3>
+    <p>اخبار از جستجوی فارسی گوگل‌نیوز و چند خبرگزاری فارسی‌زبان خوانده می‌شود و عنوان‌های غیرفارسی حذف می‌شوند. هر دسته فقط خبرهای مرتبط با خودش را نشان می‌دهد.</p>
+  </div>
+  <div class="info-card">
+    <h3>⚡ میرزا</h3>
+    <p>هر اتفاق، یک اثر؛ هر اثر، یک تحلیل. هدف میرزا ارائه‌ی اطلاعات بازار به زبان ساده و قابل فهم است.</p>
+  </div>
+</section>
+
+<footer class="footer">
+  <strong>MIRZA</strong><br>
+  هر اتفاق، یک اثر؛ هر اثر، یک تحلیل.<br>
+  اطلاعات این سایت برای اطلاع‌رسانی است و توصیه‌ی سرمایه‌گذاری محسوب نمی‌شود.
+</footer>
+
+</main>
+</div>
+
+<nav class="mobile-nav" aria-label="ناوبری">
+  <a href="#home" data-target="home"><span>🏠</span>خانه</a>
+  <a href="#iran" data-target="iran"><span>🇮🇷</span>ایران</a>
+  <a href="#chart" data-target="chart"><span>📊</span>نمودار</a>
+  <a href="#news" data-target="news"><span>📰</span>اخبار</a>
+  <a href="#statements" data-target="statements"><span>🎙</span>سخنان</a>
+  <a href="#countries" data-target="countries"><span>🌍</span>کشورها</a>
+  <a href="#markets" data-target="markets"><span>💰</span>قیمت‌ها</a>
+  <a href="#analysis" data-target="analysis"><span>🧠</span>تحلیل</a>
+</nav>
+
+<script src="config.js"></script>
+<script src="analytics.js"></script>
+<script src="network.js"></script>
+<script src="quotes.js"></script>
+<script src="chart.js"></script>
+<script src="news.js"></script>
+<script src="pulse_iran.js"></script>
+<script src="countries.js"></script>
+<script src="statements.js"></script>
+<script src="start.js"></script>
+
+</body>
+      </html>
