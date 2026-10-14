@@ -123,6 +123,11 @@ async function refreshQuotes(){
       }catch(e){
         console.warn("Quote failed:", m.id, e.details || e.message);
         quoteState[m.id] = quotes[m.id] ? "stale" : "error";
+        /* عکس فوری سایت: اگر قیمتی نداریم یا قیمت ذخیره‌شده‌ی مرورگر از عکس فوری قدیمی‌تر است */
+        try{
+          const sq = await snapshotQuote(m);
+          if(sq && (!quotes[m.id] || sq.t > quotes[m.id].t)){ quotes[m.id] = sq; quoteState[m.id] = "stale"; }
+        }catch(e2){}
       }
       quotesUpdatedAt = Date.now();
       renderQuotes();

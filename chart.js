@@ -340,6 +340,34 @@ async function loadChart(){
   }
   if(id !== chart.reqId) return;
 
+  if(!data && m && m.cgAlt){
+    try{
+      data = await coingeckoChart(m.cgAlt, P.cg);
+      data.source = "CoinGecko (طلای دیجیتال PAXG؛ جایگزین)";
+      data.intraday = P.intraday;
+      data.note = "قیمت اونس از منبع اصلی دریافت نشد؛ نمودار با توکن طلای PAXG (تقریباً برابر یک اونس) رسم شده است.";
+    }catch(e){
+      data = null;
+      errs.push(shortErr(e));
+    }
+  }
+  if(id !== chart.reqId) return;
+
+  /* آخرین راه: داده‌ی ذخیره‌شده (مرورگر یا عکس فوری سایت)، تا نمودار خالی نماند */
+  if(!data){
+    try{
+      const off = await offlineChart(m, chart.symbol, chart.period, P.stooqDays);
+      if(off){
+        const lastT = off.rows[off.rows.length - 1].t;
+        const day = new Intl.DateTimeFormat("fa-IR", {dateStyle:"medium", timeZone:"Asia/Tehran"}).format(new Date(lastT));
+        data = {rows:off.rows, lineOnly:off.lineOnly, intraday:false, offline:true,
+                source:off.source + " · ذخیره‌شده",
+                note:"دریافت زنده ممکن نشد؛ آخرین داده‌ی ذخیره‌شده تا " + day + " نمایش داده می‌شود."};
+      }
+    }catch(e){ errs.push("ذخیره‌شده: " + shortErr(e)); }
+  }
+  if(id !== chart.reqId) return;
+
   if(!data){
     chart.rows = [];
     drawChart();
@@ -350,6 +378,7 @@ async function loadChart(){
     return;
   }
 
+  if(!data.offline) chartCacheSave(chart.symbol, chart.period, data);
   chart.rows = data.rows;
   chart.lineOnly = !!data.lineOnly;
   chart.intradayData = !!data.intraday;

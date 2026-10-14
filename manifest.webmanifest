@@ -1,0 +1,57 @@
+{
+  "name": "میرزا | بازارهای مالی",
+  "short_name": "میرزا",
+  "description": "قیمت زنده، نمودار، تحلیل و اخبار فارسی بازارهای مالی؛ با تالار سه‌بعدی",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./#hall",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#080a0f",
+  "theme_color": "#080a0f",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "تالار سه‌بعدی",
+      "short_name": "تالار",
+      "url": "./#hall",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "داشبورد بازارها",
+      "short_name": "داشبورد",
+      "url": "./#home",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

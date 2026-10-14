@@ -14,7 +14,7 @@ const LOGO_SHOW_TEXT = false;   // true = کنار لوگو نوشته‌ی MIRZ
 
 /* بازارها: y = نماد یاهو، s = نماد استوک، cg = شناسه کوین‌گکو، ga = نماد gold-api، fx = جفت‌ارز (فرانکفورتر) */
 const MARKETS = [
-  {id:"gold",   icon:"🟡", name:"طلای جهانی",        unit:"دلار / اونس",  type:"فلز گران‌بها", y:"GC=F",     s:"xauusd", ga:"XAU", sym:"XAUUSD", dec:2},
+  {id:"gold",   icon:"🟡", name:"طلای جهانی",        unit:"دلار / اونس",  type:"فلز گران‌بها", y:"GC=F",     s:"xauusd", ga:"XAU", cgAlt:"pax-gold", sym:"XAUUSD", dec:2},
   {id:"silver", icon:"⚪", name:"نقره",              unit:"دلار / اونس",  type:"فلز گران‌بها", y:"SI=F",     s:"xagusd", ga:"XAG", sym:"XAGUSD", dec:3},
   {id:"btc",    icon:"₿",  name:"بیت‌کوین",           unit:"دلار",         type:"رمزارز",      y:"BTC-USD",  s:"btcusd", cg:"bitcoin",  sym:"BTCUSD", dec:2},
   {id:"eth",    icon:"Ξ",  name:"اتریوم",             unit:"دلار",         type:"رمزارز",      y:"ETH-USD",  s:"ethusd", cg:"ethereum", sym:"ETHUSD", dec:2},

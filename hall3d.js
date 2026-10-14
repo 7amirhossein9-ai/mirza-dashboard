@@ -28,7 +28,10 @@ const colliders = [];
 const stations = [];
 let TX = {};                /* بافت‌های ثابت */
 const pos = [0, 1.7, 13];
+const vel = [0, 0];            /* سرعت افقی هموارشده (حرکت نرم‌تر، بدون پرش) */
 let yaw = 0, pitch = 0.0, walkPh = 0;
+/* رزولوشن تطبیقی: اگر کارت گرافیک نمی‌رسد، نرم‌افزار خودش وضوح را کم و دوباره زیاد می‌کند */
+let renderScale = 1, scaleCeil = 1, perfAcc = 0, perfN = 0, perfBase = 1e9, perfWin = 0, perfLast = 0, perfLastUp = 0;
 const keys = {};
 const joy = {x:0, y:0, id:null, sx:0, sy:0};
 let lookTouch = null;
@@ -119,7 +122,7 @@ function makeTex(c, repeat){
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, repeat ? gl.REPEAT : gl.CLAMP_TO_EDGE);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, repeat ? gl.REPEAT : gl.CLAMP_TO_EDGE);
-  if(anisoExt) gl.texParameterf(gl.TEXTURE_2D, anisoExt.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(8, anisoMax));
+  if(anisoExt) gl.texParameterf(gl.TEXTURE_2D, anisoExt.TEXTURE_MAX_ANISOTROPY_EXT, Math.min(16, anisoMax));
   return t;
 }
 function reupload(tex, c){
@@ -320,7 +323,7 @@ function drawCrypto(c){
     ["btc", "eth"].forEach(function(id){
       if(quotes[id]) list.push({id:id === "btc" ? "bitcoin" : "ethereum", symbol:id === "btc" ? "BTC" : "ETH", name:id, price:quotes[id].price, pct:quotes[id].pct, mcap:null, spark:null});
     });
-    if(!list.length){ emptyMsg(c, "قیمت رمزارزها در حال دریافت است", crypto_.err ? "منبع CoinGecko پاسخ نداد: " + crypto_.err : "کمی صبر کنید…"); return; }
+    if(!list.length){ emptyMsg(c, "قیمت رمزارزها در حال دریافت است", crypto_.err ? "منبع قیمت رمزارزها پاسخ نداد؛ کمی بعد دوباره تلاش می‌شود." : "کمی صبر کنید…"); return; }
   }
   const x = {rank:1996, name:1930, price:1290, pct:900, spark:820, mcap:96};
   T(c, "نام", x.name, 190, {s:30, c:COL.muted}); T(c, "قیمت", x.price, 190, {s:30, c:COL.muted, a:"right"});
@@ -600,7 +603,7 @@ function buildScene(){
     const hw = d.w / 2, hh = d.h / 2, o = 0.03;
     const P = function(s, t, off){ return [d.cx + r[0] * s + nrm[0] * off, d.cy + t, d.cz + r[2] * s + nrm[2] * off]; };
     const b = {def:d, id:d.id, label:d.label, sec:d.sec};
-    b.canvas = cv(lowQ ? 1024 : 2048, lowQ ? 512 : 1024);
+    b.canvas = cv(lowQ ? 1536 : 2048, lowQ ? 768 : 1024);
     b.ctx = b.canvas.getContext("2d");
     b.sc = b.canvas.width / LW;
     b.tex = makeTex(b.canvas, false);
@@ -662,13 +665,13 @@ const FS = "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\npr
   "void main(){" +
   "vec3 base=uColor;" +
   "bool tx=(uMode>0.5&&uMode<2.5);" +
-  "if(tx){base=texture2D(uTex,vUV).rgb*uColor;}" +
+  "if(tx){float bias=(uMirror>0.5)?2.2:0.0;base=texture2D(uTex,vUV,bias).rgb*uColor;}" +
   "vec3 col=base;" +
   "bool lit=(uMode<0.5)||(uMode>1.5&&uMode<2.5);" +
   "if(lit){vec3 n=normalize(vN);float hemi=0.5+0.5*n.y;float d=max(dot(n,normalize(vec3(0.25,0.9,0.35))),0.0);col=base*(0.30+0.35*hemi+0.40*d);}" +
-  "float dist=length(vW-uEye);float f=1.0-exp(-pow(uFogD*dist,2.0));" +
+  "float dist=length(vW-uEye);float fk=uFogD*dist;float f=1.0-exp(-fk*fk);" +
   "vec3 fogc=uAdd>0.5?vec3(0.0):uFog;col=mix(col,fogc,f);" +
-  "if(uMirror>0.5){col*=0.55;}" +
+  "if(uMirror>0.5){float h=clamp(-vW.y/9.0,0.0,1.0);col*=0.50*(1.0-h*h);}" +
   "if(uAdd>0.5){gl_FragColor=vec4(col*uAlpha,1.0);}else{gl_FragColor=vec4(col,uAlpha);}" +
   "}";
 
@@ -678,7 +681,7 @@ function compile(type, src){
   return s;
 }
 function initGL(){
-  gl = canvas.getContext("webgl", {antialias:true, alpha:false, powerPreference:"high-performance"}) || canvas.getContext("experimental-webgl");
+  gl = canvas.getContext("webgl", {antialias:(window.devicePixelRatio || 1) < 1.75, alpha:false, depth:true, stencil:false, powerPreference:"high-performance"}) || canvas.getContext("experimental-webgl");
   if(!gl) throw new Error("WebGL پشتیبانی نمی‌شود");
   prog = gl.createProgram();
   gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
@@ -715,7 +718,7 @@ function render(t){
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
   const eye = [pos[0], pos[1], pos[2]];
-  const vp = mul(persp(1.05, canvas.width / canvas.height, 0.1, 160), viewM(eye, yaw, pitch));
+  const vp = mul(persp(1.05, canvas.width / canvas.height, 0.3, 140), viewM(eye, yaw, pitch));
   gl.uniformMatrix4fv(U.uVP, false, vp);
   gl.uniform3f(U.uEye, eye[0], eye[1], eye[2]);
   gl.uniform3f(U.uFog, 0.02, 0.03, 0.05);
@@ -794,7 +797,7 @@ function stepGlide(dt){
   if(g.t >= 1){ glide = null; }
 }
 function update(dt, t){
-  if(glide){ stepGlide(dt); }
+  if(glide){ stepGlide(dt); vel[0] = vel[1] = 0; }
   else{
     let fw = 0, st_ = 0;
     if(keys.KeyW || keys.ArrowUp) fw += 1; if(keys.KeyS || keys.ArrowDown) fw -= 1;
@@ -802,16 +805,27 @@ function update(dt, t){
     if(keys.ArrowLeft) yaw -= 1.8 * dt; if(keys.ArrowRight) yaw += 1.8 * dt;
     fw += -joy.y; st_ += joy.x;
     const len = Math.hypot(fw, st_);
+    let tx = 0, tz = 0;
     if(len > 0.01){
       if(tour) stopTour();
       const sp = (keys.ShiftLeft || keys.ShiftRight ? 11 : 6) * Math.min(1, len);
       const f = [Math.sin(yaw), -Math.cos(yaw)], r = [Math.cos(yaw), Math.sin(yaw)];
-      const vx = (f[0] * fw + r[0] * st_) / Math.max(len, 1), vz = (f[1] * fw + r[1] * st_) / Math.max(len, 1);
-      const c = collide(pos[0] + vx * sp * dt, pos[2] + vz * sp * dt);
+      tx = (f[0] * fw + r[0] * st_) / Math.max(len, 1) * sp;
+      tz = (f[1] * fw + r[1] * st_) / Math.max(len, 1) * sp;
+    }
+    /* شتاب و ترمز نرم: سرعت به‌جای پرش ناگهانی، در حدود یک‌دهم ثانیه به مقصد می‌رسد */
+    const k = Math.min(1, dt * (len > 0.01 ? 10 : 14));
+    vel[0] += (tx - vel[0]) * k; vel[1] += (tz - vel[1]) * k;
+    const speed = Math.hypot(vel[0], vel[1]);
+    if(speed > 0.03){
+      const c = collide(pos[0] + vel[0] * dt, pos[2] + vel[1] * dt);
       pos[0] = c[0]; pos[2] = c[1];
-      walkPh += dt * sp * 1.6;
-      pos[1] = 1.7 + Math.sin(walkPh) * 0.035;
-    }else pos[1] += (1.7 - pos[1]) * Math.min(1, dt * 8);
+      walkPh += dt * speed * 1.4;
+      pos[1] = 1.7 + Math.sin(walkPh) * 0.02 * Math.min(1, speed / 6);   /* لرزش سر ملایم و متناسب با سرعت */
+    }else{
+      vel[0] = vel[1] = 0;
+      pos[1] += (1.7 - pos[1]) * Math.min(1, dt * 8);
+    }
   }
   pitch = clamp(pitch, -1.25, 1.25);
   if(tour){
@@ -981,21 +995,51 @@ function refreshBoards(force){
     if(!force && Math.hypot(d.cx - pos[0], d.cz - pos[2]) > 48) return;
     let sig;
     try{ sig = JSON.stringify(SIG[b.id]()); }catch(e){ sig = "err"; }
-    if(force || sig !== b.sig){ b.sig = sig; redrawBoard(b); }
+    if(force || sig !== b.sig){ b.sig = sig; b.need = true; }
   });
 }
+/* هر فریم حداکثر یک تابلو را دوباره می‌کشد (نزدیک‌ترین اول)؛ پس دیگر لگ ناگهانی هر دقیقه نیست */
+function pumpBoards(){
+  let best = null, bd = 1e9;
+  boards.forEach(function(b){
+    if(!b.need) return;
+    const d = Math.hypot(b.def.cx - pos[0], b.def.cz - pos[2]);
+    if(d < bd){ bd = d; best = b; }
+  });
+  if(best){ best.need = false; redrawBoard(best); }
+}
+function flushBoards(){ boards.forEach(function(b){ if(b.need){ b.need = false; redrawBoard(b); } }); }
+/* انتخاب خودکار وضوح بر پایه‌ی سرعت واقعی فریم‌ها */
+function adaptRes(rawMs){
+  if(!(rawMs > 0) || rawMs > 500) return;                 /* پرش زمانی بعد از عوض شدن تب را نادیده بگیر */
+  perfAcc += rawMs; perfN++; if(rawMs < perfBase) perfBase = rawMs;
+  if(++perfWin > 240){ perfWin = 0; perfBase = rawMs; }
+  if(perfN < 45) return;
+  const avg = perfAcc / perfN; perfAcc = 0; perfN = 0;
+  const now = performance.now();
+  if(now - perfLast < 2500) return;
+  if(avg > 20 && avg > perfBase * 1.3 && renderScale > 0.55){
+    if(now - perfLastUp < 12000) scaleCeil = Math.max(0.55, renderScale * 0.95);   /* بالا رفتن جواب نداد؛ مدتی بالاتر نرو */
+    renderScale = Math.max(0.55, renderScale * 0.85); perfLast = now; resize();
+  }else if(avg < perfBase * 1.12 && renderScale < scaleCeil){
+    renderScale = Math.min(scaleCeil, renderScale * 1.1); perfLast = perfLastUp = now; resize();
+  }
+}
 function resize(){
-  dpr = Math.min(window.devicePixelRatio || 1, lowQ ? 1.5 : 2);
+  dpr = Math.min(window.devicePixelRatio || 1, lowQ ? 1.5 : 1.75) * renderScale;
   const w = canvas.clientWidth || window.innerWidth, h = canvas.clientHeight || window.innerHeight;
   canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
 }
 function frame(now){
   if(!opened) return;
   raf = requestAnimationFrame(frame);
-  const dt = Math.min(0.05, (now - (lastT || now)) / 1000); lastT = now;
+  const dt = Math.min(0.05, (now - (lastT || now)) / 1000);
+  if(lastT) adaptRes(now - lastT);
+  lastT = now;
   clock += dt;
   update(dt, clock);
   render(clock);
+  pumpBoards();
   if(Math.floor(clock * 2) !== Math.floor((clock - dt) * 2)){ updateHud(); markChips(); }
   if(Math.floor(clock) !== Math.floor(clock - dt)) refreshBoards(false);
 }
@@ -1084,8 +1128,33 @@ function close(){
   document.body.classList.remove("hall-open");
   try{ if(location.hash === "#hall") history.replaceState(null, "", location.pathname + location.search); }catch(e){}
 }
+/* ---------- میان‌بر: نصب روی صفحه‌ی اصلی یا کپی لینک مستقیم تالار ---------- */
+let installEvt = null;
+window.addEventListener("beforeinstallprompt", function(e){ e.preventDefault(); installEvt = e; });
+function hallToast(text){
+  const t = $h("hallToast"); if(!t) return;
+  t.textContent = text; t.hidden = false;
+  clearTimeout(hallToast._t); hallToast._t = setTimeout(function(){ t.hidden = true; }, 6000);
+}
+function directLink(){ return location.origin + location.pathname + "#hall"; }
+async function makeShortcut(){
+  if(installEvt){
+    try{ installEvt.prompt(); const r = await installEvt.userChoice; installEvt = null; if(r && r.outcome === "accepted"){ hallToast("میان‌بر روی دستگاه شما اضافه شد."); return; } }catch(e){}
+  }
+  let copied = false;
+  try{ if(navigator.clipboard && navigator.clipboard.writeText){ await navigator.clipboard.writeText(directLink()); copied = true; } }catch(e){}
+  hallToast((copied ? "لینک مستقیم تالار کپی شد. " : "لینک مستقیم تالار: " + directLink() + " . ") +
+    "برای میان‌بر روی صفحه‌ی اصلی، در منوی مرورگر «افزودن به صفحه‌ی اصلی» (Add to Home screen) را بزنید.");
+}
 function init(){
   const ok = supportsGL();
+  const sc = $h("hallShortcut"); if(sc) sc.addEventListener("click", makeShortcut);
+  /* کلید H از هرجای داشبورد، تالار را باز می‌کند */
+  document.addEventListener("keydown", function(e){
+    if(opened || !ok || e.ctrlKey || e.metaKey || e.altKey || e.code !== "KeyH") return;
+    const tg = e.target && e.target.tagName; if(tg === "INPUT" || tg === "TEXTAREA" || tg === "SELECT" || (e.target && e.target.isContentEditable)) return;
+    open();
+  });
   document.body.classList.toggle("no-webgl", !ok);
   const openers = [$h("hallOpenBtn"), $h("enter3d")];
   openers.forEach(function(b){ if(b){ b.hidden = !ok; b.addEventListener("click", open); } });
@@ -1102,6 +1171,6 @@ function init(){
 
 window.MirzaHall = {
   init:init, open:open, close:close, isOpen:function(){ return opened; },
-  _debug:{boards:boards, stations:stations, pos:pos, setView:function(x, z, y, p){ pos[0] = x; pos[2] = z; yaw = y || 0; pitch = p || 0; glide = null; }, goto:function(i){ startGlide(stations[i]); }, redraw:function(){ refreshBoards(true); }, tick:function(){ return glide ? "gliding" : "idle"; }}
+  _debug:{boards:boards, stations:stations, pos:pos, setView:function(x, z, y, p){ pos[0] = x; pos[2] = z; yaw = y || 0; pitch = p || 0; glide = null; }, goto:function(i){ startGlide(stations[i]); }, redraw:function(){ refreshBoards(true); flushBoards(); }, flush:flushBoards, scale:function(){ return renderScale; }, adapt:adaptRes, tick:function(){ return glide ? "gliding" : "idle"; }}
 };
 })();

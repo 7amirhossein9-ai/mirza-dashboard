@@ -252,7 +252,7 @@ body.hall-open{overflow:hidden}
 .hall-chip{pointer-events:auto;background:rgba(13,16,22,.82);color:#c3c9d2;border:1px solid #30363f;border-radius:18px;padding:3px 11px;font-size:12px;backdrop-filter:blur(6px)}
 .hall-chip:hover{color:var(--gold);border-color:var(--gold-dim)}
 .hall-chip.active{color:#111;background:var(--gold);border-color:var(--gold)}
-.hall-title{position:absolute;top:70px;left:50%;transform:translateX(-50%) translateY(-6px);padding:5px 20px;border-radius:24px;background:rgba(13,16,22,.78);border:1px solid #4a4231;color:var(--gold);font-weight:700;font-size:15px;opacity:0;transition:.35s;pointer-events:none;white-space:nowrap;backdrop-filter:blur(6px)}
+.hall-title{position:absolute;top:104px;left:50%;transform:translateX(-50%) translateY(-6px);padding:5px 20px;border-radius:24px;background:rgba(13,16,22,.78);border:1px solid #4a4231;color:var(--gold);font-weight:700;font-size:15px;opacity:0;transition:.35s;pointer-events:none;white-space:nowrap;backdrop-filter:blur(6px)}
 .hall-title.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .hall-prompt{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:3;background:rgba(13,16,22,.88);color:#e8e8e8;border:1px solid var(--gold-dim);border-radius:14px;padding:9px 18px;font-size:13px;max-width:92vw;backdrop-filter:blur(6px)}
 .hall-prompt[hidden]{display:none}
@@ -277,3 +277,7 @@ body.hall-open{overflow:hidden}
   /* در موبایل جای هدر کم است؛ دکمه‌ی ورود به تالار شناور و ثابت پایین صفحه می‌ماند */
   .hall-open-btn{position:fixed;bottom:84px;left:14px;margin:0;z-index:60;box-shadow:0 4px 18px rgba(0,0,0,.55)}
 }
+
+/* پیام کوتاه داخل تالار (مثلاً «لینک کپی شد») */
+.hall-toast{position:absolute;left:50%;bottom:90px;transform:translateX(-50%);max-width:min(92vw,520px);padding:10px 16px;border-radius:12px;background:rgba(17,24,35,.94);border:1px solid rgba(231,196,97,.55);color:#f3f3f3;font-size:14px;line-height:1.8;text-align:center;z-index:70;pointer-events:none}
+.hall-toast[hidden]{display:none}

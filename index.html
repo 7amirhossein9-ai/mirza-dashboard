@@ -15,6 +15,11 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
 
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="میرزا">
 <link rel="stylesheet" href="style.css">
 </head>
 
@@ -41,6 +46,7 @@
   <div class="hall-top">
     <button class="btn small" id="hallExit" type="button">✕ خروج از تالار</button>
     <button class="btn small secondary" id="hallTour" type="button">🎬 جولت راهنما</button>
+    <button class="btn small secondary" id="hallShortcut" type="button" title="افزودن میان‌بر تالار به صفحه‌ی اصلی یا کپی لینک مستقیم">📌 میان‌بر</button>
     <div class="hall-stations" id="hallStations"></div>
   </div>
   <div class="hall-title" id="hallTitle"></div>
@@ -55,9 +61,11 @@
     <span><kbd class="ltr">1</kbd>…<kbd class="ltr">9</kbd> پرش به تابلو</span>
     <span><kbd class="ltr">T</kbd> جولت</span>
     <span><kbd class="ltr">Esc</kbd> آزاد کردن ماوس</span>
+    <span><kbd class="ltr">H</kbd> ورود سریع به تالار (از داشبورد)</span>
   </div>
   <button class="hall-resume" id="hallResume" type="button" hidden>برای ادامه‌ی نگاه کردن کلیک کنید</button>
   <div class="hall-msg" id="hallMsg" hidden></div>
+  <div class="hall-toast" id="hallToast" hidden></div>
   <div class="joy" id="joy" hidden><div class="joy-knob" id="joyKnob"></div></div>
 </div>
 
@@ -377,6 +385,7 @@
 <script src="config.js"></script>
 <script src="analytics.js"></script>
 <script src="network.js"></script>
+<script src="offline.js"></script>
 <script src="quotes.js"></script>
 <script src="chart.js"></script>
 <script src="news.js"></script>
