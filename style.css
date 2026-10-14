@@ -225,3 +225,55 @@ tr.row-click:hover{background:#151a22}
   .tech-grid{grid-template-columns:1fr}
   .tech-wide{grid-column:span 1}
   }
+
+/* ===== صفحه‌ی ورود و تالار سه‌بعدی ===== */
+.hall-open-btn{margin-left:10px}
+.hall-open-btn[hidden]{display:none}
+.intro{position:fixed;inset:0;z-index:3000;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(ellipse at 50% 30%,#17202e 0%,#080a0f 70%)}
+.intro[hidden]{display:none}
+.intro-card{max-width:560px;width:100%;text-align:center;background:rgba(16,20,27,.92);border:1px solid #39332a;border-radius:20px;padding:30px 24px;box-shadow:0 20px 80px rgba(0,0,0,.6)}
+.intro-logo{width:96px;height:96px;object-fit:contain;margin-bottom:6px}
+.intro-card h1{font-size:34px;color:var(--gold);letter-spacing:1px}
+.intro-tag{color:#cfd3da;margin:4px 0 14px}
+.intro-text{color:#9aa2ae;font-size:14px;line-height:2.1;margin-bottom:18px}
+.intro-actions{display:flex;flex-direction:column;gap:10px}
+.btn.big{height:48px;font-size:15px;border-radius:12px}
+.intro-note{color:#6d7681;font-size:12px;margin-top:16px;line-height:2}
+.no-webgl #enter3d{display:none}
+kbd{display:inline-block;min-width:22px;padding:0 6px;border:1px solid #4a4231;border-bottom-width:2px;border-radius:6px;background:#1b2028;color:var(--gold);font:600 11px Vazirmatn,Tahoma,sans-serif;line-height:20px;text-align:center}
+
+.hall{position:fixed;inset:0;z-index:2500;background:#05070b;touch-action:none;user-select:none;-webkit-user-select:none}
+.hall[hidden]{display:none}
+body.hall-open{overflow:hidden}
+#hallCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+.hall-top{position:absolute;top:10px;right:10px;left:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;z-index:3;pointer-events:none}
+.hall-top .btn,.hall-top .hall-chip{pointer-events:auto}
+.hall-stations{display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
+.hall-chip{pointer-events:auto;background:rgba(13,16,22,.82);color:#c3c9d2;border:1px solid #30363f;border-radius:18px;padding:3px 11px;font-size:12px;backdrop-filter:blur(6px)}
+.hall-chip:hover{color:var(--gold);border-color:var(--gold-dim)}
+.hall-chip.active{color:#111;background:var(--gold);border-color:var(--gold)}
+.hall-title{position:absolute;top:70px;left:50%;transform:translateX(-50%) translateY(-6px);padding:5px 20px;border-radius:24px;background:rgba(13,16,22,.78);border:1px solid #4a4231;color:var(--gold);font-weight:700;font-size:15px;opacity:0;transition:.35s;pointer-events:none;white-space:nowrap;backdrop-filter:blur(6px)}
+.hall-title.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.hall-prompt{position:absolute;bottom:34px;left:50%;transform:translateX(-50%);z-index:3;background:rgba(13,16,22,.88);color:#e8e8e8;border:1px solid var(--gold-dim);border-radius:14px;padding:9px 18px;font-size:13px;max-width:92vw;backdrop-filter:blur(6px)}
+.hall-prompt[hidden]{display:none}
+.hall-map{position:absolute;bottom:14px;left:14px;width:75px;height:165px;border-radius:10px;border:1px solid #30363f;pointer-events:none;z-index:3}
+.hall-hint{position:absolute;bottom:14px;right:14px;max-width:290px;display:flex;flex-direction:column;gap:3px;font-size:12px;color:#aeb4bd;background:rgba(13,16,22,.82);border:1px solid #30363f;border-radius:12px;padding:10px 14px;line-height:1.9;transition:opacity 1.2s;pointer-events:none;z-index:3;backdrop-filter:blur(6px)}
+.hall-hint b{color:var(--gold)}
+.hall-hint.fade{opacity:.0}
+.hall-resume{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:4;background:rgba(13,16,22,.9);color:var(--gold);border:1px solid var(--gold-dim);border-radius:14px;padding:12px 22px;font-size:14px}
+.hall-resume[hidden]{display:none}
+.hall-msg{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:5;max-width:88vw;text-align:center;background:#1a0f0f;border:1px solid #6a2a2a;color:#ffb4b0;border-radius:14px;padding:16px 20px;line-height:2}
+.hall-msg[hidden]{display:none}
+.joy{position:absolute;width:120px;height:120px;border-radius:50%;border:2px solid rgba(231,196,97,.5);background:rgba(231,196,97,.08);z-index:4;pointer-events:none}
+.joy[hidden]{display:none}
+.joy-knob{position:absolute;left:35px;top:35px;width:50px;height:50px;border-radius:50%;background:rgba(231,196,97,.55)}
+@media(max-width:800px){
+  .hall-hint{display:none}
+  .hall-stations{flex-wrap:nowrap;overflow-x:auto;max-width:100%;pointer-events:auto;padding-bottom:2px}
+  .hall-chip{flex:0 0 auto}
+  .hall-title{top:96px}
+  .hall-prompt{bottom:24px}
+  .hall-map{bottom:80px;left:10px}
+  /* در موبایل جای هدر کم است؛ دکمه‌ی ورود به تالار شناور و ثابت پایین صفحه می‌ماند */
+  .hall-open-btn{position:fixed;bottom:84px;left:14px;margin:0;z-index:60;box-shadow:0 4px 18px rgba(0,0,0,.55)}
+}

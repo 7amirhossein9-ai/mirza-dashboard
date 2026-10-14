@@ -20,12 +20,53 @@
 
 <body>
 
+<!-- صفحه‌ی ورود -->
+<div class="intro" id="intro" hidden>
+  <div class="intro-card">
+    <img class="intro-logo" src="logo.png" alt="" onerror="this.style.display='none'">
+    <h1>میرزا</h1>
+    <p class="intro-tag">هر اتفاق، یک اثر؛ هر اثر، یک تحلیل</p>
+    <p class="intro-text">می‌خواهید وارد تالار سه‌بعدی بازارهای مالی شوید و بین تابلوها قدم بزنید، یا داشبورد ساده را ببینید؟</p>
+    <div class="intro-actions">
+      <button class="btn big" id="enter3d" type="button">🏛 ورود به تالار سه‌بعدی</button>
+      <button class="btn big secondary" id="enterClassic" type="button">📊 داشبورد ساده</button>
+    </div>
+    <p class="intro-note" id="introNote">در تالار با <span class="ltr">W A S D</span> و ماوس حرکت می‌کنید؛ روی موبایل با جوی‌استیک و کشیدن روی صفحه.</p>
+  </div>
+</div>
+
+<!-- تالار سه‌بعدی -->
+<div class="hall" id="hall" hidden>
+  <canvas id="hallCanvas"></canvas>
+  <div class="hall-top">
+    <button class="btn small" id="hallExit" type="button">✕ خروج از تالار</button>
+    <button class="btn small secondary" id="hallTour" type="button">🎬 جولت راهنما</button>
+    <div class="hall-stations" id="hallStations"></div>
+  </div>
+  <div class="hall-title" id="hallTitle"></div>
+  <button class="hall-prompt" id="hallPrompt" type="button" hidden></button>
+  <canvas class="hall-map" id="hallMap" width="150" height="330"></canvas>
+  <div class="hall-hint" id="hallHint">
+    <b>راهنما</b>
+    <span><kbd class="ltr">W A S D</kbd> حرکت</span>
+    <span><kbd class="ltr">Shift</kbd> دویدن</span>
+    <span>ماوس: نگاه کردن</span>
+    <span><kbd class="ltr">E</kbd> جزئیات تابلو</span>
+    <span><kbd class="ltr">1</kbd>…<kbd class="ltr">9</kbd> پرش به تابلو</span>
+    <span><kbd class="ltr">T</kbd> جولت</span>
+    <span><kbd class="ltr">Esc</kbd> آزاد کردن ماوس</span>
+  </div>
+  <button class="hall-resume" id="hallResume" type="button" hidden>برای ادامه‌ی نگاه کردن کلیک کنید</button>
+  <div class="hall-msg" id="hallMsg" hidden></div>
+  <div class="joy" id="joy" hidden><div class="joy-knob" id="joyKnob"></div></div>
+</div>
+
 <header class="header">
   <a class="brand" href="#home" aria-label="میرزا">
     <img id="logoImg" class="brand-img" alt="لوگوی میرزا" hidden>
     <div class="logo" id="logoText">MIRZA <span>◆</span></div>
   </a>
-  <div class="header-right"><span class="live-dot"></span> بازارهای مالی</div>
+  <div class="header-right"><button class="btn small hall-open-btn" id="hallOpenBtn" type="button" hidden>🏛 ورود به تالار سه‌بعدی</button><span class="live-dot"></span> بازارهای مالی</div>
 </header>
 
 <div class="ticker" id="ticker"><div class="ticker-track" id="tickerTrack"><span class="ticker-msg">در حال دریافت قیمت‌ها...</span></div></div>
@@ -342,7 +383,8 @@
 <script src="pulse_iran.js"></script>
 <script src="countries.js"></script>
 <script src="statements.js"></script>
+<script src="hall3d.js"></script>
 <script src="start.js"></script>
 
 </body>
-      </html>
+</html>

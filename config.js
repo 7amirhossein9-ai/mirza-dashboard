@@ -12,18 +12,18 @@ const MY_PROXY = "";
 const LOGO_FILE = "";
 const LOGO_SHOW_TEXT = false;   // true = کنار لوگو نوشته‌ی MIRZA هم نمایش داده شود
 
-/* بازارها: y = نماد یاهو، s = نماد استوک، cg = شناسه کوین‌گکو */
+/* بازارها: y = نماد یاهو، s = نماد استوک، cg = شناسه کوین‌گکو، ga = نماد gold-api، fx = جفت‌ارز (فرانکفورتر) */
 const MARKETS = [
-  {id:"gold",   icon:"🟡", name:"طلای جهانی",        unit:"دلار / اونس",  type:"فلز گران‌بها", y:"GC=F",     s:"xauusd", sym:"XAUUSD", dec:2},
-  {id:"silver", icon:"⚪", name:"نقره",              unit:"دلار / اونس",  type:"فلز گران‌بها", y:"SI=F",     s:"xagusd", sym:"XAGUSD", dec:3},
+  {id:"gold",   icon:"🟡", name:"طلای جهانی",        unit:"دلار / اونس",  type:"فلز گران‌بها", y:"GC=F",     s:"xauusd", ga:"XAU", sym:"XAUUSD", dec:2},
+  {id:"silver", icon:"⚪", name:"نقره",              unit:"دلار / اونس",  type:"فلز گران‌بها", y:"SI=F",     s:"xagusd", ga:"XAG", sym:"XAGUSD", dec:3},
   {id:"btc",    icon:"₿",  name:"بیت‌کوین",           unit:"دلار",         type:"رمزارز",      y:"BTC-USD",  s:"btcusd", cg:"bitcoin",  sym:"BTCUSD", dec:2},
   {id:"eth",    icon:"Ξ",  name:"اتریوم",             unit:"دلار",         type:"رمزارز",      y:"ETH-USD",  s:"ethusd", cg:"ethereum", sym:"ETHUSD", dec:2},
   {id:"oil",    icon:"🛢", name:"نفت خام وست‌تگزاس", unit:"دلار / بشکه",  type:"انرژی",       y:"CL=F",     s:"cl.f",   sym:"WTI",    dec:2},
   {id:"brent",  icon:"🛢", name:"نفت برنت",           unit:"دلار / بشکه",  type:"انرژی",       y:"BZ=F",     s:null,     sym:"BRENT",  dec:2},
   {id:"dxy",    icon:"💵", name:"شاخص دلار",          unit:"امتیاز",       type:"شاخص",        y:"DX-Y.NYB", s:null,     sym:"DXY",    dec:3},
-  {id:"eurusd", icon:"💶", name:"یورو به دلار",       unit:"دلار",         type:"جفت‌ارز",     y:"EURUSD=X", s:"eurusd", sym:"EURUSD", dec:4},
-  {id:"gbpusd", icon:"💷", name:"پوند به دلار",       unit:"دلار",         type:"جفت‌ارز",     y:"GBPUSD=X", s:"gbpusd", sym:"GBPUSD", dec:4},
-  {id:"usdjpy", icon:"💴", name:"دلار به ین",         unit:"ین",           type:"جفت‌ارز",     y:"JPY=X",    s:"usdjpy", sym:"USDJPY", dec:3},
+  {id:"eurusd", icon:"💶", name:"یورو به دلار",       unit:"دلار",         type:"جفت‌ارز",     y:"EURUSD=X", s:"eurusd", fx:["EUR","USD"], sym:"EURUSD", dec:4},
+  {id:"gbpusd", icon:"💷", name:"پوند به دلار",       unit:"دلار",         type:"جفت‌ارز",     y:"GBPUSD=X", s:"gbpusd", fx:["GBP","USD"], sym:"GBPUSD", dec:4},
+  {id:"usdjpy", icon:"💴", name:"دلار به ین",         unit:"ین",           type:"جفت‌ارز",     y:"JPY=X",    s:"usdjpy", fx:["USD","JPY"], sym:"USDJPY", dec:3},
   {id:"sp500",  icon:"🇺🇸", name:"شاخص اس‌اندپی ۵۰۰", unit:"امتیاز",       type:"شاخص سهام",   y:"^GSPC",    s:"^spx",   sym:"SPX",    dec:2},
   {id:"nasdaq", icon:"💻", name:"شاخص نزدک",          unit:"امتیاز",       type:"شاخص سهام",   y:"^IXIC",    s:null,     sym:"IXIC",   dec:2},
   {id:"vix",    icon:"😨", name:"شاخص ترس (VIX)",     unit:"امتیاز",       type:"شاخص ریسک",   y:"^VIX",     s:null,     sym:"VIX",    dec:2},

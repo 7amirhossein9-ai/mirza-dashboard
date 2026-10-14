@@ -213,12 +213,14 @@ async function loadNews(){
 
   if(res.items.length){
     cacheSet(cacheKey, res.items);
+    news.items = res.items; news.shownTitle = title; news.t = Date.now();   /* برای تابلوی سه‌بعدی */
     renderNews(res.items, news.custom ? "جستجو" : cat.title);
     $("newsStatus").textContent = res.items.length + " خبر · منبع: " + res.via.join("، ") + " · " + faHM.format(new Date());
     return;
   }
   const cached = cacheGet(cacheKey);
   if(cached && cached.length){
+    news.items = cached; news.shownTitle = title; news.t = Date.now();
     renderNews(cached, news.custom ? "جستجو" : cat.title, "اتصال برقرار نشد؛ آخرین اخبار ذخیره‌شده نمایش داده می‌شود.");
     $("newsStatus").textContent = cached.length + " خبر ذخیره‌شده";
     return;

@@ -315,6 +315,19 @@ async function loadChart(){
   }
   if(id !== chart.reqId) return;
 
+  if(!data && m && m.fx){
+    try{
+      data = await frankfurterChart(m.fx, P.stooqDays);
+      data.source = "frankfurter (بانک مرکزی اروپا)";
+      data.intraday = false;
+      data.note = "نمودار روزانه و خطی است (کندل‌ها در این منبع نیست).";
+    }catch(e){
+      data = null;
+      errs.push(shortErr(e));
+    }
+  }
+  if(id !== chart.reqId) return;
+
   if(!data && m && m.cg){
     try{
       data = await coingeckoChart(m.cg, P.cg);
