@@ -12,12 +12,13 @@ function timeoutFetch(url, ms){
 const PROXIES = [];
 if(MY_PROXY) PROXIES.push({name:"my-proxy", build:function(u){ return MY_PROXY + enc(u); }});
 PROXIES.push(
-  {name:"allorigins",     build:function(u){ return "https://api.allorigins.win/raw?url=" + enc(u); }},
-  {name:"allorigins-get", build:function(u){ return "https://api.allorigins.win/get?url=" + enc(u); }, wrapped:true},
-  {name:"corsproxy",      build:function(u){ return "https://corsproxy.io/?url=" + enc(u); }},
+  {name:"allorigins",    build:function(u){ return "https://api.allorigins.win/raw?url=" + enc(u); }},
   {name:"codetabs",       build:function(u){ return "https://api.codetabs.com/v1/proxy?quest=" + enc(u); }},
-  {name:"thingproxy",     build:function(u){ return "https://thingproxy.freeboard.io/fetch/" + u; }}
+  {name:"corsproxy",      build:function(u){ return "https://corsproxy.io/?url=" + enc(u); }},
+  {name:"allorigins-get", build:function(u){ return "https://api.allorigins.win/get?url=" + enc(u); }, wrapped:true}
 );
+/* توجه: این‌ها سرویس‌های رایگان و ناپایدارند. برای پایداری کامل، فایل worker.js را در
+   Cloudflare Worker (رایگان) بسازید و آدرسش را در MY_PROXY (فایل config.js) بگذارید. */
 let proxyPref = 0;
 
 async function viaProxy(p, target, validate, ms){
@@ -155,17 +156,70 @@ function quoteFromYahoo(data){
   return makeQuote(price, prev, hi, lo, t, "Yahoo Finance");
 }
 
+/* =========================================================
+   منابع مستقیم (بدون نیاز به سرویس واسط؛ اجازه‌ی دسترسی مرورگر دارند)
+========================================================= */
+async function goldApiQuote(sym){
+  const res = await timeoutFetch("https://api.gold-api.com/price/" + sym, 8000);
+  if(!res.ok) throw new Error("gold-api: HTTP " + res.status);
+  const j = await res.json();
+  const price = num(j.price);
+  if(price == null) throw new Error("gold-api: بدون قیمت");
+  return makeQuote(price, null, null, null, Date.parse(j.updatedAt) || Date.now(), "gold-api.com");
+}
+
+function isoDay(ms){ return new Date(ms).toISOString().slice(0, 10); }
+async function frankfurterSeries(base, quote, days){
+  const from = isoDay(Date.now() - days * 86400000);
+  const res = await timeoutFetch("https://api.frankfurter.dev/v1/" + from + "..?base=" + base + "&symbols=" + quote, 9000);
+  if(!res.ok) throw new Error("frankfurter: HTTP " + res.status);
+  const j = await res.json();
+  const days_ = Object.keys(j.rates || {}).sort();
+  if(!days_.length) throw new Error("frankfurter: بدون داده");
+  return days_.map(function(d){ return {t:Date.parse(d + "T12:00:00Z"), c:j.rates[d][quote]}; }).filter(function(r){ return num(r.c) != null; });
+}
+async function frankfurterQuote(pair){
+  const rows = await frankfurterSeries(pair[0], pair[1], 12);
+  const n = rows.length;
+  if(!n) throw new Error("frankfurter: بدون داده");
+  return makeQuote(rows[n-1].c, n > 1 ? rows[n-2].c : null, null, null, rows[n-1].t, "frankfurter (بانک مرکزی اروپا)");
+}
+async function frankfurterChart(pair, days){
+  const rows = await frankfurterSeries(pair[0], pair[1], Math.min(days, 1800));
+  if(rows.length < 2) throw new Error("frankfurter: داده‌ی کافی نیست");
+  return {meta:{}, rows:rows.map(function(r){ return {t:r.t, o:r.c, h:r.c, l:r.c, c:r.c, v:0}; }), lineOnly:true};
+}
+
+async function directQuote(m){
+  if(m.ga) return goldApiQuote(m.ga);
+  if(m.fx) return frankfurterQuote(m.fx);
+  if(m.cg) return coingeckoQuote(m.cg);
+  throw new Error("منبع مستقیم ندارد");
+}
+
+/* =========================================================
+   دریافت قیمت: با MY_PROXY اول یاهو (کامل‌ترین)، وگرنه اول منبع مستقیم
+========================================================= */
 async function getQuote(m){
   const errs = [];
-  if(healthy("yahoo")){
+  const hasDirect = !!(m.ga || m.fx || m.cg);
+
+  async function tryYahoo(){
+    if(!healthy("yahoo")) throw new Error("Yahoo: موقتاً کنار گذاشته شد");
     try{
       const d = await yahooChart(m.y, "1d", "5m");
       const q = quoteFromYahoo(d);
       markOk("yahoo");
       return q;
-    }catch(e){ markFail("yahoo"); errs.push("Yahoo: " + (e.details ? e.details.join(" | ") : shortErr(e))); }
+    }catch(e){ markFail("yahoo"); throw new Error("Yahoo: " + (e.details ? e.details.join(" | ") : shortErr(e))); }
   }
-  if(m.s && healthy("stooq")){
+  async function tryDirect(){
+    if(!hasDirect) throw new Error("منبع مستقیم ندارد");
+    try{ return await directQuote(m); }
+    catch(e){ throw new Error("مستقیم: " + shortErr(e)); }
+  }
+  async function tryStooq(){
+    if(!m.s || !healthy("stooq")) throw new Error("Stooq: در دسترس نیست");
     try{
       const d = await stooqHistory(m.s, 12);
       const n = d.rows.length;
@@ -174,13 +228,15 @@ async function getQuote(m){
       const q = makeQuote(last.c, prev, last.h, last.l, last.t, "Stooq (روزانه)");
       markOk("stooq");
       return q;
-    }catch(e){ markFail("stooq"); errs.push("Stooq: " + (e.details ? e.details.join(" | ") : shortErr(e))); }
+    }catch(e){ markFail("stooq"); throw new Error("Stooq: " + (e.details ? e.details.join(" | ") : shortErr(e))); }
   }
-  if(m.cg){
-    try{ return await coingeckoQuote(m.cg); }
-    catch(e){ errs.push(shortErr(e)); }
+
+  const order = MY_PROXY ? [tryYahoo, tryDirect, tryStooq] : [tryDirect, tryYahoo, tryStooq];
+  for(const step of order){
+    try{ return await step(); }
+    catch(e){ errs.push(e.message); }
   }
   const err = new Error("قیمت دریافت نشد");
   err.details = errs;
   throw err;
-      }
+}

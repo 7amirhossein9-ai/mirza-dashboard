@@ -367,4 +367,112 @@ async function loadCountries(){
       wbGet(url),
       wbRank(ind).catch(function(e){ console.warn("rank failed", e.message); return null; })
     ]);
-    if(id !==
+    if(id !== cs.reqId) return;
+    series = wbSeries(jobs[0][1]);
+    rank = jobs[1];
+  }catch(e){
+    if(id !== cs.reqId) return;
+    console.warn("countries failed:", e.details || e.message);
+    cs.rows = []; cs.series = {}; cs.years = []; cs.axis = []; cs.fc = null; cs.fcErr = "";
+    $("cStatus").textContent = "دریافت داده از بانک جهانی ناموفق بود";
+    drawMessage(cBars, "داده دریافت نشد؛ «بارگذاری دوباره» را بزنید");
+    drawMessage(cLines, "");
+    $("cInsights").innerHTML = "";
+    $("cHead").innerHTML = ""; $("cBody").innerHTML = "";
+    $("cLegend").innerHTML = "";
+    return;
+  }
+
+  /* سال‌های دارای داده */
+  cs.series = series;
+  const yset = new Set();
+  cs.codes.forEach(function(c){
+    Object.keys(series[c] || {}).forEach(function(y){ if(+y >= cs.from) yset.add(+y); });
+  });
+  cs.years = Array.from(yset).sort(function(a, b){ return a - b; });
+
+  /* ردیف‌های جدول و رتبه */
+  cs.rows = computeCountryRows(ind, cs.codes, series, rank, cs.from, COUNTRIES);
+
+  /* پیش‌بینی برای کشور مبنا */
+  cs.fc = null; cs.fcErr = "";
+  if(cs.h > 0 && series[cs.base]){
+    const nonNeg = ["growth", "infl", "fdi"].indexOf(ind.id) === -1;
+    const f = forecastSeries(series[cs.base], cs.from, cs.h, nonNeg);
+    if(f.error) cs.fcErr = f.error; else cs.fc = f;
+  }
+
+  /* محور زمان پیوسته (شامل سال‌های پیش‌بینی) */
+  cs.axis = [];
+  if(cs.years.length){
+    const last = cs.fc ? Math.max(cs.fc.years[cs.fc.years.length - 1], cs.years[cs.years.length - 1]) : cs.years[cs.years.length - 1];
+    for(let y = cs.years[0]; y <= last; y++) cs.axis.push(y);
+  }
+  cs.hover = null;
+
+  const okCount = cs.rows.filter(function(r){ return r.latest; }).length;
+  $("cStatus").textContent = "منبع: بانک جهانی · " + okCount + " از " + cs.codes.length + " کشور دارای داده · " + faHM.format(new Date());
+
+  drawBars();
+  drawLines();
+  updateCLegend();
+  renderCountryTable();
+
+  const ins = buildInsights(ind, cs.rows, cs.base).concat(forecastInsights(ind, cs.rows));
+  $("cInsights").innerHTML = ins.length
+    ? "<h3>تحلیل مقایسه‌ای</h3><ul>" + ins.map(function(x){ return "<li>" + x + "</li>"; }).join("") + "</ul>"
+    : "";
+}
+
+/* ---------- ساخت رابط بخش کشورها ---------- */
+function buildCountryUI(){
+  const selInd = $("cIndicator");
+  selInd.innerHTML = WB_INDICATORS.map(function(i){
+    return '<option value="' + i.id + '">' + i.name + "</option>";
+  }).join("");
+  selInd.value = cs.ind;
+
+  $("cFrom").value = String(cs.from);
+  $("cIndex").checked = !!cs.index;
+
+  if(cs.codes.indexOf(cs.base) === -1) cs.codes.unshift(cs.base);
+  fillBaseSelect();
+  buildCountryChips();
+}
+
+function fillBaseSelect(){
+  const sel = $("cBase");
+  sel.innerHTML = cs.codes.map(function(c){
+    return '<option value="' + c + '">' + "کشور مبنا: " + COUNTRIES[c] + "</option>";
+  }).join("");
+  sel.value = cs.base;
+}
+
+function buildCountryChips(){
+  const box = $("cChips");
+  box.innerHTML = "";
+  Object.keys(COUNTRIES).forEach(function(code){
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chip-btn" + (cs.codes.indexOf(code) !== -1 ? " active" : "");
+    b.dataset.code = code;
+    b.textContent = COUNTRIES[code];
+    b.addEventListener("click", function(){
+      const i = cs.codes.indexOf(code);
+      if(i !== -1){
+        if(cs.codes.length <= 1){ $("cStatus").textContent = "حداقل یک کشور باید انتخاب بماند"; return; }
+        cs.codes.splice(i, 1);
+        if(cs.base === code) cs.base = cs.codes[0];
+      }else{
+        if(cs.codes.length >= 10){ $("cStatus").textContent = "حداکثر ۱۰ کشور را می‌توان انتخاب کرد"; return; }
+        cs.codes.push(code);
+      }
+      b.classList.toggle("active", cs.codes.indexOf(code) !== -1);
+      fillBaseSelect();
+      saveCountries();
+      loadCountries();
+    });
+    box.appendChild(b);
+  });
+}
+
