@@ -33,13 +33,13 @@ function shade(c, k){ return [clamp(c[0] * k, 0, 1), clamp(c[1] * k, 0, 1), clam
 /* =========================================================
    هندسه‌ی بدن (شبکه‌ی اندیس‌دار با رنگ و استخوان برای هر رأس)
 ========================================================= */
-function G(){ return {p:[], n:[], c:[], b:[], i:[]}; }
+function G(){ return {p:[], n:[], c:[], b:[], i:[], mat:0}; }
 
 /* بیضوی (کره، سر، دست، موی کوتاه...). phi0..phi1: برش از بالا تا پایین (۰ تا π) */
 function ellipsoid(g, cx, cy, cz, rx, ry, rz, col, bone, o){
   o = o || {};
   const su = o.su || (low ? 8 : 12), sv = o.sv || (low ? 5 : 8);
-  const p0 = o.p0 || 0, p1 = o.p1 == null ? Math.PI : o.p1, em = o.em || 0;
+  const p0 = o.p0 || 0, p1 = o.p1 == null ? Math.PI : o.p1, em = o.em || g.mat || 0;
   const base = g.p.length / 3;
   for(let v = 0; v <= sv; v++){
     const ph = p0 + (p1 - p0) * v / sv, sp = Math.sin(ph), cp = Math.cos(ph);
@@ -59,7 +59,7 @@ function ellipsoid(g, cx, cy, cz, rx, ry, rz, col, bone, o){
 /* پوسته‌ی لوفت: حلقه‌های بیضی روی هم (تنه، دامن، مانتو، ساق) */
 function loft(g, rings, col, bone, o){
   o = o || {};
-  const seg = o.seg || (low ? 8 : 12), base = g.p.length / 3, em = o.em || 0;
+  const seg = o.seg || (low ? 8 : 12), base = g.p.length / 3, em = o.em || g.mat || 0;
   rings.forEach(function(r){
     for(let u = 0; u < seg; u++){
       const th = Math.PI * 2 * u / seg, ct = Math.cos(th), st = Math.sin(th);
@@ -114,7 +114,7 @@ function limb(g, a, b, r0, r1, col, bone, o){
       const th = Math.PI * 2 * s / seg, ct = Math.cos(th), st = Math.sin(th);
       const nx = ux * ct + vx * st, ny = uy * ct + vy * st, nz = uz * ct + vz * st;
       g.p.push(e[0][0] + nx * e[1], e[0][1] + ny * e[1], e[0][2] + nz * e[1]); g.n.push(nx, ny, nz);
-      g.c.push(col[0], col[1], col[2], 0); g.b.push(bone);
+      g.c.push(col[0], col[1], col[2], g.mat || 0); g.b.push(bone);
     }
   });
   for(let s = 0; s < seg; s++){ const s2 = (s + 1) % seg; g.i.push(base + s, base + seg + s, base + s2, base + s2, base + seg + s, base + seg + s2); }
@@ -125,7 +125,7 @@ function limb(g, a, b, r0, r1, col, bone, o){
 }
 /* جعبه (کفش، تبلت، کیف، کراوات) */
 function box(g, cx, cy, cz, sx, sy, sz, col, bone, em){
-  const hx = sx / 2, hy = sy / 2, hz = sz / 2, e = em || 0;
+  const hx = sx / 2, hy = sy / 2, hz = sz / 2, e = em || g.mat || 0;
   const faces = [
     [[0, 0, 1], [-hx, -hy, hz], [hx, -hy, hz], [hx, hy, hz], [-hx, hy, hz]],
     [[0, 0, -1], [hx, -hy, -hz], [-hx, -hy, -hz], [-hx, hy, -hz], [hx, hy, -hz]],
@@ -158,7 +158,22 @@ const FSKIRT = ["#17181c", "#26283a", "#3a2f2a", "#2b3b3a", "#5a3a3a"];
 const BLAZER = ["#1d2030", "#3a3f4a", "#7a5a48", "#2c4a52", "#5a2f3a", "#b9b4aa"];
 const SHOE = ["#15130f", "#2a1f16", "#101216", "#3a2a20"];
 
-function makeSpec(gender, scarfProb){
+/* لباس‌های سنتی ایرانی (قاجاری، بختیاری، بازاری، لری، چادر) */
+const T_COAT = ["#7a1f2b", "#1f3a5c", "#2f4a33", "#8a5a22", "#4a2b57", "#26262c"];
+const T_SASH = ["#d9c9a0", "#b0282e", "#c9a23a", "#2f6a73"];
+const T_TROUS = ["#e6dfcf", "#cfc7b3", "#2a2622"];
+const T_KOLAH = ["#2b211b", "#3b2a1f", "#1a1614"];
+const T_FELT = ["#e8e0cc", "#d8cfb8"];
+const T_ABA = ["#8a6a45", "#5b4a36", "#2a2622", "#a38a60"];
+const T_TURBAN = ["#f1ede2", "#e6e0d0", "#d9dfe4"];
+const T_CHADOR = ["#131316", "#17171c", "#1a1f33", "#1d1a16"];
+const T_FLORAL = ["#1d2a4a", "#2a1f3a", "#3a1f2a", "#1f3a33"];
+const T_SKIRT = ["#9e1f2b", "#1f6a7a", "#d29a2a", "#2f6a3a", "#7a2f6a", "#c25a1f"];
+const T_VEST = ["#1c1a2e", "#2a1a1a", "#10242a"];
+const T_BLOUSE = ["#e0b13a", "#c43a3a", "#3a8ab0", "#e8e0cf"];
+const T_LSCARF = ["#d9c9a0", "#c43a3a", "#e0b13a", "#3a8ab0"];
+
+function makeSpec(gender, scarfProb, tradProb){
   const f = gender === "f", older = rnd() < 0.22;
   const sp = {gender:gender, older:older};
   sp.sc = f ? rr(0.89, 0.98) : rr(0.96, 1.05);
@@ -184,6 +199,24 @@ function makeSpec(gender, scarfProb){
     sp.hair = pickW([["long", 40], ["bob", 22], ["pony", 24], ["bun", 14]]);
     sp.glasses = rnd() < 0.18; sp.legs = hex(rnd() < 0.5 ? "#17181c" : "#6a5a50");
   }
+  if(tradProb > 0 && rnd() < tradProb){
+    sp.trad = f ? pickW([["chador", 36], ["floral", 30], ["lori", 34]]) : pickW([["qajar", 40], ["bakhtiari", 28], ["bazaari", 32]]);
+    sp.style = "trad"; sp.glasses = false; sp.covered = false;
+    sp.shoe = hex(pick(["#d8cfb8", "#3a2a20", "#2a1f16"]));
+    if(f){
+      if(sp.trad === "chador"){ sp.top = hex(pick(T_CHADOR)); sp.scarf = sp.top; }
+      else if(sp.trad === "floral"){ sp.top = hex(pick(T_FLORAL)); sp.scarf = sp.top; }
+      else{ sp.top = hex(pick(T_VEST)); sp.sleeve = hex(pick(T_BLOUSE)); sp.scarf = hex(pick(T_LSCARF)); sp.sk1 = hex(pick(T_SKIRT)); sp.sk2 = hex(pick(T_SKIRT)); sp.sk3 = hex(pick(T_SKIRT)); sp.trouser = sp.sk1; }
+    }else{
+      sp.beard = rnd() < 0.9; sp.hair = "short"; sp.hairCol = hex(older && rnd() < 0.7 ? "#9a9a9a" : pickW(HAIR_M));
+      sp.trouser = hex(pick(T_TROUS));
+      if(sp.trad === "qajar"){ sp.top = hex(pick(T_COAT)); sp.sash = hex(pick(T_SASH)); sp.hat = hex(pick(T_KOLAH)); }
+      else if(sp.trad === "bakhtiari"){ sp.top = hex("#2b241d"); sp.sash = hex("#d9c9a0"); sp.hat = hex(pick(T_FELT)); sp.trouser = hex("#2a2622"); }
+      else{ sp.top = hex(pick(T_COAT)); sp.sash = hex(pick(T_SASH)); sp.aba = hex(pick(T_ABA)); sp.sleeve = sp.aba; sp.hat = hex(pick(T_TURBAN)); }
+    }
+    sp.prop = "none";
+  }
+  if(!sp.trad)
   sp.prop = pickW([["none", 38], ["tablet", 18], ["phone", 16], ["case", f ? 0 : 14], ["bag", f ? 24 : 4], ["papers", 10]]);
   return sp;
 }
@@ -201,7 +234,7 @@ function buildPerson(sp){
   const skin = sp.skin, skinD = shade(sp.skin, 0.78);
   const topC = sp.top;
   const trC = f ? (sp.style === "blazerSkirt" ? sp.legs : sp.trouser) : sp.trouser;
-  const sleeveC = (!f && sp.style === "shirt") ? sp.top : topC;
+  const sleeveC = sp.trad ? (sp.sleeve || sp.top) : ((!f && sp.style === "shirt") ? sp.top : topC);
 
   /* --- پاها --- */
   [[1, LUL, LLL], [-1, RUL, RLL]].forEach(function(e){
@@ -212,7 +245,27 @@ function buildPerson(sp){
   });
   /* --- لگن و تنه --- */
   const hw = (f ? 0.168 : 0.162) * w;
-  if(f && (sp.style === "manteau")){
+  if(sp.trad){
+    const T = sp.trad;
+    if(T === "qajar" || T === "bazaari"){
+      /* قبا: دامن بلند تا ساق، با کمربند */
+      loft(g, [{y:hipY - 0.50 * s, rx:hw + 0.095, rz:0.15}, {y:hipY - 0.22 * s, rx:hw + 0.055, rz:0.13}, {y:hipY + 0.06 * s, rx:hw, rz:0.105}], topC, PELVIS);
+    }else if(T === "bakhtiari"){
+      /* چوخا: کوتاه‌تر، تا میانه‌ی ران */
+      loft(g, [{y:hipY - 0.28 * s, rx:hw + 0.06, rz:0.125}, {y:hipY - 0.1 * s, rx:hw + 0.03, rz:0.113}, {y:hipY + 0.06 * s, rx:hw, rz:0.105}], topC, PELVIS);
+    }else if(T === "chador" || T === "floral"){
+      g.mat = (T === "floral") ? -3 : 0;
+      loft(g, [{y:0.03 * s, rx:0.31 * w, rz:0.2, cz:-0.02}, {y:0.45 * s, rx:0.3 * w, rz:0.19, cz:-0.02}, {y:hipY, rx:0.285 * w, rz:0.18, cz:-0.015}, {y:hipY + 0.2 * s, rx:0.27 * w, rz:0.165, cz:-0.01}, {y:shY - 0.05 * s, rx:0.27 * w, rz:0.15, cz:-0.01}, {y:shY + 0.05 * s, rx:0.2 * w, rz:0.125, cz:-0.012}, {y:shY + 0.13 * s, rx:0.12, rz:0.118, cz:-0.014}], topC, CHEST);
+      g.mat = 0;
+    }else{
+      /* لری: دامن‌های لایه‌لایه و پرچین رنگی */
+      loft(g, [{y:hipY - 0.62 * s, rx:hw + 0.17, rz:0.21, col:sp.sk3}, {y:hipY - 0.45 * s, rx:hw + 0.14, rz:0.185, col:sp.sk3}, {y:hipY - 0.2 * s, rx:hw + 0.07, rz:0.14, col:sp.sk3}, {y:hipY + 0.06 * s, rx:hw, rz:0.105, col:sp.sk3}], sp.sk3, PELVIS);
+      g.mat = -3;
+      loft(g, [{y:hipY - 0.46 * s, rx:hw + 0.15, rz:0.195}, {y:hipY - 0.3 * s, rx:hw + 0.11, rz:0.165}, {y:hipY - 0.1 * s, rx:hw + 0.045, rz:0.125}, {y:hipY + 0.06 * s, rx:hw + 0.005, rz:0.108}], sp.sk1, PELVIS);
+      g.mat = 0;
+      loft(g, [{y:hipY - 0.3 * s, rx:hw + 0.12, rz:0.17, col:sp.sk2}, {y:hipY - 0.12 * s, rx:hw + 0.06, rz:0.13, col:sp.sk2}, {y:hipY + 0.06 * s, rx:hw + 0.01, rz:0.11, col:sp.sk2}], sp.sk2, PELVIS);
+    }
+  }else if(f && (sp.style === "manteau")){
     /* مانتو بلند تا میانه‌ی ران؛ نیمه‌ی پایین روی لگن، بالا روی تنه */
     loft(g, [{y:hipY - 0.34 * s, rx:hw + 0.065, rz:0.135}, {y:hipY - 0.16 * s, rx:hw + 0.035, rz:0.12}, {y:hipY + 0.06 * s, rx:hw, rz:0.105}], topC, PELVIS);
   }else if(f && sp.style === "blazerSkirt"){
@@ -228,18 +281,37 @@ function buildPerson(sp){
     {y:shY - 0.03 * s, rx:chestRX + (f ? 0.012 : 0.022), rz:0.1},
     {y:shY + 0.025 * s, rx:0.09 * w, rz:0.075}
   ], topC, CHEST);
+  if(!f && sp.trad){
+    const T = sp.trad;
+    /* کمربند پارچه‌ای */
+    loft(g, [{y:hipY + 0.10 * s, rx:waistRX + 0.014, rz:0.104}, {y:hipY + 0.19 * s, rx:waistRX + 0.014, rz:0.104}], sp.sash, CHEST);
+    /* حاشیه‌ی زردوزی روی سینه */
+    box(g, 0, hipY + 0.33 * s, 0.112, 0.014, 0.28 * s, 0.006, shade(sp.sash, 1.1), CHEST);
+    if(T === "bakhtiari") box(g, 0, hipY + 0.26 * s, 0.1, 0.4 * w, 0.012, 0.006, hex("#d9c9a0"), CHEST);
+    if(T === "bazaari"){
+      /* عبا: شنل بلند روی شانه‌ها */
+      g.mat = 0;
+      loft(g, [{y:hipY - 0.55 * s, rx:0.34 * w, rz:0.21, cz:-0.03}, {y:hipY - 0.1 * s, rx:0.325 * w, rz:0.2, cz:-0.03}, {y:hipY + 0.3 * s, rx:0.3 * w, rz:0.17, cz:-0.025}, {y:shY - 0.02 * s, rx:0.285 * w, rz:0.15, cz:-0.02}, {y:shY + 0.04 * s, rx:0.12, rz:0.1, cz:-0.015}], sp.aba, CHEST);
+    }
+  }
+  if(f && sp.trad === "lori"){
+    /* جلیقه و بند روی سینه */
+    box(g, 0, hipY + 0.3 * s, 0.108, 0.06, 0.28 * s, 0.008, hex("#c9a23a"), CHEST);
+  }
   if(f && sp.style === "manteau"){
     /* یقه و دکمه‌ها: نوار روشن‌تر جلو */
     box(g, 0, hipY + 0.2 * s, 0.108, 0.012, 0.52 * s, 0.006, shade(topC, 1.35), CHEST);
   }
-  if(!f && sp.style !== "casual"){
+  if(!f && !sp.trad && sp.style !== "casual"){
     /* پیراهن و کراوات */
     box(g, 0, shY - 0.1 * s, 0.108, 0.075, 0.2 * s, 0.012, sp.shirt, CHEST);
     if(sp.style === "suit") box(g, 0, shY - 0.15 * s, 0.116, 0.024, 0.2 * s, 0.01, sp.tie, CHEST);
   }
   if(f && (sp.style === "blazerSkirt" || sp.style === "blazerPants")) box(g, 0, shY - 0.09 * s, 0.108, 0.085, 0.16 * s, 0.012, sp.blouse, CHEST);
   /* گردن */
+  g.mat = -1;
   limb(g, [0, neckY - 0.07 * s, 0], [0, neckY + 0.03 * s, 0.005], 0.047 * w, 0.042 * w, skinD, HEAD, {noCaps:true});
+  g.mat = 0;
 
   /* --- دست‌ها --- */
   [[1, LUA, LLA], [-1, RUA, RLA]].forEach(function(e){
@@ -247,27 +319,74 @@ function buildPerson(sp){
     limb(g, [x, shY - 0.005, 0], [x, elbY, 0], 0.046 * w, 0.039 * w, sleeveC, ua);
     const fore = (f && sp.style === "blazerPants" && false) ? skin : sleeveC;
     limb(g, [x, elbY, 0], [x, wrY, 0.0], 0.038 * w, 0.03 * w, fore, la);
-    ellipsoid(g, x, wrY - 0.05 * s, 0.01, 0.033, 0.058, 0.04, skin, la, {su:8, sv:5});
+    g.mat = -1;
+    ellipsoid(g, x, wrY - 0.05 * s, 0.01, 0.033, 0.058, 0.04, (sp.trad === "chador" || sp.trad === "floral") ? sp.top : skin, la, {su:8, sv:5});
+    g.mat = 0;
   });
 
   /* --- سر --- */
+  g.mat = -1;
   ellipsoid(g, 0, headY, 0.005, 0.086 * (f ? 0.96 : 1), 0.108, 0.102, skin, HEAD, {su:low ? 10 : 14, sv:low ? 7 : 10});
   ellipsoid(g, 0, headY - 0.065, 0.026, 0.066, 0.056, 0.07, skin, HEAD, {su:8, sv:5});             /* چانه */
-  ellipsoid(g, 0, headY - 0.012, 0.105, 0.014, 0.022, 0.022, shade(skin, 0.9), HEAD, {su:6, sv:4}); /* بینی */
+  ellipsoid(g, 0, headY - 0.01, 0.1, 0.015, 0.026, 0.024, shade(skin, 0.94), HEAD, {su:6, sv:4}); /* بینی */
+  ellipsoid(g, 0, headY + 0.02, 0.098, 0.011, 0.03, 0.012, shade(skin, 0.97), HEAD, {su:6, sv:4}); /* پل بینی */
+  ellipsoid(g, 0, headY - 0.05, 0.097, 0.021, 0.007, 0.012, [skin[0] * 0.86, skin[1] * 0.5, skin[2] * 0.5], HEAD, {su:8, sv:4}); /* لب */
   [1, -1].forEach(function(e){
-    ellipsoid(g, e * 0.038, headY + 0.014, 0.092, 0.012, 0.009, 0.008, hex("#17120f"), HEAD, {su:6, sv:4});   /* چشم */
+    ellipsoid(g, e * 0.038, headY + 0.016, 0.092, 0.019, 0.013, 0.012, skinD, HEAD, {su:6, sv:4});            /* گودی چشم */
     ellipsoid(g, e * 0.089, headY - 0.004, 0.0, 0.012, 0.028, 0.02, skinD, HEAD, {su:6, sv:4});               /* گوش */
-    if(!f || rnd() < 0.5) box(g, e * 0.038, headY + 0.036, 0.094, 0.034, 0.006, 0.006, shade(sp.hairCol, 0.9), HEAD);  /* ابرو */
   });
+  g.mat = 0;
+  [1, -1].forEach(function(e){
+    ellipsoid(g, e * 0.038, headY + 0.014, 0.098, 0.0125, 0.0085, 0.012, hex("#e9e5dc"), HEAD, {su:6, sv:4});  /* سفیدی چشم */
+    ellipsoid(g, e * 0.038, headY + 0.014, 0.108, 0.0068, 0.0068, 0.006, hex("#1a120d"), HEAD, {su:6, sv:4});  /* مردمک */
+  });
+  g.mat = -2;
+  [1, -1].forEach(function(e){
+    if(!f || rnd() < 0.85 || sp.trad) box(g, e * 0.038, headY + 0.036, 0.098, 0.036, f ? 0.005 : 0.008, 0.007, shade(sp.hairCol, 0.85), HEAD);  /* ابرو */
+  });
+  g.mat = 0;
   if(sp.glasses){
-    [1, -1].forEach(function(e){ box(g, e * 0.038, headY + 0.012, 0.107, 0.05, 0.036, 0.004, hex("#202428"), HEAD); });
-    box(g, 0, headY + 0.016, 0.108, 0.02, 0.005, 0.004, hex("#202428"), HEAD);
+    [1, -1].forEach(function(e){ box(g, e * 0.038, headY + 0.012, 0.113, 0.05, 0.036, 0.004, hex("#202428"), HEAD); });
+    box(g, 0, headY + 0.016, 0.114, 0.02, 0.005, 0.004, hex("#202428"), HEAD);
   }
-  /* لب */
-  box(g, 0, headY - 0.05, 0.1, 0.03, 0.006, 0.006, shade(skin, 0.7), HEAD);
   /* مو، روسری */
   const hc = sp.hairCol;
-  if(f && sp.covered){
+  g.mat = -2;
+  if(sp.trad){
+    const T = sp.trad;
+    if(f){
+      g.mat = T === "floral" ? -3 : 0;
+      ellipsoid(g, 0, headY + 0.006, -0.018, 0.108, 0.128, 0.115, sp.scarf, HEAD, {p1:Math.PI * 0.8, su:low ? 10 : 14, sv:low ? 7 : 9});
+      if(T === "lori"){
+        g.mat = 0;
+        loft(g, [{y:shY + 0.07 * s, rx:0.1, rz:0.08, cz:-0.04, col:sp.scarf}, {y:shY - 0.02 * s, rx:chestRX + 0.04, rz:0.125, cz:-0.01}, {y:hipY + 0.2 * s, rx:chestRX + 0.02, rz:0.12, cz:-0.03}, {y:hipY - 0.05 * s, rx:chestRX + 0.01, rz:0.11, cz:-0.05}], sp.scarf, CHEST);
+        g.mat = -1;
+      }else{
+        g.mat = -1;
+        ellipsoid(g, -0.01, shY - 0.02 * s, 0.17, 0.036, 0.048, 0.03, skin, CHEST, {su:8, sv:5});   /* دستی که چادر را نگه داشته */
+      }
+    }else{
+      g.mat = -2;
+      ellipsoid(g, 0, headY + 0.0, -0.012, 0.092, 0.1, 0.106, hc, HEAD, {p1:Math.PI * 0.6, su:10, sv:6});
+      ellipsoid(g, 0, headY - 0.036, 0.1, 0.044, 0.012, 0.016, hc, HEAD, {su:8, sv:4});   /* سبیل */
+      g.mat = 0;
+      if(T === "qajar"){
+        g.mat = -2;
+        loft(g, [{y:headY + 0.055, rx:0.09, rz:0.096}, {y:headY + 0.12, rx:0.096, rz:0.102}, {y:headY + 0.23, rx:0.102, rz:0.11}, {y:headY + 0.27, rx:0.097, rz:0.105}], sp.hat, HEAD);
+        g.mat = 0;
+      }else if(T === "bakhtiari"){
+        ellipsoid(g, 0, headY + 0.03, 0.0, 0.1, 0.128, 0.112, sp.hat, HEAD, {p1:Math.PI * 0.6, su:12, sv:8});
+        loft(g, [{y:headY + 0.05, rx:0.103, rz:0.114}, {y:headY + 0.065, rx:0.105, rz:0.116}], shade(sp.hat, 0.8), HEAD);
+      }else{
+        ellipsoid(g, 0, headY + 0.055, 0.0, 0.113, 0.046, 0.122, sp.hat, HEAD, {su:12, sv:6});
+        ellipsoid(g, 0, headY + 0.095, -0.005, 0.108, 0.05, 0.117, shade(sp.hat, 0.95), HEAD, {su:12, sv:6});
+        ellipsoid(g, 0, headY + 0.13, -0.008, 0.092, 0.05, 0.1, sp.hat, HEAD, {su:12, sv:6});
+        ellipsoid(g, 0.085, headY - 0.05, -0.03, 0.026, 0.1, 0.04, sp.hat, HEAD, {su:8, sv:5});
+      }
+      g.mat = -2;
+    }
+  }else if(f && sp.covered){
+    g.mat = 0;
     ellipsoid(g, 0, headY + 0.006, -0.014, 0.105, 0.124, 0.118, sp.scarf, HEAD, {p1:Math.PI * 0.8, su:low ? 10 : 14, sv:low ? 7 : 9});
     loft(g, [{y:shY - 0.2 * s, rx:chestRX + 0.03, rz:0.12}, {y:shY - 0.1 * s, rx:chestRX + 0.04, rz:0.12}, {y:shY + 0.01 * s, rx:chestRX + 0.045, rz:0.125, cz:-0.01}, {y:shY + 0.07 * s, rx:0.095, rz:0.085, cz:-0.012}], sp.scarf, CHEST);
   }else if(sp.hair === "bald" || (sp.hair === "short" && false)){
@@ -290,8 +409,10 @@ function buildPerson(sp){
     ellipsoid(g, 0, headY + 0.1, -0.07, 0.05, 0.05, 0.05, hc, HEAD, {su:8, sv:5});
   }
   if(!f && sp.beard){
-    ellipsoid(g, 0, headY - 0.07, 0.03, 0.074, 0.062, 0.078, shade(hc, 1.0), HEAD, {p0:Math.PI * 0.2, su:10, sv:5});
+    g.mat = -2;
+    ellipsoid(g, 0, headY - 0.07, 0.03, sp.trad ? 0.082 : 0.074, sp.trad ? 0.085 : 0.062, 0.08, shade(hc, 1.0), HEAD, {p0:Math.PI * 0.2, su:10, sv:5});
   }
+  g.mat = 0;
   /* --- وسایل --- */
   const handY = shY - uaL - laL - 0.05 * s;
   const wy = shY - uaL - laL - 0.06 * s;
@@ -357,6 +478,9 @@ const ARM = {
 };
 function posesFor(a){
   const sp = a.spec;
+  if(sp.trad === "chador" || sp.trad === "floral") return [["idle", 1]];
+  if(sp.trad === "bazaari") return [["idle", 3], ["clasp", 2], ["crossed", 1]];
+  if(sp.trad) return [["idle", 3], ["clasp", 2], ["pocket", 1], ["chin", 1]];
   if(sp.prop === "tablet") return [["tablet", 6], ["idle", 1], ["chin", 1]];
   if(sp.prop === "phone") return [["phone", 6], ["idle", 1], ["pointR", 1]];
   if(sp.prop === "case") return [["idle", 4], ["pocket", 1]];
@@ -372,12 +496,24 @@ function setPose(a, name){
 /* =========================================================
    WebGL: برنامه‌ی سایه‌زن آدم‌ها و لکه‌ی سایه‌ی زیر پا
 ========================================================= */
-const VS = "attribute vec3 aPos;attribute vec3 aNor;attribute vec4 aCol;attribute float aBone;uniform mat4 uVP;uniform mat4 uB[" + NB + "];uniform float uMirror;varying vec3 vN;varying vec4 vC;varying vec3 vW;varying float vMir;" +
-  "void main(){vMir=uMirror;mat4 M=uB[int(aBone+0.5)];vec4 wp=M*vec4(aPos,1.0);vec3 n=(M*vec4(aNor,0.0)).xyz;if(uMirror>0.5){wp.y=-wp.y;n.y=-n.y;}vW=wp.xyz;vN=n;vC=aCol;gl_Position=uVP*wp;}";
-const FS = "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\nuniform vec3 uEye;uniform vec3 uFog;uniform float uFogD;varying vec3 vN;varying vec4 vC;varying vec3 vW;varying float vMir;" +
-  "void main(){vec3 n=normalize(vN);vec3 L=normalize(vec3(0.25,0.9,0.35));float hemi=0.5+0.5*n.y;float d=max(dot(n,L),0.0);vec3 base=vC.rgb;" +
-  "vec3 col=base*(0.34+0.36*hemi+0.40*d);vec3 V=normalize(uEye-vW);float rim=pow(1.0-max(dot(n,V),0.0),3.0);col+=vec3(0.60,0.48,0.30)*rim*0.20;" +
-  "col=mix(col,base*1.25,vC.a);float dist=length(vW-uEye);float f=1.0-exp(-pow(uFogD*dist,2.0));col=mix(col,uFog,f);if(vMir>0.5){col*=0.55;}gl_FragColor=vec4(col,1.0);}";
+const VS = "attribute vec3 aPos;attribute vec3 aNor;attribute vec4 aCol;attribute float aBone;uniform mat4 uVP;uniform mat4 uB[" + NB + "];uniform float uMirror;varying vec3 vN;varying vec4 vC;varying vec3 vW;varying vec3 vP;varying float vMir;" +
+  "void main(){vMir=uMirror;mat4 M=uB[int(aBone+0.5)];vec4 wp=M*vec4(aPos,1.0);vec3 n=(M*vec4(aNor,0.0)).xyz;if(uMirror>0.5){wp.y=-wp.y;n.y=-n.y;}vW=wp.xyz;vP=aPos;vN=n;vC=aCol;gl_Position=uVP*wp;}";
+/* ماده‌ی هر رأس در کانال آلفا: ۰ پارچه‌ی مات، مثبت = روشن (صفحه‌ی تبلت)، ‎-1‎ پوست، ‎-2‎ مو و خز، ‎-3‎ پارچه‌ی گل‌دار */
+const FS = "#ifdef GL_FRAGMENT_PRECISION_HIGH\nprecision highp float;\n#else\nprecision mediump float;\n#endif\nuniform vec3 uEye;uniform vec3 uFog;uniform float uFogD;varying vec3 vN;varying vec4 vC;varying vec3 vW;varying vec3 vP;varying float vMir;" +
+  "void main(){vec3 n=normalize(vN);vec3 L=normalize(vec3(0.25,0.9,0.35));vec3 V=normalize(uEye-vW);vec3 H=normalize(L+V);float m=vC.a;vec3 base=vC.rgb;" +
+  "bool skin=(m<-0.5&&m>-1.5);bool hair=(m<=-1.5&&m>-2.5);bool pat=(m<=-2.5);" +
+  "float hemi=0.5+0.5*n.y;float nl=dot(n,L);float wrap=skin?max((nl+0.5)/1.5,0.0):max(nl,0.0);" +
+  "if(!skin&&!hair&&m<0.01){float wv=sin(vP.x*620.0)*sin(vP.y*620.0)+0.7*sin(vP.z*540.0+vP.y*90.0);base*=1.0+0.035*wv;}" +
+  "if(pat){vec2 q=vec2((vP.x+vP.z)*34.0,vP.y*34.0+floor((vP.x+vP.z)*34.0)*0.5);vec2 c=fract(q)-0.5;float dt=smoothstep(0.30,0.16,length(c));base=mix(base,base*2.4+vec3(0.10,0.09,0.07),dt*0.85);}" +
+  "if(hair){float st=sin(vP.y*900.0+vP.x*300.0)*0.5+0.5;base*=0.8+0.4*st;}" +
+  "vec3 col=base*(0.30+0.32*hemi+0.50*wrap);" +
+  "col*=mix(0.62,1.0,smoothstep(0.0,0.45,vW.y));" +
+  "float fr=1.0-max(dot(n,V),0.0);" +
+  "if(skin){col+=vec3(0.95,0.62,0.48)*pow(max(dot(n,H),0.0),22.0)*0.08;col+=base*vec3(0.28,0.07,0.03)*fr*fr*0.8;}" +
+  "else if(hair){col+=vec3(0.75,0.62,0.5)*pow(max(dot(n,H),0.0),10.0)*0.22;}" +
+  "col+=vec3(0.60,0.48,0.30)*pow(fr,3.0)*0.07;" +
+  "if(m>0.0)col=mix(col,base*1.25,m);" +
+  "float dist=length(vW-uEye);float f=1.0-exp(-pow(uFogD*dist,2.0));col=mix(col,uFog,f);if(vMir>0.5){col*=0.55;}gl_FragColor=vec4(col,1.0);}";
 const VSB = "attribute vec3 aPos;attribute vec2 aUV;uniform mat4 uVP;varying vec2 vUV;void main(){vUV=aUV;gl_Position=uVP*vec4(aPos,1.0);}";
 const FSB = "precision mediump float;varying vec2 vUV;void main(){float d=length(vUV*2.0-1.0);float a=(1.0-smoothstep(0.15,1.0,d))*0.5;gl_FragColor=vec4(0.0,0.0,0.0,a);}";
 
@@ -475,6 +611,7 @@ function init(opts){
 
   const size = typeof opts.size === "number" ? opts.size : 1;
   const scarfProb = typeof opts.scarf === "number" ? opts.scarf : 0.6;
+  const tradProb = typeof opts.trad === "number" ? opts.trad : 0.3;
   const scale = (low ? 0.55 : 1) * size;
   const per = api.boards.map(function(d){ return Math.max(2, Math.round(d.w / 2.7 * scale)); });
   const roamers = Math.round(8 * scale);
@@ -486,7 +623,7 @@ function init(opts){
     const s = slotNear(bi, avoid);
     if(!s) return null;
     const gender = (gi++ % 2 === 0) !== (rnd() < 0.15) ? "f" : "m";
-    const spec = makeSpec(gender, scarfProb), built = buildPerson(spec);
+    const spec = makeSpec(gender, scarfProb, tradProb), built = buildPerson(spec);
     const a = {spec:spec, built:built, board:bi, x:s[0], z:s[1], yaw:0, vx:0, vz:0, speed:0, phase:rnd() * 6.28, state:"stand", stay:rr(6, 70),
       path:[], dest:null, target:{L:ARM.idle.L, R:ARM.idle.R}, cur:{L:Object.assign({}, ARM.idle.L), R:Object.assign({}, ARM.idle.R)},
       poseT:rr(1, 8), headYaw:0, headTarget:0, glanceT:rr(2, 9), headPitch:0, headDown:0, breath:rnd() * 6.28, bones:null, views:null, moveBlend:0, walkSpeed:rr(1.05, 1.4)};

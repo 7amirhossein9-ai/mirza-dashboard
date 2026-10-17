@@ -36,6 +36,8 @@ const FEATURED = ["gold","btc","eth","oil"];
    CROWD_WOMEN_SCARF: سهم خانم‌هایی که روسری دارند (۰ تا ۱)؛ مثلاً ۰٫۶ یعنی شصت درصد */
 const CROWD_SIZE = 1;
 const CROWD_WOMEN_SCARF = 0.6;
+/* CROWD_TRADITIONAL: سهم شخصیت‌های سنتی ایرانی (قبا و کلاه، لباس بختیاری و لری، چادر)؛ ۰ = هیچ، ۰٫۳ = حدود سی درصد */
+const CROWD_TRADITIONAL = 0.3;
 
 /* بازه‌های زمانی نمودار */
 const PERIODS = {

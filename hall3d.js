@@ -1312,7 +1312,8 @@ function initCrowd(){
     const size = typeof CROWD_SIZE === "number" ? CROWD_SIZE : 1;
     if(!window.MirzaCrowd || size <= 0) return;
     MirzaCrowd.init({gl:gl, boards:BOARD_DEFS, colliders:colliders, bounds:{HX:HX, ZN:ZN, ZF:ZF}, lowQ:lowQ,
-      size:size, scarf:typeof CROWD_WOMEN_SCARF === "number" ? CROWD_WOMEN_SCARF : 0.6});
+      size:size, scarf:typeof CROWD_WOMEN_SCARF === "number" ? CROWD_WOMEN_SCARF : 0.6,
+      trad:typeof CROWD_TRADITIONAL === "number" ? CROWD_TRADITIONAL : 0.3});
     crowdOn = true;
   }catch(e){ console.error("[تالار] آدم‌ها ساخته نشدند:", e); crowdOn = false; }
 }
