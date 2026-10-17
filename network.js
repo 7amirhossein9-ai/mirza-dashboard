@@ -209,6 +209,10 @@ async function getQuote(m){
     try{
       const d = await yahooChart(m.y, "1d", "5m");
       const q = quoteFromYahoo(d);
+      try{
+        const cl = (d.rows || []).map(function(r){ return r.c; });
+        if(cl.length > 2) q.spark = cl.length > 40 ? cl.filter(function(_, i){ return i % Math.ceil(cl.length / 40) === 0; }) : cl;
+      }catch(e){}
       markOk("yahoo");
       return q;
     }catch(e){ markFail("yahoo"); throw new Error("Yahoo: " + (e.details ? e.details.join(" | ") : shortErr(e))); }

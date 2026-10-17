@@ -90,6 +90,7 @@ async function refreshIran(){
     const r = await fetchTgju();
     iran.cur = r.cur; iran.via = r.via; iran.t = Date.now(); iran.stale = false; iran.failed = false;
     try{ localStorage.setItem("mirza_tgju_v1", JSON.stringify({cur:r.cur, t:iran.t})); }catch(e){}
+    try{ recordIranHistory(); }catch(e){}
   }catch(e){
     console.warn("tgju failed:", e.details || e.message);
     iran.failed = true;

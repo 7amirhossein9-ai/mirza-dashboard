@@ -129,10 +129,12 @@ safe("نمودار", function(){ loadChart(); });
 safe("اخبار", function(){ loadNews(); });
 setTimeout(function(){ safe("بازار ایران", refreshIran); }, 1500);
 setTimeout(function(){ safe("کشورها", loadCountries); }, 2500);
+setTimeout(function(){ safe("تاریخچه‌ی قیمت‌ها", loadSparks); }, 6000);
 setTimeout(function(){ safe("سخنان", loadStatements); }, 4000);
 
 /* به‌روزرسانی خودکار */
 setInterval(refreshQuotes, 60 * 1000);
+setInterval(function(){ loadSparks(false); }, 30 * 60 * 1000);
 setInterval(function(){ if(chart.period === "1D" || chart.period === "5D") loadChart(); }, 5 * 60 * 1000);
 setInterval(loadNews, 10 * 60 * 1000);
 setInterval(refreshIran, 2 * 60 * 1000);

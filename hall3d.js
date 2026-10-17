@@ -39,6 +39,7 @@ let locked = false, dragging = false;
 const crypto_ = {t:0, list:null, err:""};
 let anisoExt = null, anisoMax = 1;
 let fontsReady = false;
+let crowdOn = false;       /* آدم‌های تالار (crowd3d.js) */
 
 /* =========================================================
    ریاضی ماتریس (ستونی)
@@ -247,14 +248,113 @@ function dirCol(v){ return v > 0 ? COL.up : v < 0 ? COL.down : COL.muted; }
 function arrow(v){ return v > 0 ? "▲ " : v < 0 ? "▼ " : "● "; }
 function strip(s){ return String(s || "").replace(/<[^>]+>/g, ""); }
 
-/* ردیف قیمت (برای تابلوهای بازار ایران و جهانی) */
-function priceRow(c, colR, y, h, name, sub, priceTxt, pctVal, pctTxt, accent){
+/* =========================================================
+   ابزارهای رسم نمودار روی بوم تابلوها
+========================================================= */
+const PAL = ["#e7c461", "#4aa3ff", "#3ac879", "#c77dff", "#ff9f43", "#26c6da", "#f06292", "#9ccc65"];
+function faNum(n){ return Number.isFinite(n) ? n.toLocaleString("en-US") : "—"; }
+function bigNum(v){
+  if(v == null || !Number.isFinite(v)) return "—";
+  const a = Math.abs(v);
+  if(a >= 1e12) return (v / 1e12).toFixed(2) + "T";
+  if(a >= 1e9) return (v / 1e9).toFixed(1) + "B";
+  if(a >= 1e6) return (v / 1e6).toFixed(1) + "M";
+  return faNum(Math.round(v));
+}
+function pctTxt(p, d){ return p == null || !Number.isFinite(p) ? "—" : (p > 0 ? "+" : p < 0 ? "-" : "") + Math.abs(p).toFixed(d == null ? 2 : d) + "%"; }
+
+/* نمودار خطی کوچک (اسپارک‌لاین). اگر داده نباشد false برمی‌گرداند */
+function spark(c, vals, x, y, w, h, col, o){
+  o = o || {};
+  if(!vals || vals.length < 2) return false;
+  let lo = Infinity, hi = -Infinity;
+  vals.forEach(function(v){ if(Number.isFinite(v)){ lo = Math.min(lo, v); hi = Math.max(hi, v); } });
+  if(!Number.isFinite(lo)) return false;
+  if(hi === lo){ hi += 1; lo -= 1; }
+  const n = vals.length;
+  const X = function(i){ return x + w * i / (n - 1); }, Y = function(v){ return y + h - (v - lo) / (hi - lo) * h; };
+  col = col || dirCol(vals[n - 1] - vals[0]);
+  if(o.fill !== false){
+    const g = c.createLinearGradient(0, y, 0, y + h);
+    g.addColorStop(0, col + "55"); g.addColorStop(1, col + "00");
+    c.beginPath(); c.moveTo(X(0), y + h);
+    vals.forEach(function(v, i){ c.lineTo(X(i), Y(v)); });
+    c.lineTo(X(n - 1), y + h); c.closePath(); c.fillStyle = g; c.fill();
+  }
+  c.beginPath();
+  vals.forEach(function(v, i){ i ? c.lineTo(X(i), Y(v)) : c.moveTo(X(i), Y(v)); });
+  c.strokeStyle = col; c.lineWidth = o.lw || 3; c.lineJoin = "round"; c.stroke();
+  c.fillStyle = col; c.beginPath(); c.arc(X(n - 1), Y(vals[n - 1]), (o.lw || 3) + 1.5, 0, 7); c.fill();
+  return true;
+}
+/* میله‌ی دامنه‌ی روز: جای قیمت میان کمترین و بیشترین */
+function rangeBar(c, lo, hi, price, x, y, w, col){
+  c.fillStyle = "#1c2430"; rrect(c, x, y, w, 12, 6, "#1c2430");
+  if(!(hi > lo)) return;
+  const p = clamp((price - lo) / (hi - lo), 0, 1);
+  const g = c.createLinearGradient(x, 0, x + w, 0); g.addColorStop(0, COL.down); g.addColorStop(0.5, COL.warn); g.addColorStop(1, COL.up);
+  rrect(c, x, y, w, 12, 6, g);
+  c.fillStyle = "#fff"; c.beginPath(); c.arc(x + w * p, y + 6, 11, 0, 7); c.fill();
+  c.strokeStyle = col || COL.gold; c.lineWidth = 4; c.stroke();
+}
+/* حلقه‌ی سهم‌ها */
+function donut(c, cx, cy, r, r2, parts){
+  const tot = parts.reduce(function(a, p){ return a + Math.max(0, p.v); }, 0) || 1;
+  let a0 = -Math.PI / 2;
+  parts.forEach(function(p){
+    const a1 = a0 + Math.max(0, p.v) / tot * Math.PI * 2;
+    c.beginPath(); c.arc(cx, cy, r, a0, a1); c.arc(cx, cy, r2, a1, a0, true); c.closePath();
+    c.fillStyle = p.c; c.fill(); c.strokeStyle = "#0d121b"; c.lineWidth = 3; c.stroke();
+    a0 = a1;
+  });
+}
+/* ساعت گرایش بازار؛ v بین ۱- تا ۱+ */
+function gauge(c, cx, cy, r, v){
+  const segs = [[COL.down, 0], [COL.warn, 0.5], [COL.up, 1]];
+  for(let i = 0; i < 36; i++){
+    const t0 = i / 36, t1 = (i + 1) / 36 - 0.004;
+    const a0 = Math.PI + t0 * Math.PI, a1 = Math.PI + t1 * Math.PI;
+    const k = (t0 + t1) / 2;
+    const col = k < 0.5 ? mix(COL.down, COL.warn, k / 0.5) : mix(COL.warn, COL.up, (k - 0.5) / 0.5);
+    c.beginPath(); c.arc(cx, cy, r, a0, a1); c.arc(cx, cy, r - 46, a1, a0, true); c.closePath(); c.fillStyle = col; c.fill();
+  }
+  const ang = Math.PI + (clamp(v, -1, 1) + 1) / 2 * Math.PI;
+  c.strokeStyle = "#f3f3f3"; c.lineWidth = 10; c.lineCap = "round";
+  c.beginPath(); c.moveTo(cx, cy); c.lineTo(cx + Math.cos(ang) * (r - 14), cy + Math.sin(ang) * (r - 14)); c.stroke(); c.lineCap = "butt";
+  c.fillStyle = "#f3f3f3"; c.beginPath(); c.arc(cx, cy, 20, 0, 7); c.fill();
+  c.fillStyle = "#111823"; c.beginPath(); c.arc(cx, cy, 9, 0, 7); c.fill();
+}
+function hex2rgb(h){ return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)]; }
+function mix(a, b, t){
+  const x = hex2rgb(a), y = hex2rgb(b);
+  return "rgb(" + [0, 1, 2].map(function(i){ return Math.round(x[i] + (y[i] - x[i]) * t); }).join(",") + ")";
+}
+/* چیپ کوچک عددی */
+function chip(c, xr, y, label, val, col){
+  const w = 250, h = 62;
+  rrect(c, xr - w, y, w, h, 12, "#0f1520");
+  T(c, label, xr - 14, y + 18, {s:22, c:COL.muted, max:w - 28});
+  N(c, val, xr - 14, y + 44, {s:30, w:700, c:col || COL.text, max:w - 28});
+}
+/* سطر یک بازار: نام | قیمت | درصد | نمودار */
+function marketRow(c, colR, y, h, o){
   rrect(c, colR - 940, y, 940, h - 12, 18, COL.card);
-  c.fillStyle = accent || dirCol(pctVal); c.fillRect(colR - 8, y + 14, 8, h - 40);
-  T(c, name, colR - 28, y + (sub ? 30 : (h - 12) / 2), {s:44, w:700, max:300});
-  if(sub) T(c, sub, colR - 28, y + 72, {s:26, c:COL.muted, max:300});
-  N(c, priceTxt, colR - 360, y + (h - 12) / 2, {s:50, w:700, c:COL.gold, max:330});
-  if(pctTxt != null) N(c, (pctVal != null ? arrow(pctVal) : "") + pctTxt, colR - 700, y + (h - 12) / 2, {s:38, w:700, c:dirCol(pctVal), max:230});
+  c.fillStyle = o.accent || dirCol(o.pct); c.fillRect(colR - 8, y + 14, 8, h - 40);
+  T(c, o.name, colR - 28, y + (o.sub ? 32 : (h - 12) / 2), {s:42, w:700, max:290});
+  if(o.sub) T(c, o.sub, colR - 28, y + 72, {s:25, c:COL.muted, max:290});
+  N(c, o.price, colR - 338, y + (h - 12) / 2, {s:44, w:700, c:COL.gold, max:222});
+  if(o.pctTxt != null) N(c, (o.pct != null ? arrow(o.pct) : "") + o.pctTxt, colR - 590, y + (h - 12) / 2, {s:33, w:700, c:dirCol(o.pct), max:150});
+  const cx = colR - 925, cw = 165;
+  let drew = false;
+  if(o.spark && spark(c, o.spark, cx, y + 16, cw, 48, o.sparkCol)){ drew = true; if(o.sparkCap) T(c, o.sparkCap, cx + cw, y + h - 22, {s:19, c:COL.muted, a:"right", max:cw}); }
+  else if(o.lo != null && o.hi != null && o.hi > o.lo){
+    rangeBar(c, o.lo, o.hi, o.rawPrice, cx + 8, y + 30, cw - 16, o.accent);
+    N(c, o.loTxt, cx + 4, y + h - 24, {s:19, c:COL.muted, a:"left", max:80}); N(c, o.hiTxt, cx + cw - 4, y + h - 24, {s:19, c:COL.muted, a:"right", max:80});
+    drew = true;
+  }
+  if(!drew && o.prev != null && o.rawPrice != null){
+    spark(c, [o.prev, o.rawPrice], cx, y + 16, cw, 48, null, {lw:4}); T(c, "دیروز ← امروز", cx + cw, y + h - 22, {s:19, c:COL.muted, a:"right"});
+  }
 }
 
 /* =========================================================
@@ -263,22 +363,39 @@ function priceRow(c, colR, y, h, name, sub, priceTxt, pctVal, pctTxt, accent){
 function drawWelcome(c){
   chrome(c, "به میرزا خوش آمدید", "تالار سه‌بعدی بازارهای مالی", COL.gold);
   const img = document.getElementById("logoImg");
-  try{ if(img && img.complete && img.naturalWidth) c.drawImage(img, 1560, 220, 380, 380); }catch(e){}
-  T(c, "هر اتفاق، یک اثر؛ هر اثر، یک تحلیل", 1500, 300, {s:62, w:700, a:"right", max:1300});
-  T(c, "قیمت زنده، تحلیل بازار و اخبار فارسی؛ همه روی تابلوهای این تالار", 1500, 390, {s:38, c:COL.muted, max:1300});
+  try{ if(img && img.complete && img.naturalWidth) c.drawImage(img, 1690, 180, 300, 300); }catch(e){}
+  T(c, "هر اتفاق، یک اثر؛", 1650, 250, {s:56, w:700, a:"right", c:COL.gold, max:560});
+  T(c, "هر اثر، یک تحلیل", 1650, 322, {s:56, w:700, a:"right", max:560});
+  T(c, "قیمت زنده و تحلیل بازار", 1650, 392, {s:34, c:COL.muted, max:560});
+  T(c, "روی تابلوهای این تالار", 1650, 438, {s:34, c:COL.muted, max:560});
   const rows = [["حرکت", ["W", "A", "S", "D"]], ["دویدن", ["Shift"]], ["نگاه کردن", ["ماوس"]], ["جزئیات تابلو", ["E"]], ["پرش به تابلو", ["1", "…", "9"]]];
   rows.forEach(function(r, i){
-    const y = 520 + i * 90;
-    T(c, r[0], 1960, y, {s:42, w:700});
+    const y = 560 + i * 86;
+    T(c, r[0], 1990, y, {s:38, w:700});
     let x = 1640;
     r[1].forEach(function(k){
-      const w = k.length > 2 ? 150 : 76;
-      rrect(c, x - w, y - 32, w, 64, 12, "#1b2331", COL.line);
-      if(/[A-Za-z0-9…]/.test(k)) N(c, k, x - w / 2, y, {a:"center", s:34, w:700, c:COL.gold}); else T(c, k, x - w / 2, y, {a:"center", s:32, c:COL.gold});
-      x -= w + 14;
+      const w = k.length > 2 ? 150 : 72;
+      rrect(c, x - w, y - 30, w, 60, 12, "#1b2331", COL.line);
+      if(/[A-Za-z0-9…]/.test(k)) N(c, k, x - w / 2, y, {a:"center", s:32, w:700, c:COL.gold}); else T(c, k, x - w / 2, y, {a:"center", s:30, c:COL.gold});
+      x -= w + 12;
     });
   });
-  T(c, "برای ورود به هر بخش به تابلوی آن نزدیک شوید و دکمه‌ی E را بزنید", 1000, 975, {s:32, c:COL.muted, a:"center"});
+  /* چهار کارت زنده با نمودار */
+  const feat = ["gold", "btc", "eth", "oil"];
+  feat.forEach(function(id, i){
+    const m = MARKETS.find(function(x){ return x.id === id; }), q = quotes[id];
+    const x = 40 + (i % 2) * 520, y = 180 + Math.floor(i / 2) * 400, w = 500, h = 384;
+    rrect(c, x, y, w, h, 20, COL.card);
+    c.fillStyle = q ? dirCol(q.pct) : COL.muted; c.fillRect(x + w - 8, y + 18, 8, h - 36);
+    T(c, m.name, x + w - 30, y + 46, {s:40, w:700, max:420});
+    T(c, m.unit, x + w - 30, y + 90, {s:25, c:COL.muted, max:420});
+    if(!q){ T(c, "در حال دریافت…", x + w - 30, y + 190, {s:34, c:COL.muted}); return; }
+    N(c, fmt(q.price, m.dec), x + w - 30, y + 160, {s:64, w:700, c:COL.gold, max:440});
+    N(c, arrow(q.pct) + pctTxt(q.pct), x + w - 30, y + 222, {s:42, w:700, c:dirCol(q.pct)});
+    if(!spark(c, sparkOf(id), x + 30, y + 250, w - 80, 100, null, {lw:4})){
+      if(q.lo != null && q.hi != null){ rangeBar(c, q.lo, q.hi, q.price, x + 50, y + 290, w - 120, COL.gold); N(c, fmt(q.lo, m.dec), x + 50, y + 335, {s:22, c:COL.muted, a:"left"}); N(c, fmt(q.hi, m.dec), x + w - 70, y + 335, {s:22, c:COL.muted, a:"right"}); }
+    }
+  });
 }
 
 function drawIran(c){
@@ -292,23 +409,36 @@ function drawIran(c){
     return;
   }
   list.slice(0, 14).forEach(function(r, i){
-    const col = i < 7 ? 2010 : 1000, row = i % 7, y = 180 + row * 118;
-    const d = r.def;
-    priceRow(c, col, y, 118, d.title, d.sub, fmtInt(r.market), r.pct, r.pct != null ? fmtPct(r.pct) : null);
+    const col = i < 7 ? 2010 : 1000, row = i % 7, y = 180 + row * 112;
+    const d = r.def, sp = iranSparkOf(r.id);
+    marketRow(c, col, y, 112, {name:d.title, sub:d.sub, price:fmtInt(r.market), pct:r.pct, pctTxt:r.pct != null ? pctTxt(r.pct) : null,
+      spark:sp, sparkCap:"روند ثبت‌شده", lo:r.lo, hi:r.hi, rawPrice:r.market, loTxt:fmtInt(r.lo), hiTxt:fmtInt(r.hi)});
   });
-  const usd = R.usd;
-  if(usd) T(c, "واحد قیمت‌ها: تومان", 2004, 1000, {s:30, c:COL.muted});
+  const up = list.filter(function(r){ return r.pct > 0; }).length, dn = list.filter(function(r){ return r.pct < 0; }).length;
+  T(c, "واحد قیمت‌ها: تومان", 2004, 992, {s:28, c:COL.muted});
+  if(R.usd) { T(c, "دلار", 1600, 992, {s:28, c:COL.muted}); N(c, fmtInt(R.usd), 1540, 992, {s:30, w:700, c:COL.gold}); }
+  if(R.oz) { T(c, "اونس جهانی", 1250, 992, {s:28, c:COL.muted}); N(c, "$" + fmt(R.oz, 2), 1130, 992, {s:30, w:700, c:COL.gold}); }
+  T(c, "صعودی", 860, 992, {s:28, c:COL.muted}); N(c, String(up), 760, 992, {s:30, w:700, c:COL.up});
+  T(c, "نزولی", 700, 992, {s:28, c:COL.muted}); N(c, String(dn), 640, 992, {s:30, w:700, c:COL.down});
+  T(c, "تعداد نمونه‌ی ثبت‌شده", 500, 992, {s:28, c:COL.muted}); N(c, String(iranHist.t.length), 190, 992, {s:30, w:700, c:COL.text});
 }
 
 function drawWorld(c){
-  const q = document.getElementById("quotesStatus");
-  chrome(c, "بازارهای جهانی", q ? q.textContent : "", COL.blue);
+  const q0 = document.getElementById("quotesStatus");
+  chrome(c, "بازارهای جهانی", q0 ? q0.textContent : "", COL.blue);
   const have = MARKETS.filter(function(m){ return quotes[m.id]; });
   if(!have.length){ emptyMsg(c, "قیمت‌های جهانی در حال دریافت است", "کمی صبر کنید…"); return; }
   have.slice(0, 14).forEach(function(m, i){
-    const col = i < 7 ? 2010 : 1000, row = i % 7, y = 180 + row * 118, qt = quotes[m.id];
-    priceRow(c, col, y, 118, m.name, m.unit, fmt(qt.price, m.dec), qt.pct, qt.pct != null ? fmtPct(qt.pct) : null);
+    const col = i < 7 ? 2010 : 1000, row = i % 7, y = 180 + row * 112, qt = quotes[m.id];
+    marketRow(c, col, y, 112, {name:m.name, sub:m.unit, price:fmt(qt.price, m.dec), pct:qt.pct, pctTxt:qt.pct != null ? pctTxt(qt.pct) : null,
+      spark:sparkOf(m.id), sparkCap:sparks[m.id] ? "۳۰ روز" : "امروز", lo:qt.lo, hi:qt.hi, rawPrice:qt.price, loTxt:fmt(qt.lo, m.dec), hiTxt:fmt(qt.hi, m.dec), prev:qt.prev});
   });
+  const up = have.filter(function(m){ return quotes[m.id].pct > 0; }).length, dn = have.filter(function(m){ return quotes[m.id].pct < 0; }).length;
+  const pcts = have.map(function(m){ return quotes[m.id].pct; }).filter(function(v){ return v != null; });
+  const avg = pcts.length ? pcts.reduce(function(a, b){ return a + b; }, 0) / pcts.length : null;
+  T(c, "بازار صعودی", 2004, 992, {s:28, c:COL.muted}); N(c, up + " / " + have.length, 1790, 992, {s:30, w:700, c:COL.up});
+  T(c, "بازار نزولی", 1640, 992, {s:28, c:COL.muted}); N(c, dn + " / " + have.length, 1430, 992, {s:30, w:700, c:COL.down});
+  T(c, "میانگین تغییر روز", 1260, 992, {s:28, c:COL.muted}); N(c, pctTxt(avg), 1000, 992, {s:30, w:700, c:dirCol(avg)});
 }
 
 const FA_COIN = {bitcoin:"بیت‌کوین", ethereum:"اتریوم", tether:"تتر", binancecoin:"بایننس‌کوین", solana:"سولانا", ripple:"ریپل", "usd-coin":"یواس‌دی‌کوین", dogecoin:"دوج‌کوین", cardano:"کاردانو", tron:"ترون", toncoin:"تون‌کوین", "staked-ether":"استیکد اتر", chainlink:"چین‌لینک", avalanche:"آوالانچ", "the-open-network":"تون‌کوین"};
@@ -318,29 +448,47 @@ function drawCrypto(c){
   if(!list){
     list = [];
     ["btc", "eth"].forEach(function(id){
-      if(quotes[id]) list.push({id:id === "btc" ? "bitcoin" : "ethereum", symbol:id === "btc" ? "BTC" : "ETH", name:id, price:quotes[id].price, pct:quotes[id].pct, mcap:null, spark:null});
+      if(quotes[id]) list.push({id:id === "btc" ? "bitcoin" : "ethereum", symbol:id === "btc" ? "BTC" : "ETH", name:id, price:quotes[id].price, pct:quotes[id].pct, mcap:null, spark:sparkOf(id)});
     });
     if(!list.length){ emptyMsg(c, "قیمت رمزارزها در حال دریافت است", crypto_.err ? "منبع CoinGecko پاسخ نداد: " + crypto_.err : "کمی صبر کنید…"); return; }
   }
-  const x = {rank:1996, name:1930, price:1290, pct:900, spark:820, mcap:96};
-  T(c, "نام", x.name, 190, {s:30, c:COL.muted}); T(c, "قیمت", x.price, 190, {s:30, c:COL.muted, a:"right"});
-  T(c, "تغییر ۲۴ ساعته", x.pct, 190, {s:30, c:COL.muted, a:"right"}); T(c, "روند ۷ روز", x.spark - 140, 190, {s:30, c:COL.muted, a:"center"});
-  T(c, "ارزش بازار", 340, 190, {s:30, c:COL.muted, a:"left", dir:"rtl"});
-  list.slice(0, 10).forEach(function(k, i){
-    const y = 220 + i * 78;
-    rrect(c, 40, y, 1968, 68, 14, i % 2 ? "#0f1520" : COL.card);
-    N(c, String(i + 1), x.rank, y + 34, {s:34, c:COL.muted});
-    T(c, FA_COIN[k.id] || k.name, x.name, y + 34, {s:40, w:700, max:330});
-    N(c, String(k.symbol || "").toUpperCase(), x.name - 360, y + 34, {s:30, c:COL.muted, a:"right"});
-    N(c, "$" + fmt(k.price), x.price, y + 34, {s:44, w:700, c:COL.gold, max:340});
-    if(k.pct != null) N(c, arrow(k.pct) + Math.abs(k.pct).toFixed(2) + "%", x.pct, y + 34, {s:38, w:700, c:dirCol(k.pct)});
-    if(k.spark && k.spark.length > 3){
-      const s = k.spark, lo = Math.min.apply(null, s), hi = Math.max.apply(null, s), sx = 560, sw = 260;
-      c.strokeStyle = dirCol(s[s.length - 1] - s[0]); c.lineWidth = 3; c.beginPath();
-      s.forEach(function(v, j){ const px = sx + sw * j / (s.length - 1), py = y + 58 - (v - lo) / ((hi - lo) || 1) * 46; j ? c.lineTo(px, py) : c.moveTo(px, py); });
-      c.stroke();
-    }
-    if(k.mcap != null) N(c, "$" + (k.mcap >= 1e12 ? (k.mcap / 1e12).toFixed(2) + "T" : (k.mcap / 1e9).toFixed(1) + "B"), 340, y + 34, {s:32, c:COL.muted});
+  list = list.slice(0, 10);
+  /* پنل چپ: سهم از ارزش بازار + شمارنده‌ها */
+  rrect(c, 40, 180, 570, 820, 20, COL.card);
+  const withCap = list.filter(function(k){ return k.mcap != null; });
+  const tot = withCap.reduce(function(a, k){ return a + k.mcap; }, 0);
+  T(c, "سهم از ارزش بازار", 590, 222, {s:36, w:700, c:COL.gold});
+  if(withCap.length){
+    const top = withCap.slice(0, 5), others = tot - top.reduce(function(a, k){ return a + k.mcap; }, 0);
+    const parts = top.map(function(k, i){ return {v:k.mcap, c:PAL[i]}; }); if(others > 0) parts.push({v:others, c:"#566070"});
+    donut(c, 325, 450, 150, 92, parts);
+    T(c, "مجموع", 325, 425, {s:26, c:COL.muted, a:"center"}); N(c, "$" + bigNum(tot), 325, 470, {s:38, w:700, a:"center", c:COL.gold, max:170});
+    top.concat(others > 0 ? [{symbol:"سایر", mcap:others, other:true}] : []).forEach(function(k, i){
+      const y = 650 + i * 48, col = k.other ? "#566070" : PAL[i];
+      c.fillStyle = col; c.fillRect(570, y - 11, 22, 22);
+      if(k.other) T(c, "سایر", 540, y, {s:30}); else N(c, String(k.symbol || "").toUpperCase(), 540, y, {s:30, w:700});
+      N(c, (k.mcap / tot * 100).toFixed(1) + "%", 90, y, {s:30, w:700, c:COL.text, a:"left"});
+    });
+  }else{
+    T(c, "ارزش بازار در دسترس نیست", 325, 450, {s:30, c:COL.muted, a:"center", max:480});
+  }
+  const upN = list.filter(function(k){ return k.pct > 0; }).length, dnN = list.filter(function(k){ return k.pct < 0; }).length;
+  T(c, "صعودی در ۲۴ ساعت", 590, 950, {s:26, c:COL.muted}); N(c, String(upN), 350, 950, {s:34, w:700, c:COL.up});
+  T(c, "نزولی", 290, 950, {s:26, c:COL.muted}); N(c, String(dnN), 150, 950, {s:34, w:700, c:COL.down});
+
+  /* جدول */
+  T(c, "نام", 1950, 192, {s:26, c:COL.muted}); T(c, "قیمت", 1650, 192, {s:26, c:COL.muted, a:"right"});
+  T(c, "۲۴ ساعت", 1410, 192, {s:26, c:COL.muted, a:"right"}); T(c, "ارزش بازار", 1240, 192, {s:26, c:COL.muted, a:"right"}); T(c, "روند ۷ روز", 840, 192, {s:26, c:COL.muted, a:"center"});
+  list.forEach(function(k, i){
+    const y = 212 + i * 79;
+    rrect(c, 640, y, 1368, 71, 14, i % 2 ? "#0f1520" : COL.card);
+    N(c, String(i + 1), 1992, y + 36, {s:30, c:COL.muted});
+    T(c, FA_COIN[k.id] || k.name, 1950, y + 26, {s:36, w:700, max:260});
+    N(c, String(k.symbol || "").toUpperCase(), 1950, y + 58, {s:21, c:COL.muted, a:"right"});
+    N(c, "$" + fmt(k.price), 1668, y + 36, {s:38, w:700, c:COL.gold, max:210});
+    if(k.pct != null) N(c, arrow(k.pct) + Math.abs(k.pct).toFixed(2) + "%", 1410, y + 36, {s:30, w:700, c:dirCol(k.pct), max:140});
+    if(k.mcap != null) N(c, "$" + bigNum(k.mcap), 1240, y + 36, {s:28, c:COL.text, max:150});
+    spark(c, k.spark, 668, y + 12, 330, 48, null, {lw:3});
   });
 }
 
@@ -407,21 +555,55 @@ function drawCountries(c){
     T(c, "رتبه‌ی جهانی", 1280, 912, {s:28, c:COL.muted}); N(c, base.rank ? base.rank + " / " + base.total : "—", 1280, 960, {s:44, w:700});
     T(c, ind.level ? "رشد سالانه‌ی ترکیبی" : "تغییر در بازه", 900, 912, {s:28, c:COL.muted});
     N(c, base.chg != null ? (base.chg > 0 ? "+" : "") + base.chg.toFixed(2) + (ind.level ? "%" : "") : "—", 900, 960, {s:44, w:700, c:base.chg != null ? dirCol(base.chg) : COL.text});
-    if(cs.fc){ const k = cs.fc.years.length - 1; T(c, "پیش‌بینی", 520, 912, {s:28, c:COL.muted}); N(c, fmtWBShort(ind, cs.fc.mid[k]) + "  (" + cs.fc.years[k] + ")", 520, 960, {s:40, w:700, c:"#b59a4f", max:420}); }
+    if(cs.fc){ const k = cs.fc.years.length - 1; T(c, "پیش‌بینی " + cs.fc.years[cs.fc.years.length - 1], 520, 912, {s:28, c:COL.muted}); N(c, fmtWBShort(ind, cs.fc.mid[k]), 520, 960, {s:40, w:700, c:"#b59a4f", max:420}); }
   }
 }
+
+
 
 function drawNews(c){
   chrome(c, "آخرین اخبار فارسی", news.shownTitle || "تازه‌ترین", COL.blue);
   const items = news.items;
   if(!items || !items.length){ emptyMsg(c, "اخبار در حال دریافت است", "اگر این پیام می‌ماند، سرویس‌های خبر پاسخ نمی‌دهند."); return; }
-  items.slice(0, 7).forEach(function(it, i){
-    const y = 178 + i * 118;
-    rrect(c, 40, y, 1968, 106, 16, COL.card);
-    c.fillStyle = COL.blue; c.fillRect(2000, y + 12, 8, 82);
-    const lines = wrapRtl(c, it.title, 1840, 36, 700, 2);
-    lines.forEach(function(l, k){ T(c, l, 1970, y + 30 + k * 44, {s:36, w:700}); });
-    T(c, (it.source || "") + (it.date ? "  ·  " + relTime(it.date) : ""), 1970, y + 96, {s:24, c:COL.muted, max:1500});
+  /* پنل چپ: آمار و نمودار */
+  rrect(c, 40, 180, 570, 820, 20, COL.card);
+  const now = Date.now(), bk = new Array(8).fill(0), src = {};
+  let newest = 0;
+  items.forEach(function(it){
+    if(it.source) src[it.source] = (src[it.source] || 0) + 1;
+    if(it.date){ newest = Math.max(newest, it.date); const h = (now - it.date) / 3600000; if(h >= 0 && h < 24) bk[7 - Math.floor(h / 3)]++; }
+  });
+  const srcList = Object.keys(src).map(function(k){ return [k, src[k]]; }).sort(function(a, b){ return b[1] - a[1]; });
+  T(c, "آمار خبرها", 590, 222, {s:36, w:700, c:COL.gold});
+  chip(c, 590, 250, "تعداد خبر", String(items.length), COL.gold);
+  chip(c, 330, 250, "تعداد منبع", String(srcList.length), COL.blue);
+  T(c, "خبر در هر ۳ ساعتِ ۲۴ ساعت اخیر", 590, 352, {s:26, c:COL.muted, max:540});
+  const mx = Math.max.apply(null, bk.concat([1])), bx = 70, bw = 56, base = 560;
+  bk.forEach(function(v, i){
+    const h = v / mx * 150, x = bx + i * 62;
+    rrect(c, x, base - Math.max(h, 4), bw, Math.max(h, 4), 8, v ? COL.blue : "#1c2430");
+    N(c, String(v), x + bw / 2, base - Math.max(h, 4) - 18, {s:24, c:COL.text, a:"center"});
+  });
+  T(c, "۲۴ ساعت پیش", 70, base + 28, {s:22, c:COL.muted, a:"left"}); T(c, "اکنون", 570, base + 28, {s:22, c:COL.muted, a:"right"});
+  T(c, "پرخبرترین منابع", 590, 650, {s:30, c:COL.muted});
+  const smax = srcList.length ? srcList[0][1] : 1;
+  srcList.slice(0, 5).forEach(function(s, i){
+    const y = 700 + i * 54;
+    T(c, s[0], 590, y, {s:26, max:200});
+    const w = Math.max(10, s[1] / smax * 200);
+    c.fillStyle = PAL[i % PAL.length]; c.fillRect(350 - w, y - 12, w, 24);
+    N(c, String(s[1]), 70, y, {s:26, w:700, a:"left"});
+  });
+  if(newest){ T(c, "تازه‌ترین خبر: " + relTime(newest), 590, 975, {s:24, c:COL.muted, max:540}); }
+
+  /* لیست خبرها */
+  items.slice(0, 6).forEach(function(it, i){
+    const y = 180 + i * 138;
+    rrect(c, 640, y, 1368, 126, 16, COL.card);
+    c.fillStyle = COL.blue; c.fillRect(2000, y + 12, 8, 102);
+    const lines = wrapRtl(c, it.title, 1280, 36, 700, 2);
+    lines.forEach(function(l, k){ T(c, l, 1975, y + 34 + k * 44, {s:36, w:700}); });
+    T(c, (it.source || "") + (it.date ? "  ·  " + relTime(it.date) : ""), 1975, y + 112, {s:24, c:COL.muted, max:1200});
   });
 }
 
@@ -434,42 +616,96 @@ function drawStatements(c){
   let items = all.filter(function(i){ return i.an.topics.length; });
   if(!items.length) items = all;
   if(!items.length){ emptyMsg(c, "سخنان مقامات در حال دریافت است", "اگر این پیام می‌ماند، منابع پاسخ نمی‌دهند."); return; }
+
+  /* پنل چپ: شمارنده‌ها */
+  rrect(c, 40, 180, 570, 820, 20, COL.card);
+  T(c, "آمار تحلیل", 590, 222, {s:36, w:700, c:COL.gold});
+  chip(c, 590, 250, "کل مورد", String(all.length), COL.gold);
+  chip(c, 330, 250, "مرتبط با بازار", String(all.filter(function(i){ return i.an.topics.length; }).length), COL.warn);
+  const lv = {high:0, mid:0, low:0}; all.forEach(function(i){ lv[i.an.importance.level]++; });
+  T(c, "اهمیت بازاری", 590, 372, {s:28, c:COL.muted});
+  [["بالا", lv.high, COL.down], ["متوسط", lv.mid, COL.warn], ["کم", lv.low, COL.muted]].forEach(function(r, i){
+    const y = 425 + i * 58, w = Math.max(8, r[1] / (all.length || 1) * 330);
+    T(c, r[0], 590, y, {s:28});
+    c.fillStyle = r[2]; c.fillRect(470 - w, y - 15, w, 30);
+    N(c, String(r[1]), 70, y, {s:28, w:700, a:"left"});
+  });
+  const tp = {}; all.forEach(function(i){ i.an.topics.forEach(function(t){ tp[t.fa] = (tp[t.fa] || 0) + 1; }); });
+  const tl = Object.keys(tp).map(function(k){ return [k, tp[k]]; }).sort(function(a, b){ return b[1] - a[1]; }).slice(0, 5);
+  T(c, "پرتکرارترین موضوع‌ها", 590, 640, {s:28, c:COL.muted});
+  const tmax = tl.length ? tl[0][1] : 1;
+  tl.forEach(function(t, i){
+    const y = 695 + i * 56, w = Math.max(10, t[1] / tmax * 200);
+    T(c, t[0], 590, y, {s:26, max:230});
+    c.fillStyle = PAL[i % PAL.length]; c.fillRect(350 - w, y - 12, w, 24);
+    N(c, String(t[1]), 70, y, {s:26, w:700, a:"left"});
+  });
+
+  /* کارت‌ها */
   items.slice(0, 4).forEach(function(it, i){
-    const y = 178 + i * 208, a = it.an;
-    rrect(c, 40, y, 1968, 196, 18, COL.card);
-    c.fillStyle = a.importance.level === "high" ? COL.down : a.importance.level === "mid" ? COL.warn : COL.muted; c.fillRect(2000, y + 14, 8, 168);
-    T(c, it.who, 1970, y + 34, {s:36, w:700, c:COL.gold, max:1400});
-    T(c, a.importance.label, 560, y + 34, {s:28, c:a.importance.level === "high" ? COL.down : a.importance.level === "mid" ? COL.warn : COL.muted, a:"left"});
-    const lines = wrapRtl(c, a.summary, 1880, 31, 400, 3);
-    lines.forEach(function(l, k){ T(c, l, 1970, y + 84 + k * 42, {s:31, c:"#d5d9e0"}); });
+    const y = 180 + i * 208, a = it.an;
+    rrect(c, 640, y, 1368, 196, 18, COL.card);
+    const lc = a.importance.level === "high" ? COL.down : a.importance.level === "mid" ? COL.warn : COL.muted;
+    c.fillStyle = lc; c.fillRect(2000, y + 14, 8, 168);
+    T(c, it.who, 1975, y + 32, {s:32, w:700, c:COL.gold, max:1000});
+    T(c, a.importance.label, 680, y + 32, {s:24, c:lc, a:"left"});
+    const lines = wrapRtl(c, a.summary, 1290, 27, 400, 2);
+    lines.forEach(function(l, k){ T(c, l, 1975, y + 76 + k * 36, {s:27, c:"#d5d9e0"}); });
+    /* واکنش قیمت ۳۰ دقیقه پس از انتشار */
+    let x = 1975, shown = 0;
+    if(it.date && Date.now() - it.date >= 30 * 60000){
+      REACT_ASSETS.forEach(function(as){
+        const d = intra[as.id]; if(!d || !d.rows || !d.rows.length) return;
+        const p = reactionPct(d.rows, it.date, 30 * 60000); if(p == null) return;
+        rrect(c, x - 230, y + 138, 224, 44, 10, "#0f1520");
+        T(c, as.name.replace("آتی ", ""), x - 14, y + 160, {s:22, c:COL.muted, max:96});
+        N(c, pctTxt(p), x - 120, y + 160, {s:26, w:700, c:dirCol(p), a:"right", max:100});
+        x -= 238; shown++;
+      });
+    }
+    if(!shown) T(c, "واکنش ۳۰ دقیقه‌ای قیمت: هنوز محاسبه نشده", 1975, y + 160, {s:22, c:COL.muted});
   });
 }
 
 function drawPulse(c){
   chrome(c, "نبض بازار امروز", "گرایش ریسک‌پذیری یا ریسک‌گریزی", COL.gold);
-  const have = MARKETS.filter(function(m){ return quotes[m.id]; }).length;
-  if(have < 3){ emptyMsg(c, "برای محاسبه‌ی نبض بازار قیمت‌ها لازم است", "کمی صبر کنید…"); return; }
+  const have = MARKETS.filter(function(m){ return quotes[m.id]; });
+  if(have.length < 3){ emptyMsg(c, "برای محاسبه‌ی نبض بازار قیمت‌ها لازم است", "کمی صبر کنید…"); return; }
   const p = computePulse(quotes, MARKETS);
-  T(c, "گرایش کلی بازار", 1990, 215, {s:36, c:COL.muted});
-  T(c, p.label, 1990, 305, {s:96, w:700, c:p.cls === "up" ? COL.up : p.cls === "down" ? COL.down : COL.warn});
-  p.factors.slice(0, 6).forEach(function(f, i){
-    const y = 400 + i * 86;
-    rrect(c, 1010, y, 980, 74, 14, COL.card);
-    T(c, f.name, 1960, y + 37, {s:36, w:700, max:420});
-    N(c, fmtPct(f.pct), 1500, y + 37, {s:38, w:700, c:dirCol(f.pct)});
-    T(c, f.effect > 0 ? "به نفع ریسک‌پذیری" : f.effect < 0 ? "به نفع ریسک‌گریزی" : "بی‌اثر", 1260, y + 37, {s:28, c:COL.muted, a:"right", max:240});
-  });
+  const col = p.cls === "up" ? COL.up : p.cls === "down" ? COL.down : COL.warn;
+  /* ساعت گرایش */
+  rrect(c, 40, 180, 940, 480, 20, COL.card);
+  gauge(c, 510, 500, 300, p.score / 4.5);
+  T(c, "ریسک‌گریز", 170, 530, {s:28, c:COL.down, a:"center"}); T(c, "ریسک‌پذیر", 850, 530, {s:28, c:COL.up, a:"center"});
+  T(c, "گرایش کلی بازار", 510, 535, {s:26, c:COL.muted, a:"center"});
+  T(c, p.label, 510, 590, {s:52, w:700, c:col, a:"center", max:520});
+  N(c, "امتیاز " + (p.score > 0 ? "+" : "") + p.score.toFixed(1) + "  از  ±4.5", 510, 640, {s:28, w:700, c:COL.text, a:"center"});
+  /* کارت‌های عددی */
   const cards = [];
-  if(p.ratios.gs != null) cards.push(["نسبت طلا به نقره", p.ratios.gs.toFixed(1)]);
-  if(p.ratios.go != null) cards.push(["نسبت طلا به نفت", p.ratios.go.toFixed(1)]);
-  if(p.ratios.bg != null) cards.push(["بیت‌کوین بر حسب طلا", p.ratios.bg.toFixed(1)]);
-  if(p.vix != null) cards.push(["شاخص ترس", p.vix.toFixed(2)]);
-  if(p.tnx != null) cards.push(["بازده اوراق ۱۰ ساله", p.tnx.toFixed(2) + "%"]);
-  cards.slice(0, 5).forEach(function(k, i){
-    const y = 215 + i * 150;
-    rrect(c, 50, y, 900, 134, 16, COL.card);
-    T(c, k[0], 920, y + 40, {s:34, c:COL.muted, max:600});
-    N(c, k[1], 920, y + 96, {s:62, w:700, c:COL.gold});
+  if(p.ratios.gs != null) cards.push(["نسبت طلا به نقره", p.ratios.gs.toFixed(1), COL.gold]);
+  if(p.ratios.go != null) cards.push(["نسبت طلا به نفت", p.ratios.go.toFixed(1), COL.gold]);
+  if(p.ratios.bg != null) cards.push(["بیت‌کوین بر حسب طلا", p.ratios.bg.toFixed(1), COL.gold]);
+  if(p.vix != null) cards.push(["شاخص ترس (VIX)", p.vix.toFixed(2), p.vix < 20 ? COL.up : p.vix < 30 ? COL.warn : COL.down]);
+  if(p.tnx != null) cards.push(["بازده اوراق ۱۰ ساله", p.tnx.toFixed(2) + "%", COL.gold]);
+  cards.slice(0, 4).forEach(function(k, i){
+    const x = i % 2 === 0 ? 530 : 40, y = 690 + Math.floor(i / 2) * 160;
+    rrect(c, x, y, 450, 146, 16, COL.card);
+    T(c, k[0], x + 430, y + 40, {s:28, c:COL.muted, max:400});
+    N(c, k[1], x + 430, y + 100, {s:58, w:700, c:k[2], max:400});
+  });
+  /* نمودار میله‌ای تغییر روزانه */
+  rrect(c, 1010, 180, 998, 820, 20, COL.card);
+  T(c, "تغییر روزانه‌ی بازارها (درصد)", 1990, 222, {s:34, w:700, c:COL.gold});
+  const list = have.filter(function(m){ return quotes[m.id].pct != null; }).sort(function(a, b){ return quotes[b.id].pct - quotes[a.id].pct; }).slice(0, 12);
+  const maxA = Math.max.apply(null, list.map(function(m){ return Math.abs(quotes[m.id].pct); }).concat([0.5]));
+  const zeroX = 1330, half = 280;
+  c.strokeStyle = "#2b3544"; c.lineWidth = 2; c.beginPath(); c.moveTo(zeroX, 250); c.lineTo(zeroX, 980); c.stroke();
+  list.forEach(function(m, i){
+    const y = 275 + i * 60, v = quotes[m.id].pct, w = Math.max(4, Math.abs(v) / maxA * half);
+    T(c, m.name, 1985, y, {s:28, max:330});
+    c.fillStyle = dirCol(v);
+    if(v >= 0){ c.fillRect(zeroX, y - 15, w, 30); N(c, pctTxt(v), zeroX + w + 10, y, {s:26, w:700, c:COL.text, a:"left"}); }
+    else { c.fillRect(zeroX - w, y - 15, w, 30); N(c, pctTxt(v), zeroX - w - 10, y, {s:26, w:700, c:COL.text, a:"right"}); }
   });
 }
 
@@ -479,9 +715,10 @@ function drawTech(c){
   if(!rows || rows.length < 20){ emptyMsg(c, "داده‌ی نمودار هنوز دریافت نشده", "برای تحلیل حداقل ۲۰ کندل لازم است."); return; }
   const closes = rows.map(function(r){ return r.c; }), n = closes.length, last = closes[n - 1];
   const s20 = sma(closes, 20), s50 = sma(closes, 50);
+  const hasVol = rows.some(function(r){ return r.v > 0; });
   let lo = Math.min.apply(null, closes), hi = Math.max.apply(null, closes);
-  const pv = (hi - lo) * .06 || 1; lo -= pv; hi += pv;
-  const L = 130, Rr = 1370, Tp = 230, B = 900, pw = Rr - L, ph = B - Tp;
+  const pv = (hi - lo) * .06 || 1; const lo0 = lo, hi0 = hi; lo -= pv; hi += pv;
+  const L = 130, Rr = 1370, Tp = 240, B = hasVol ? 640 : 700, pw = Rr - L, ph = B - Tp;
   const X = function(i){ return L + pw * i / (n - 1); }, Y = function(v){ return Tp + (hi - v) / (hi - lo) * ph; };
   c.strokeStyle = "#1c2430"; c.lineWidth = 1;
   for(let k = 0; k <= 4; k++){ const yy = Tp + ph * k / 4; c.beginPath(); c.moveTo(L, yy); c.lineTo(Rr, yy); c.stroke(); N(c, fmt(hi - (hi - lo) * k / 4, chart.dec), L - 8, yy, {s:24, c:COL.muted, a:"right"}); }
@@ -493,13 +730,31 @@ function drawTech(c){
     c.strokeStyle = p[1]; c.lineWidth = 3; c.stroke();
   });
   c.beginPath(); closes.forEach(function(v, i){ i ? c.lineTo(X(i), Y(v)) : c.moveTo(X(i), Y(v)); }); c.strokeStyle = COL.gold; c.lineWidth = 5; c.stroke();
-  N(c, fmt(last, chart.dec), L, 195, {s:50, w:700, c:COL.gold, a:"left"});
-  T(c, "خط طلایی: قیمت", Rr, 195, {s:26, c:COL.gold, a:"right"}); T(c, "آبی: میانگین ۲۰", Rr - 250, 195, {s:26, c:COL.blue, a:"right"}); T(c, "بنفش: میانگین ۵۰", Rr - 500, 195, {s:26, c:"#c77dff", a:"right"});
+  const chg = (last / rows[0].c - 1) * 100;
+  N(c, fmt(last, chart.dec), L, 200, {s:50, w:700, c:COL.gold, a:"left"});
+  N(c, arrow(chg) + pctTxt(chg), L + 330, 200, {s:36, w:700, c:dirCol(chg), a:"left"});
+  T(c, "خط طلایی: قیمت", Rr, 200, {s:26, c:COL.gold, a:"right"}); T(c, "آبی: میانگین ۲۰", Rr - 250, 200, {s:26, c:COL.blue, a:"right"}); T(c, "بنفش: میانگین ۵۰", Rr - 500, 200, {s:26, c:"#c77dff", a:"right"});
+  let yNext = B + 34;
+  if(hasVol){
+    const vmax = Math.max.apply(null, rows.map(function(r){ return r.v; })) || 1, vb = B + 130, bw = Math.max(1, pw / n * 0.7);
+    T(c, "حجم", Rr, B + 40, {s:24, c:COL.muted});
+    rows.forEach(function(r, i){ const h = r.v / vmax * 80; c.fillStyle = r.c >= r.o ? "rgba(58,200,121,.55)" : "rgba(239,83,80,.55)"; c.fillRect(X(i) - bw / 2, vb - h, bw, h); });
+    N(c, fmtVol(vmax), L - 8, vb - 70, {s:22, c:COL.muted, a:"right"});
+    yNext = vb + 16;
+  }
+  /* نمودار RSI */
+  const rsAll = rsi(closes, 14), rT = yNext + 50, rB = 930;
+  T(c, "شاخص قدرت نسبی (RSI)", Rr, yNext + 24, {s:24, c:COL.muted});
+  c.fillStyle = "rgba(255,255,255,.03)"; c.fillRect(L, rT, pw, rB - rT);
+  [30, 70].forEach(function(lv){ const yy = rB - (lv / 100) * (rB - rT); c.strokeStyle = lv === 70 ? "rgba(239,83,80,.5)" : "rgba(58,200,121,.5)"; c.setLineDash([10, 8]); c.beginPath(); c.moveTo(L, yy); c.lineTo(Rr, yy); c.stroke(); c.setLineDash([]); N(c, String(lv), L - 8, yy, {s:22, c:COL.muted, a:"right"}); });
+  c.beginPath(); let rs0 = false;
+  rsAll.forEach(function(v, i){ if(v == null) return; const yy = rB - (v / 100) * (rB - rT); if(!rs0){ c.moveTo(X(i), yy); rs0 = true; } else c.lineTo(X(i), yy); });
+  c.strokeStyle = "#c77dff"; c.lineWidth = 3; c.stroke();
   const t0 = rows[0].t, t1 = rows[n - 1].t;
-  try{ const f = new Intl.DateTimeFormat("en-GB", {day:"2-digit", month:"short", year:"numeric", timeZone:"Asia/Tehran"}); N(c, f.format(new Date(t0)), L, B + 36, {s:24, c:COL.muted, a:"left"}); N(c, f.format(new Date(t1)), Rr, B + 36, {s:24, c:COL.muted, a:"right"}); }catch(e){}
+  try{ const f = new Intl.DateTimeFormat("en-GB", {day:"2-digit", month:"short", year:"numeric", timeZone:"Asia/Tehran"}); N(c, f.format(new Date(t0)), L, rB + 30, {s:24, c:COL.muted, a:"left"}); N(c, f.format(new Date(t1)), Rr, rB + 30, {s:24, c:COL.muted, a:"right"}); }catch(e){}
 
   /* ستون شاخص‌ها */
-  const rs = lastValid(rsi(closes, 14)), mc = macd(closes, 12, 26, 9), mh = lastValid(mc.hist);
+  const rs = lastValid(rsAll), mc = macd(closes, 12, 26, 9), mh = lastValid(mc.hist);
   const a20 = lastValid(s20), a50 = n >= 50 ? lastValid(s50) : null;
   let score = 0;
   if(a20 != null) score += last > a20 ? 1 : -1;
@@ -507,39 +762,66 @@ function drawTech(c){
   if(rs != null) score += rs < 30 ? 1 : rs > 70 ? -1 : 0;
   if(mh != null) score += mh > 0 ? 1 : -1;
   const verdict = score >= 2 ? ["گرایش صعودی", COL.up] : score <= -2 ? ["گرایش نزولی", COL.down] : ["خنثی", COL.warn];
-  rrect(c, 1420, 190, 590, 130, 16, COL.card); T(c, "جمع‌بندی اندیکاتورها", 1990, 225, {s:30, c:COL.muted}); T(c, verdict[0], 1990, 280, {s:52, w:700, c:verdict[1]});
-  const k = [["شاخص قدرت نسبی", rs != null ? rs.toFixed(1) : "—", rs != null ? (rs > 70 ? COL.down : rs < 30 ? COL.up : COL.gold) : COL.gold], ["هیستوگرام MACD", mh != null ? fmtSigned(mh, 2) : "—", mh != null ? dirCol(mh) : COL.gold], ["میانگین ۲۰", fmt(a20, chart.dec), COL.blue], ["میانگین ۵۰", a50 != null ? fmt(a50, chart.dec) : "—", "#c77dff"]];
-  k.forEach(function(r, i){ const y = 340 + i * 138; rrect(c, 1420, y, 590, 124, 16, COL.card); T(c, r[0], 1990, y + 36, {s:30, c:COL.muted}); N(c, r[1], 1990, y + 90, {s:54, w:700, c:r[2], max:540}); });
-  T(c, "فقط محاسبه‌ی آماری روی کندل‌های نمایش‌داده‌شده؛ توصیه‌ی خرید یا فروش نیست.", 1000, 985, {s:28, c:COL.muted, a:"center"});
+  rrect(c, 1420, 190, 590, 120, 16, COL.card); T(c, "جمع‌بندی اندیکاتورها", 1990, 224, {s:28, c:COL.muted}); T(c, verdict[0], 1990, 274, {s:48, w:700, c:verdict[1]});
+  const k = [["شاخص قدرت نسبی", rs != null ? rs.toFixed(1) : "—", rs != null ? (rs > 70 ? COL.down : rs < 30 ? COL.up : COL.gold) : COL.gold],
+    ["هیستوگرام MACD", mh != null ? fmtSigned(mh, 2) : "—", mh != null ? dirCol(mh) : COL.gold],
+    ["میانگین ۲۰", fmt(a20, chart.dec), COL.blue], ["میانگین ۵۰", a50 != null ? fmt(a50, chart.dec) : "—", "#c77dff"],
+    ["بالاترین / پایین‌ترین", fmt(hi0, chart.dec) + " / " + fmt(lo0, chart.dec), COL.text]];
+  k.forEach(function(r, i){ const y = 330 + i * 124; rrect(c, 1420, y, 590, 112, 16, COL.card); T(c, r[0], 1990, y + 32, {s:28, c:COL.muted}); N(c, r[1], 1990, y + 82, {s:i === 4 ? 36 : 50, w:700, c:r[2], max:540}); });
+  T(c, "فقط محاسبه‌ی آماری روی کندل‌های نمایش‌داده‌شده؛ توصیه‌ی خرید یا فروش نیست.", 1000, 1000, {s:26, c:COL.muted, a:"center"});
 }
 
 function drawAbout(c){
-  chrome(c, "درباره‌ی میرزا", "منبع داده و توضیحات", COL.gold);
+  chrome(c, "درباره‌ی میرزا و وضعیت داده‌ها", "هر منبع چند مورد دریافت کرده و آخرین به‌روزرسانی کی بوده", COL.gold);
   const img = document.getElementById("logoImg");
-  try{ if(img && img.complete && img.naturalWidth) c.drawImage(img, 1620, 200, 340, 340); }catch(e){}
-  T(c, "هر اتفاق، یک اثر؛ هر اثر، یک تحلیل", 1560, 270, {s:52, w:700, a:"right", max:1400});
-  T(c, "هدف میرزا ارائه‌ی اطلاعات بازار به زبان ساده و قابل فهم است.", 1560, 350, {s:34, c:COL.muted, max:1400});
-  const src = [["قیمت‌ها و نمودارها", "Yahoo Finance · CoinGecko · gold-api.com"], ["بازار ایران", "tgju.org"], ["اقتصاد کشورها", "World Bank"], ["اخبار فارسی", "Google News · BBC · DW · Euronews"], ["سخنان مقامات", "Truth Social · Fed · White House"]];
-  src.forEach(function(r, i){
-    const y = 460 + i * 86; rrect(c, 60, y, 1940, 74, 14, COL.card);
-    T(c, r[0], 1970, y + 37, {s:36, w:700}); N(c, r[1], 80, y + 37, {s:32, c:COL.gold, a:"left", max:1100});
+  try{ if(img && img.complete && img.naturalWidth) c.drawImage(img, 1700, 190, 280, 280); }catch(e){}
+  T(c, "هر اتفاق، یک اثر؛ هر اثر، یک تحلیل", 1670, 250, {s:42, w:700, a:"right", max:900});
+  T(c, "هدف میرزا ارائه‌ی اطلاعات بازار", 1670, 310, {s:30, c:COL.muted, max:900});
+  T(c, "به زبان ساده و قابل فهم است.", 1670, 354, {s:30, c:COL.muted, max:900});
+  const stN = (function(){ let n = 0; Object.keys(st.cache || {}).forEach(function(k){ n += (st.cache[k].items || []).length; }); return n; })();
+  const okQ = MARKETS.filter(function(m){ return quoteState[m.id] === "ok"; }).length, anyQ = MARKETS.filter(function(m){ return quotes[m.id]; }).length;
+  const okS = MARKETS.filter(function(m){ return sparkOf(m.id); }).length;
+  const csOk = cs.rows.filter(function(r){ return r.latest; }).length;
+  const iranN = iran.cur ? IRAN_ROWS.filter(function(d){ return d.key && iran.cur[d.key]; }).length : 0;
+  const ago = function(t){ return t ? relTime(t) : "—"; };
+  const data = [
+    ["قیمت‌های جهانی", "Yahoo · gold-api · CoinGecko", anyQ, MARKETS.length, ago(quotesUpdatedAt), okQ + " زنده"],
+    ["نمودار ۳۰ روزه", "Yahoo · Stooq · frankfurter", okS, MARKETS.length, ago(sparksAt), ""],
+    ["بازار ایران", "tgju.org", iranN, IRAN_ROWS.filter(function(d){ return d.key; }).length, ago(iran.t), iran.stale ? "قدیمی" : iran.cur ? "زنده" : "ناموفق"],
+    ["رمزارزها", "CoinGecko", crypto_.list ? crypto_.list.length : 0, 10, ago(crypto_.t), ""],
+    ["اقتصاد کشورها", "World Bank", csOk, cs.codes.length, "", ""],
+    ["اخبار فارسی", "Google News · BBC · DW", news.items ? news.items.length : 0, 20, ago(news.t), ""],
+    ["سخنان مقامات", "Truth Social · Fed · White House", stN, 20, "", ""],
+    ["نمودار فنی", chart.source || "—", chart.rows.length, 100, ago(chart.loadedAt), ""]
+  ];
+  data.forEach(function(r, i){
+    r[3] = Math.max(r[3], r[2]);
+    const y = 480 + i * 62, ratio = clamp(r[2] / (r[3] || 1), 0, 1);
+    rrect(c, 40, y, 1968, 54, 12, i % 2 ? "#0f1520" : COL.card);
+    c.fillStyle = r[2] ? (ratio >= 0.7 ? COL.up : COL.warn) : COL.down; c.beginPath(); c.arc(1980, y + 27, 9, 0, 7); c.fill();
+    T(c, r[0], 1950, y + 27, {s:30, w:700, max:300});
+    N(c, r[1], 1640, y + 27, {s:23, c:COL.muted, max:240});
+    rrect(c, 1010, y + 18, 380, 18, 9, "#1c2430"); if(ratio > 0) rrect(c, 1010, y + 18, Math.max(12, 380 * ratio), 18, 9, ratio >= 0.7 ? COL.up : COL.warn);
+    N(c, r[2] + " / " + r[3], 990, y + 27, {s:28, w:700, c:COL.gold, a:"right", max:160});
+    if(r[4]) T(c, r[4], 790, y + 27, {s:23, c:COL.muted, max:300});
+    if(r[5]) T(c, r[5], 330, y + 27, {s:23, c:COL.muted, a:"right", max:250});
   });
-  T(c, "اطلاعات این تالار برای اطلاع‌رسانی است و توصیه‌ی سرمایه‌گذاری محسوب نمی‌شود.", 1000, 985, {s:30, c:COL.muted, a:"center"});
+  T(c, "اطلاعات این تالار برای اطلاع‌رسانی است و توصیه‌ی سرمایه‌گذاری محسوب نمی‌شود.", 1000, 1000, {s:26, c:COL.muted, a:"center"});
 }
 
 /* ---------- امضای داده‌ها برای تشخیص نیاز به نقاشی دوباره ---------- */
 function minuteKey(){ return Math.floor(Date.now() / 60000); }
 const SIG = {
-  welcome:function(){ const i = document.getElementById("logoImg"); return [i && i.complete && i.naturalWidth, fontsReady]; },
-  iran:function(){ return [iran.t, iran.stale, iran.failed, manualUsd, quotes.gold && quotes.gold.price, quotes.silver && quotes.silver.price, minuteKey()]; },
-  world:function(){ return [quotesUpdatedAt, minuteKey()]; },
-  crypto:function(){ return [crypto_.t, quotesUpdatedAt, minuteKey()]; },
+  welcome:function(){ const i = document.getElementById("logoImg"); return [i && i.complete && i.naturalWidth, fontsReady, quotesUpdatedAt, sparksAt]; },
+  iran:function(){ return [iran.t, iran.stale, iran.failed, manualUsd, quotes.gold && quotes.gold.price, quotes.silver && quotes.silver.price, iranHist.t.length, minuteKey()]; },
+  world:function(){ return [quotesUpdatedAt, sparksAt, minuteKey()]; },
+  crypto:function(){ return [crypto_.t, quotesUpdatedAt, sparksAt, minuteKey()]; },
   countries:function(){ return [cs.reqId, cs.ind, cs.codes.join(), cs.index, cs.base, cs.rows.map(function(r){ return r.latest && r.latest.value; }), cs.fc && cs.fc.model, minuteKey()]; },
   news:function(){ return [news.items && news.items.length, news.items && news.items[0] && news.items[0].title, news.shownTitle, minuteKey()]; },
-  statements:function(){ let n = 0, t = 0; Object.keys(st.cache || {}).forEach(function(k){ n += (st.cache[k].items || []).length; t = Math.max(t, st.cache[k].t); }); return [n, t, minuteKey()]; },
+  statements:function(){ let n = 0, t = 0; Object.keys(st.cache || {}).forEach(function(k){ n += (st.cache[k].items || []).length; t = Math.max(t, st.cache[k].t); }); return [n, t, Object.keys(intra).map(function(k){ return intra[k].t; }), minuteKey()]; },
   pulse:function(){ return [quotesUpdatedAt, minuteKey()]; },
   tech:function(){ const r = chart.rows; return [r.length, r.length && r[r.length - 1].c, chart.symbol, chart.period, chart.loadedAt, minuteKey()]; },
-  about:function(){ const i = document.getElementById("logoImg"); return [i && i.complete && i.naturalWidth, fontsReady]; }
+  about:function(){ const i = document.getElementById("logoImg"); return [i && i.complete && i.naturalWidth, fontsReady, quotesUpdatedAt, sparksAt, iran.t, crypto_.t, news.t, chart.loadedAt, cs.reqId, minuteKey()]; }
 };
 
 /* =========================================================
@@ -721,14 +1003,18 @@ function render(t){
   gl.uniform3f(U.uFog, 0.02, 0.03, 0.05);
   gl.uniform1f(U.uFogD, 0.011);
   gl.disable(gl.BLEND); gl.depthMask(true);
+  const fwd = [Math.sin(yaw), -Math.cos(yaw)], FOG = [0.02, 0.03, 0.05];
   /* ۱) بازتاب روی کف */
   meshes.forEach(function(m){ if(m.mat.reflect) drawMesh(m, true, t); });
+  if(crowdOn){ try{ MirzaCrowd.render(vp, eye, true, fwd, FOG, 0.011); }catch(e){ console.error(e); crowdOn = false; } gl.useProgram(prog); }
   /* ۲) کف نیمه‌شفاف */
   gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
   meshes.forEach(function(m){ if(m.mat.kind === "floor") drawMesh(m, false, t); });
   gl.disable(gl.BLEND);
+  if(crowdOn){ try{ MirzaCrowd.renderBlobs(vp, eye, fwd); }catch(e){ console.error(e); crowdOn = false; } gl.useProgram(prog); }
   /* ۳) اجسام مات */
   meshes.forEach(function(m){ if(m.mat.kind === "solid") drawMesh(m, false, t); });
+  if(crowdOn){ try{ MirzaCrowd.render(vp, eye, false, fwd, FOG, 0.011); }catch(e){ console.error(e); crowdOn = false; } gl.useProgram(prog); gl.disableVertexAttribArray(3); }
   /* ۴) درخشش‌ها (جمع‌شونده) */
   gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE); gl.depthMask(false);
   meshes.forEach(function(m){ if(m.mat.kind === "glow") drawMesh(m, false, t); });
@@ -748,6 +1034,7 @@ function collide(nx, nz){
       if(m === d1) nx = b[0] - r; else if(m === d2) nx = b[2] + r; else if(m === d3) nz = b[1] - r; else nz = b[3] + r;
     }
   }
+  if(crowdOn){ const q = MirzaCrowd.collidePlayer(nx, nz); nx = clamp(q[0], -HX + r, HX - r); nz = clamp(q[1], ZF + r, ZN - r); }
   return [nx, nz];
 }
 function inFrame(x, z){
@@ -995,6 +1282,7 @@ function frame(now){
   const dt = Math.min(0.05, (now - (lastT || now)) / 1000); lastT = now;
   clock += dt;
   update(dt, clock);
+  if(crowdOn){ try{ MirzaCrowd.update(dt, clock, pos); }catch(e){ console.error("[تالار] خطا در آدم‌ها:", e); crowdOn = false; } }
   render(clock);
   if(Math.floor(clock * 2) !== Math.floor((clock - dt) * 2)){ updateHud(); markChips(); }
   if(Math.floor(clock) !== Math.floor(clock - dt)) refreshBoards(false);
@@ -1018,6 +1306,16 @@ function supportsGL(){
   try{ const c = document.createElement("canvas"); return !!(c.getContext("webgl") || c.getContext("experimental-webgl")); }
   catch(e){ return false; }
 }
+function initCrowd(){
+  crowdOn = false;
+  try{
+    const size = typeof CROWD_SIZE === "number" ? CROWD_SIZE : 1;
+    if(!window.MirzaCrowd || size <= 0) return;
+    MirzaCrowd.init({gl:gl, boards:BOARD_DEFS, colliders:colliders, bounds:{HX:HX, ZN:ZN, ZF:ZF}, lowQ:lowQ,
+      size:size, scarf:typeof CROWD_WOMEN_SCARF === "number" ? CROWD_WOMEN_SCARF : 0.6});
+    crowdOn = true;
+  }catch(e){ console.error("[تالار] آدم‌ها ساخته نشدند:", e); crowdOn = false; }
+}
 function ensureInit(){
   if(inited) return true;
   try{
@@ -1026,6 +1324,7 @@ function ensureInit(){
     initGL();
     buildStaticTextures();
     buildScene();
+    initCrowd();
     buildStationChips();
     setupTouch();
     window.addEventListener("resize", function(){ if(opened) resize(); });
@@ -1102,6 +1401,6 @@ function init(){
 
 window.MirzaHall = {
   init:init, open:open, close:close, isOpen:function(){ return opened; },
-  _debug:{boards:boards, stations:stations, pos:pos, setView:function(x, z, y, p){ pos[0] = x; pos[2] = z; yaw = y || 0; pitch = p || 0; glide = null; }, goto:function(i){ startGlide(stations[i]); }, redraw:function(){ refreshBoards(true); }, tick:function(){ return glide ? "gliding" : "idle"; }}
+  _debug:{crowd:function(){ return window.MirzaCrowd && MirzaCrowd.stats ? MirzaCrowd.stats() : null; }, boards:boards, stations:stations, pos:pos, setView:function(x, z, y, p){ pos[0] = x; pos[2] = z; yaw = y || 0; pitch = p || 0; glide = null; }, goto:function(i){ startGlide(stations[i]); }, redraw:function(){ refreshBoards(true); }, tick:function(){ return glide ? "gliding" : "idle"; }}
 };
 })();

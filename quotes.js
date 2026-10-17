@@ -130,6 +130,7 @@ async function refreshQuotes(){
     }
   }
   await Promise.all([worker(), worker(), worker()]);
+  try{ applyCachedChanges(); }catch(e){}
   saveQuotes();
   quotesBusy = false;
   MARKETS.forEach(function(m){ if(quoteState[m.id] === "ok") quoteState[m.id] = "ok"; });

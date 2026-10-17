@@ -31,6 +31,12 @@ const MARKETS = [
 ];
 const FEATURED = ["gold","btc","eth","oil"];
 
+/* آدم‌های تالار سه‌بعدی
+   CROWD_SIZE: ۱ = معمولی، ۰٫۵ = کم‌جمعیت‌تر، ۱٫۵ = شلوغ‌تر، ۰ = بدون آدم
+   CROWD_WOMEN_SCARF: سهم خانم‌هایی که روسری دارند (۰ تا ۱)؛ مثلاً ۰٫۶ یعنی شصت درصد */
+const CROWD_SIZE = 1;
+const CROWD_WOMEN_SCARF = 0.6;
+
 /* بازه‌های زمانی نمودار */
 const PERIODS = {
   "1D":{range:"1d",  interval:"5m",  intLabel:"۵ دقیقه‌ای", intraday:true,  cg:1,   stooqDays:10},
