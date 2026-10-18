@@ -14,7 +14,7 @@ const PELVIS = 0, CHEST = 1, HEAD = 2, LUA = 3, LLA = 4, RUA = 5, RLA = 6, LUL =
 const PARENT = [-1, 0, 1, 1, 3, 1, 5, 0, 7, 0, 9];
 
 let gl = null, P = null, PB = null, U = {}, UB = {};
-let agents = [], api = null, ready = false, low = false;
+let agents = [], remList = [], all = [], remotes = {}, labelsEl = null, api = null, ready = false, low = false;
 let blobBuf = null, blobData = null;
 let rngState = 12345;
 function rnd(){ rngState = (rngState * 1664525 + 1013904223) >>> 0; return rngState / 4294967296; }
@@ -173,6 +173,23 @@ const T_VEST = ["#1c1a2e", "#2a1a1a", "#10242a"];
 const T_BLOUSE = ["#e0b13a", "#c43a3a", "#3a8ab0", "#e8e0cf"];
 const T_LSCARF = ["#d9c9a0", "#c43a3a", "#e0b13a", "#3a8ab0"];
 
+function applyTrad(sp, f, older){
+    sp.style = "trad"; sp.glasses = false; sp.covered = false;
+    sp.shoe = hex(pick(["#d8cfb8", "#3a2a20", "#2a1f16"]));
+    if(f){
+      if(sp.trad === "chador"){ sp.top = hex(pick(T_CHADOR)); sp.scarf = sp.top; }
+      else if(sp.trad === "floral"){ sp.top = hex(pick(T_FLORAL)); sp.scarf = sp.top; }
+      else{ sp.top = hex(pick(T_VEST)); sp.sleeve = hex(pick(T_BLOUSE)); sp.scarf = hex(pick(T_LSCARF)); sp.sk1 = hex(pick(T_SKIRT)); sp.sk2 = hex(pick(T_SKIRT)); sp.sk3 = hex(pick(T_SKIRT)); sp.trouser = sp.sk1; }
+    }else{
+      sp.beard = rnd() < 0.9; sp.hair = "short"; sp.hairCol = hex(older && rnd() < 0.7 ? "#9a9a9a" : pickW(HAIR_M));
+      sp.trouser = hex(pick(T_TROUS));
+      if(sp.trad === "qajar"){ sp.top = hex(pick(T_COAT)); sp.sash = hex(pick(T_SASH)); sp.hat = hex(pick(T_KOLAH)); }
+      else if(sp.trad === "bakhtiari"){ sp.top = hex("#2b241d"); sp.sash = hex("#d9c9a0"); sp.hat = hex(pick(T_FELT)); sp.trouser = hex("#2a2622"); }
+      else{ sp.top = hex(pick(T_COAT)); sp.sash = hex(pick(T_SASH)); sp.aba = hex(pick(T_ABA)); sp.sleeve = sp.aba; sp.hat = hex(pick(T_TURBAN)); }
+    }
+    sp.prop = "none";
+}
+
 function makeSpec(gender, scarfProb, tradProb){
   const f = gender === "f", older = rnd() < 0.22;
   const sp = {gender:gender, older:older};
@@ -201,20 +218,7 @@ function makeSpec(gender, scarfProb, tradProb){
   }
   if(tradProb > 0 && rnd() < tradProb){
     sp.trad = f ? pickW([["chador", 36], ["floral", 30], ["lori", 34]]) : pickW([["qajar", 40], ["bakhtiari", 28], ["bazaari", 32]]);
-    sp.style = "trad"; sp.glasses = false; sp.covered = false;
-    sp.shoe = hex(pick(["#d8cfb8", "#3a2a20", "#2a1f16"]));
-    if(f){
-      if(sp.trad === "chador"){ sp.top = hex(pick(T_CHADOR)); sp.scarf = sp.top; }
-      else if(sp.trad === "floral"){ sp.top = hex(pick(T_FLORAL)); sp.scarf = sp.top; }
-      else{ sp.top = hex(pick(T_VEST)); sp.sleeve = hex(pick(T_BLOUSE)); sp.scarf = hex(pick(T_LSCARF)); sp.sk1 = hex(pick(T_SKIRT)); sp.sk2 = hex(pick(T_SKIRT)); sp.sk3 = hex(pick(T_SKIRT)); sp.trouser = sp.sk1; }
-    }else{
-      sp.beard = rnd() < 0.9; sp.hair = "short"; sp.hairCol = hex(older && rnd() < 0.7 ? "#9a9a9a" : pickW(HAIR_M));
-      sp.trouser = hex(pick(T_TROUS));
-      if(sp.trad === "qajar"){ sp.top = hex(pick(T_COAT)); sp.sash = hex(pick(T_SASH)); sp.hat = hex(pick(T_KOLAH)); }
-      else if(sp.trad === "bakhtiari"){ sp.top = hex("#2b241d"); sp.sash = hex("#d9c9a0"); sp.hat = hex(pick(T_FELT)); sp.trouser = hex("#2a2622"); }
-      else{ sp.top = hex(pick(T_COAT)); sp.sash = hex(pick(T_SASH)); sp.aba = hex(pick(T_ABA)); sp.sleeve = sp.aba; sp.hat = hex(pick(T_TURBAN)); }
-    }
-    sp.prop = "none";
+    applyTrad(sp, f, older);
   }
   if(!sp.trad)
   sp.prop = pickW([["none", 38], ["tablet", 18], ["phone", 16], ["case", f ? 0 : 14], ["bag", f ? 24 : 4], ["papers", 10]]);
@@ -639,7 +643,8 @@ function init(opts){
   api.boards.forEach(function(d, bi){ for(let k = 0; k < per[bi]; k++) place(bi); });
   for(let k = 0; k < roamers; k++){ const bi = Math.floor(rnd() * api.boards.length); const a = place(bi); if(a){ a.stay = rr(1, 6); } }
   agents.forEach(function(a){ setPose(a, pickW(posesFor(a))); Object.keys(a.cur).forEach(function(k){ Object.assign(a.cur[k], a.target[k]); }); });
-  blobData = new Float32Array(agents.length * 6 * 5);
+  all = agents.slice();
+  blobData = new Float32Array((agents.length + 64) * 6 * 5);
   blobBuf = gl.createBuffer();
   ready = true;
 }
@@ -723,6 +728,7 @@ function update(dt, t, player){
     a.headPitch = ease(a.headPitch, a.walk > 0.5 ? 0.05 : (up - a.headDown * 0), Math.min(1, dt * 3));
     poseSkin(a, t);
   }
+  for(let i = 0; i < remList.length; i++) updateRemote(remList[i], dt, t);
 }
 
 function poseSkin(a, t){
@@ -796,8 +802,8 @@ function render(vp, eye, mirror, fwd, fog, fogD){
   gl.uniform1f(U.uFogD, fogD);
   gl.uniform1f(U.uMirror, mirror ? 1 : 0);
   const maxD = mirror ? 40 : 85;
-  for(let i = 0; i < agents.length; i++){
-    const a = agents[i];
+  for(let i = 0; i < all.length; i++){
+    const a = all[i];
     if(!visible(a, eye, fwd, maxD)) continue;
     bindAttrs(a);
     gl.uniformMatrix4fv(U.uB, false, a.bones);
@@ -805,12 +811,13 @@ function render(vp, eye, mirror, fwd, fog, fogD){
   }
   gl.disableVertexAttribArray(3);
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+  if(!mirror) placeLabels(vp, eye);
 }
 function renderBlobs(vp, eye, fwd){
   if(!ready) return;
   let n = 0;
-  for(let i = 0; i < agents.length; i++){
-    const a = agents[i];
+  for(let i = 0; i < all.length && n < (blobData.length / 30); i++){
+    const a = all[i];
     if(!visible(a, eye, fwd, 85)) continue;
     const r = 0.46, y = 0.03, x = a.x, z = a.z, o = n * 30;
     const v = [[x - r, y, z - r, 0, 0], [x + r, y, z - r, 1, 0], [x + r, y, z + r, 1, 1], [x - r, y, z - r, 0, 0], [x + r, y, z + r, 1, 1], [x - r, y, z + r, 0, 1]];
@@ -834,16 +841,122 @@ function renderBlobs(vp, eye, fwd){
 function collidePlayer(x, z){
   if(!ready) return [x, z];
   const R = 0.5 + 0.3;
-  for(let i = 0; i < agents.length; i++){
-    const a = agents[i], dx = x - a.x, dz = z - a.z, d = Math.hypot(dx, dz);
+  for(let i = 0; i < all.length; i++){
+    const a = all[i], dx = x - a.x, dz = z - a.z, d = Math.hypot(dx, dz);
     if(d < R){ const k = d > 1e-5 ? R / d : 1; x = d > 1e-5 ? a.x + dx * k : a.x + R; z = d > 1e-5 ? a.z + dz * k : a.z; }
   }
   return [x, z];
 }
 
+
+/* =========================================================
+   بازدیدکننده‌های آنلاین: هر نفر یک آدم با اسم بالای سر
+========================================================= */
+function hashStr(str){ let h = 2166136261; for(let i = 0; i < str.length; i++){ h = Math.imul(h ^ str.charCodeAt(i), 16777619) >>> 0; } return h || 1; }
+const AV_FEMALE = {f_blazer:1, f_manteau:1, f_scarf:1, t_chador:1, t_floral:1, t_lori:1};
+function specForAvatar(id, name){
+  const f = !!AV_FEMALE[id];
+  const sp = makeSpec(f ? "f" : "m", 0, 0);
+  sp.trad = null;
+  if(id.indexOf("t_") === 0){ sp.trad = id.slice(2); applyTrad(sp, f, false); }
+  else if(id === "m_suit"){ sp.style = "suit"; sp.top = hex(pick(SUIT)); }
+  else if(id === "m_casual"){ sp.style = "casual"; sp.top = hex(pick(CASUAL)); }
+  else if(id === "f_blazer"){ sp.covered = false; sp.style = "blazerSkirt"; sp.top = hex(pick(BLAZER)); }
+  else if(id === "f_manteau"){ sp.covered = false; sp.style = "manteau"; sp.top = hex(pick(MANTEAU)); }
+  else if(id === "f_scarf"){ sp.covered = true; sp.style = "manteau"; sp.top = hex(pick(MANTEAU)); }
+  sp.prop = "none";
+  return sp;
+}
+function makeRemote(p){
+  const saved = rngState; rngState = hashStr(String(p.name));
+  let a = null;
+  try{
+    const spec = specForAvatar(String(p.avatar), String(p.name)), built = buildPerson(spec);
+    a = {spec:spec, remote:true, name:String(p.name), avId:p.avatar, board:0, x:p.x, z:p.z, yaw:p.yaw || 0, tx:p.x, tz:p.z, tyaw:p.yaw || 0, tmv:false, vx:0, vz:0, speed:0, walk:0,
+      phase:rnd() * 6.28, state:"stand", target:{L:ARM.idle.L, R:ARM.idle.R}, cur:{L:Object.assign({}, ARM.idle.L), R:Object.assign({}, ARM.idle.R)},
+      poseT:rr(3, 8), headYaw:0, headTarget:0, glanceT:rr(2, 6), headPitch:0, headDown:0, breath:rnd() * 6.28, bones:null, views:null};
+    upload(a, built);
+    a.bones = new Float32Array(NB * 16); a.views = []; for(let q = 0; q < NB; q++) a.views.push(new Float32Array(a.bones.buffer, q * 64, 16));
+    a.piv = built.piv; a.label = null;
+    setPose(a, "idle");
+  }finally{ rngState = saved; }
+  return a;
+}
+function freeRemote(a){
+  try{ gl.deleteBuffer(a.vbo); gl.deleteBuffer(a.ibo); }catch(e){}
+  if(a.label && a.label.parentNode) a.label.parentNode.removeChild(a.label);
+}
+function ensureLabels(){
+  if(labelsEl && labelsEl.isConnected) return labelsEl;
+  const host = gl.canvas.parentElement; if(!host) return null;
+  labelsEl = document.createElement("div"); labelsEl.className = "hall-names"; host.appendChild(labelsEl);
+  return labelsEl;
+}
+function setRemotes(list){
+  if(!ready) return;
+  list = Array.isArray(list) ? list.slice(0, 48) : [];
+  const seen = {};
+  list.forEach(function(p){
+    if(!p || typeof p.name !== "string" || typeof p.x !== "number" || typeof p.z !== "number") return;
+    const k = p.name; seen[k] = true;
+    let a = remotes[k];
+    if(a && a.avId !== p.avatar){ freeRemote(a); delete remotes[k]; a = null; }
+    if(!a){
+      try{ a = makeRemote(p); }catch(e){ console.error("[تالار] ساخت آدم آنلاین ناموفق بود:", e); return; }
+      remotes[k] = a;
+      const host = ensureLabels();
+      if(host){ a.label = document.createElement("div"); a.label.className = "hall-name"; a.label.textContent = a.name; host.appendChild(a.label); }
+    }
+    a.tx = p.x; a.tz = p.z; a.tyaw = typeof p.yaw === "number" ? p.yaw : a.tyaw; a.tmv = !!p.mv;
+  });
+  Object.keys(remotes).forEach(function(k){ if(!seen[k]){ freeRemote(remotes[k]); delete remotes[k]; } });
+  remList = Object.keys(remotes).map(function(k){ return remotes[k]; });
+  all = agents.concat(remList);
+}
+function clearRemotes(){ Object.keys(remotes).forEach(function(k){ freeRemote(remotes[k]); }); remotes = {}; remList = []; all = agents.slice(); }
+function updateRemote(a, dt, t){
+  const dx = a.tx - a.x, dz = a.tz - a.z, d = Math.hypot(dx, dz);
+  if(d > 8){ a.x = a.tx; a.z = a.tz; }
+  else{
+    const k = Math.min(1, dt * 3);
+    a.x += dx * k; a.z += dz * k;
+  }
+  const mv = Math.hypot(a.tx - a.x, a.tz - a.z) * 3;
+  a.speed = ease(a.speed, a.tmv || d > 0.25 ? clamp(mv, 0, 1.7) : 0, Math.min(1, dt * 5));
+  a.yaw += wrapA(a.tyaw - a.yaw) * Math.min(1, dt * 5);
+  a.walk = clamp((a.speed - 0.15) / 0.6, 0, 1);
+  a.phase += dt * (Math.PI * 2 * Math.max(a.speed, 0.3) / 1.45);
+  a.poseT -= dt;
+  if(a.poseT <= 0){ setPose(a, pickW([["idle", 4], ["clasp", 1], ["pocket", 1]])); a.poseT = rr(6, 16); }
+  const kk = Math.min(1, dt * 3.5);
+  ["L", "R"].forEach(function(s){ const c = a.cur[s], g = a.target[s]; c.p = ease(c.p, g.p, kk); c.a = ease(c.a, g.a, kk); c.f = ease(c.f, g.f, kk); c.y = ease(c.y, g.y, kk); });
+  a.glanceT -= dt;
+  if(a.glanceT <= 0){ a.glanceT = rr(2.5, 8); a.headTarget = rr(-0.35, 0.35); }
+  a.headYaw = ease(a.headYaw, a.headTarget, Math.min(1, dt * 3));
+  poseSkin(a, t);
+}
+function placeLabels(vp, eye){
+  if(!remList.length || !labelsEl) return;
+  const W = labelsEl.clientWidth, H = labelsEl.clientHeight;
+  if(!W || !H) return;
+  for(let i = 0; i < remList.length; i++){
+    const a = remList[i], el = a.label; if(!el) continue;
+    const x = a.x, y = a.spec.sc * 1.98 + 0.08, z = a.z;
+    const cx = vp[0] * x + vp[4] * y + vp[8] * z + vp[12], cy = vp[1] * x + vp[5] * y + vp[9] * z + vp[13], cw = vp[3] * x + vp[7] * y + vp[11] * z + vp[15];
+    const dist = Math.hypot(x - eye[0], z - eye[2]);
+    if(cw < 0.2 || dist > 45){ el.style.display = "none"; continue; }
+    const nx = cx / cw, ny = cy / cw;
+    if(Math.abs(nx) > 1.1 || Math.abs(ny) > 1.1){ el.style.display = "none"; continue; }
+    el.style.display = "block";
+    el.style.transform = "translate(" + ((nx * 0.5 + 0.5) * W).toFixed(1) + "px," + ((0.5 - ny * 0.5) * H).toFixed(1) + "px) translate(-50%,-100%)";
+    el.style.opacity = String(clamp(1.25 - dist / 48, 0.3, 1).toFixed(2));
+  }
+}
+
 window.MirzaCrowd = {
-  init:init, update:update, render:render, renderBlobs:renderBlobs, collidePlayer:collidePlayer,
+  init:init, update:update, render:render, setRemotes:setRemotes, clearRemotes:clearRemotes, renderBlobs:renderBlobs, collidePlayer:collidePlayer,
   isReady:function(){ return ready; },
+  remoteNames:function(){ return Object.keys(remotes); },
   stats:function(){ let v = 0, f = 0, m = 0, walk = 0; agents.forEach(function(a){ v += a.verts; if(a.spec.gender === "f") f++; else m++; if(a.state === "walk") walk++; }); return {people:agents.length, women:f, men:m, walking:walk, vertices:v}; },
   _agents:function(){ return agents; }
 };

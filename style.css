@@ -277,3 +277,39 @@ body.hall-open{overflow:hidden}
   /* در موبایل جای هدر کم است؛ دکمه‌ی ورود به تالار شناور و ثابت پایین صفحه می‌ماند */
   .hall-open-btn{position:fixed;bottom:84px;left:14px;margin:0;z-index:60;box-shadow:0 4px 18px rgba(0,0,0,.55)}
 }
+
+/* ---------- ورود و ثبت‌نام ---------- */
+.auth{position:fixed;inset:0;z-index:3500;display:flex;align-items:center;justify-content:center;padding:14px;background:rgba(4,6,10,.78);backdrop-filter:blur(4px);overflow:auto}
+.auth[hidden]{display:none}
+.auth-card{position:relative;width:100%;max-width:470px;max-height:100%;overflow:auto;background:linear-gradient(180deg,#141a24,#0f131a);border:1px solid #39332a;border-radius:18px;padding:24px 20px 18px;box-shadow:0 24px 90px rgba(0,0,0,.7)}
+.auth-x{position:absolute;top:10px;left:10px;width:32px;height:32px;border-radius:50%;border:1px solid #2b3240;background:#181d27;color:#aab2bf;font-size:14px}
+.auth-x:hover{color:var(--gold)}
+.auth-h{font-size:21px;color:var(--gold);text-align:center;margin-bottom:2px}
+.auth-sub{color:#aeb6c2;font-size:12.5px;text-align:center;margin-bottom:12px}
+.auth-tabs{display:flex;gap:6px;background:#0b0e14;border:1px solid #232a35;border-radius:11px;padding:4px;margin-bottom:12px}
+.auth-tab{flex:1;height:34px;border:0;border-radius:8px;background:transparent;color:#aab2bf;font-size:13px;font-weight:700}
+.auth-tab.on{background:var(--gold);color:#111}
+.auth-msg{display:none;border-radius:9px;padding:8px 11px;font-size:12.5px;margin-bottom:10px;line-height:1.9}
+.auth-msg.show{display:block}
+.auth-msg.err{background:#2a1416;color:#ff9c98;border:1px solid #5a2a2c}
+.auth-msg.ok{background:#102418;color:#8be3ae;border:1px solid #24553a}
+.auth-form{display:flex;flex-direction:column;gap:10px}
+.auth-f{display:flex;flex-direction:column;gap:4px}
+.auth-f span{font-size:12px;color:#c3c9d3}
+.auth-f input{height:42px;border-radius:9px;border:1px solid #2d3542;background:#0b0e14;color:#f3f3f3;padding:0 12px;font-size:14px;outline:0;width:100%}
+.auth-f input:focus{border-color:var(--gold)}
+.auth-lab{font-size:12px;color:#c3c9d3;margin-top:2px}
+.auth-avs{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.auth-av{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:10px;border:1px solid #2d3542;background:#0b0e14;color:#d6dbe3;font-size:12px;text-align:right}
+.auth-av .ic{font-size:21px;line-height:1}
+.auth-av.on{border-color:var(--gold);background:#1d1a12;color:#fff;box-shadow:0 0 0 1px var(--gold) inset}
+.auth-go{width:100%;margin-top:4px;height:44px;font-size:15px}
+.auth-go[disabled]{opacity:.6}
+.auth-note{font-size:11.5px;color:#8f98a6;text-align:center;line-height:1.9}
+body.auth-open{overflow:hidden}
+
+/* ---------- اسم بالای سر آدم‌های آنلاین و نوار کاربر ---------- */
+.hall-names{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:2}
+.hall-name{position:absolute;left:0;top:0;white-space:nowrap;padding:1px 9px;border-radius:999px;background:rgba(10,12,18,.78);border:1px solid rgba(231,196,97,.7);color:#f1d98a;font-size:12px;font-weight:700;display:none;will-change:transform}
+.hall-user{display:flex;gap:6px;align-items:center;pointer-events:auto;background:rgba(10,12,18,.7);border:1px solid #39332a;border-radius:999px;padding:2px 4px 2px 10px}
+.hall-user-n{font-size:12px;color:var(--gold);font-weight:700}

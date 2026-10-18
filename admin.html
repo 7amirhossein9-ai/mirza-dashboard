@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>پنل مدیریت میرزا</title>
+<link rel="stylesheet" href="style.css">
+<style>
+body{padding:18px;max-width:1100px;margin:0 auto}
+h1{color:var(--gold);font-size:22px;margin-bottom:10px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.bar input{height:38px;border-radius:8px;border:1px solid #2d3542;background:#0b0e14;color:#fff;padding:0 10px;min-width:200px;flex:1}
+.stat{color:#aeb6c2;font-size:13px}
+table{width:100%;border-collapse:collapse;background:#10141b;border:1px solid #252b35;border-radius:12px;overflow:hidden;font-size:13px}
+th,td{padding:8px 10px;border-bottom:1px solid #1e2430;text-align:right;vertical-align:middle}
+th{background:#151a23;color:var(--gold);font-weight:700;white-space:nowrap}
+td.ltr-c{direction:ltr;text-align:left;font-family:monospace}
+.tag{display:inline-block;padding:1px 9px;border-radius:999px;font-size:11.5px}
+.tag.pending{background:#33290f;color:#f0c25a}.tag.active{background:#10301d;color:#6fe0a0}.tag.on{background:#0f2a33;color:#6fd0f0}
+.code{font-family:monospace;font-size:15px;color:var(--gold);letter-spacing:2px;direction:ltr;display:inline-block}
+.row-actions{display:flex;gap:5px;flex-wrap:wrap}
+.msg{margin:8px 0;color:#8be3ae;font-size:13px;min-height:20px}
+.msg.err{color:#ff9c98}
+.wrap{overflow-x:auto}
+</style>
+</head>
+<body>
+<h1>پنل مدیریت میرزا</h1>
+<div class="bar">
+  <input id="key" type="password" dir="ltr" placeholder="کلید مدیر (ADMIN_KEY)" autocomplete="off">
+  <button class="btn" id="load" type="button">ورود و نمایش لیست</button>
+  <button class="btn secondary" id="csv" type="button">دانلود لیست ایمیل‌ها (CSV)</button>
+</div>
+<div class="msg" id="msg"></div>
+<div class="bar"><input id="q" placeholder="جست‌وجو در ایمیل و نام…"><span class="stat" id="stat"></span></div>
+<div class="wrap"><table>
+<thead><tr><th>ایمیل</th><th>نام کاربری</th><th>آدمک</th><th>وضعیت</th><th>ثبت‌نام</th><th>کد فعال‌سازی</th><th>عملیات</th></tr></thead>
+<tbody id="rows"></tbody>
+</table></div>
+<script src="config.js"></script>
+<script>
+"use strict";
+const API = (typeof API_BASE === "string" ? API_BASE : "").replace(/\/+$/, "");
+const $ = function(i){ return document.getElementById(i); };
+let users = [], timer = null;
+function getKey(){ return $("key").value.trim(); }
+function say(t, err){ const m = $("msg"); m.textContent = t || ""; m.className = "msg" + (err ? " err" : ""); }
+async function call(path, body){
+  if(!API){ say("API_BASE در config.js خالی است.", true); return null; }
+  try{
+    const r = await fetch(API + path, {method:body ? "POST" : "GET", headers:{"content-type":"application/json", "x-admin-key":getKey()}, body:body ? JSON.stringify(body) : undefined});
+    const j = await r.json();
+    if(!j.ok){ say(j.error || "خطا", true); return null; }
+    return j;
+  }catch(e){ say("ارتباط با سرور برقرار نشد.", true); return null; }
+}
+function fmt(t){ if(!t) return "—"; try{ return new Date(t).toLocaleString("fa-IR"); }catch(e){ return String(t); } }
+function txt(tag, text, cls){ const e = document.createElement(tag); if(cls) e.className = cls; e.textContent = text; return e; }
+function msgFor(u, code){ return "سلام " + u.name + "، کد فعال‌سازی شما در سایت میرزا: " + code + "\nبرای ورود: mirzainfo.ir ← ورود به تالار ← تب «کد فعال‌سازی» ← ایمیل، رمز و این کد را وارد کنید."; }
+async function copy(t){ try{ await navigator.clipboard.writeText(t); say("کپی شد."); }catch(e){ prompt("این متن را کپی کنید:", t); } }
+function render(){
+  const q = $("q").value.trim().toLowerCase(), now = Date.now();
+  const list = users.filter(function(u){ return !q || u.email.toLowerCase().indexOf(q) >= 0 || u.name.toLowerCase().indexOf(q) >= 0; });
+  const tb = $("rows"); tb.textContent = "";
+  list.forEach(function(u){
+    const tr = document.createElement("tr");
+    tr.appendChild(txt("td", u.email, "ltr-c"));
+    tr.appendChild(txt("td", u.name));
+    tr.appendChild(txt("td", u.avatar, "ltr-c"));
+    const st = document.createElement("td");
+    st.appendChild(txt("span", u.status === "active" ? "فعال" : "منتظر کد", "tag " + u.status));
+    if(u.seen && now - u.seen < 25000){ st.appendChild(document.createTextNode(" ")); st.appendChild(txt("span", "آنلاین", "tag on")); }
+    tr.appendChild(st);
+    tr.appendChild(txt("td", fmt(u.created_at)));
+    const ct = document.createElement("td");
+    if(u.code && u.code_exp > now) ct.appendChild(txt("span", u.code, "code")); else ct.textContent = u.status === "active" ? "—" : "ندارد";
+    tr.appendChild(ct);
+    const ac = document.createElement("td"), box = document.createElement("div"); box.className = "row-actions";
+    if(u.status !== "active"){
+      const b1 = txt("button", u.code && u.code_exp > now ? "کد تازه" : "ساخت کد", "btn small"); b1.type = "button";
+      b1.onclick = async function(){ const r = await call("/admin/code", {id:u.id}); if(r){ say("کد " + u.email + ": " + r.code); await load(); copy(msgFor(u, r.code)); } };
+      box.appendChild(b1);
+      if(u.code && u.code_exp > now){ const b2 = txt("button", "کپی پیام", "btn small secondary"); b2.type = "button"; b2.onclick = function(){ copy(msgFor(u, u.code)); }; box.appendChild(b2); }
+      const b3 = txt("button", "فعال‌سازی مستقیم", "btn small secondary"); b3.type = "button";
+      b3.onclick = async function(){ if(confirm("بدون کد فعال شود؟")){ if(await call("/admin/activate", {id:u.id})) load(); } };
+      box.appendChild(b3);
+    }
+    const b4 = txt("button", "حذف", "btn small secondary"); b4.type = "button";
+    b4.onclick = async function(){ if(confirm("حساب " + u.email + " حذف شود؟")){ if(await call("/admin/delete", {id:u.id})) load(); } };
+    box.appendChild(b4);
+    ac.appendChild(box); tr.appendChild(ac); tb.appendChild(tr);
+  });
+  const on = users.filter(function(u){ return u.seen && now - u.seen < 25000; }).length;
+  $("stat").textContent = users.length + " کاربر؛ " + users.filter(function(u){ return u.status !== "active"; }).length + " منتظر کد؛ " + on + " آنلاین";
+}
+async function load(){
+  const r = await call("/admin/users"); if(!r) return;
+  users = r.users; say(""); render();
+  try{ sessionStorage.setItem("mirza_admin", getKey()); }catch(e){}
+  clearInterval(timer); timer = setInterval(function(){ if(!document.hidden) load(); }, 15000);
+}
+function csvCell(v){ v = String(v == null ? "" : v); if(/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; }
+$("load").onclick = load;
+$("key").addEventListener("keydown", function(e){ if(e.key === "Enter") load(); });
+$("q").addEventListener("input", render);
+$("csv").onclick = function(){
+  if(!users.length){ say("اول لیست را بارگذاری کنید.", true); return; }
+  const head = ["email", "name", "status", "avatar", "created_at", "last_login"];
+  const lines = [head.join(",")].concat(users.map(function(u){ return [u.email, u.name, u.status, u.avatar, new Date(u.created_at).toISOString(), u.last_login ? new Date(u.last_login).toISOString() : ""].map(csvCell).join(","); }));
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob(["﻿" + lines.join("\n")], {type:"text/csv;charset=utf-8"})); a.download = "mirza-users.csv"; a.click();
+};
+try{ const k = sessionStorage.getItem("mirza_admin"); if(k){ $("key").value = k; load(); } }catch(e){}
+</script>
+</body>
+</html>

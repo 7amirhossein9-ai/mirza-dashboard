@@ -39,6 +39,14 @@ const CROWD_WOMEN_SCARF = 0.6;
 /* CROWD_TRADITIONAL: سهم شخصیت‌های سنتی ایرانی (قبا و کلاه، لباس بختیاری و لری، چادر)؛ ۰ = هیچ، ۰٫۳ = حدود سی درصد */
 const CROWD_TRADITIONAL = 0.3;
 
+/* ثبت‌نام و ورود به تالار (فایل auth.js و server/auth-worker.js)
+   API_BASE: آدرس سرور ثبت‌نام. خالی = بدون ثبت‌نام (تالار برای همه باز است).
+     نمونه با مسیر روی دامنه‌ی خودتان:  "https://mirzainfo.ir/api"
+     نمونه با آدرس Worker:             "https://mirza-auth.NAME.workers.dev"
+   ADMIN_CONTACT: راه تماس برای گرفتن کد فعال‌سازی (در پنجره‌ی ثبت‌نام نشان داده می‌شود) */
+const API_BASE = "";
+const ADMIN_CONTACT = "";
+
 /* بازه‌های زمانی نمودار */
 const PERIODS = {
   "1D":{range:"1d",  interval:"5m",  intLabel:"۵ دقیقه‌ای", intraday:true,  cg:1,   stooqDays:10},

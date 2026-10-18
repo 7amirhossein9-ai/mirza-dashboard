@@ -1358,6 +1358,7 @@ function ensureInit(){
   }
 }
 function open(){
+  if(window.MirzaAuth && MirzaAuth.enabled && !MirzaAuth.isIn()){ MirzaAuth.need(function(){ open(); }); return; }
   const hall = $h("hall"); hall.hidden = false;
   document.body.classList.add("hall-open");
   const intro = $h("intro"); if(intro) intro.hidden = true;
@@ -1375,8 +1376,10 @@ function open(){
   const hint = $h("hallHint"); if(hint){ hint.classList.remove("fade"); clearTimeout(open._hint); open._hint = setTimeout(function(){ hint.classList.add("fade"); }, 12000); }
   const rs = $h("hallResume"); if(rs) rs.hidden = true;
   try{ if(canvas.requestPointerLock && !("ontouchstart" in window)) canvas.requestPointerLock(); }catch(e){}
+  try{ if(window.MirzaAuth && MirzaAuth.enabled){ MirzaAuth.mountChip(); MirzaAuth.online.start(); } }catch(e){}
 }
 function close(){
+  try{ if(window.MirzaAuth && MirzaAuth.online) MirzaAuth.online.stop(); }catch(e){}
   opened = false; cancelAnimationFrame(raf); stopTour();
   try{ if(document.exitPointerLock) document.exitPointerLock(); }catch(e){}
   Object.keys(keys).forEach(function(k){ keys[k] = false; });
@@ -1402,6 +1405,7 @@ function init(){
 
 window.MirzaHall = {
   init:init, open:open, close:close, isOpen:function(){ return opened; },
+  getPose:function(){ return {x:pos[0], z:pos[2], yaw:Math.PI - yaw}; },
   _debug:{crowd:function(){ return window.MirzaCrowd && MirzaCrowd.stats ? MirzaCrowd.stats() : null; }, boards:boards, stations:stations, pos:pos, setView:function(x, z, y, p){ pos[0] = x; pos[2] = z; yaw = y || 0; pitch = p || 0; glide = null; }, goto:function(i){ startGlide(stations[i]); }, redraw:function(){ refreshBoards(true); }, tick:function(){ return glide ? "gliding" : "idle"; }}
 };
 })();
